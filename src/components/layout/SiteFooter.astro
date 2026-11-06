@@ -1,0 +1,174 @@
+---
+import Logo from '../ui/Logo.astro';
+import { services, site } from '../../lib/site';
+
+const elsewhere = [
+  { label: 'LinkedIn', href: site.social.linkedin },
+  { label: 'X', href: site.social.x },
+  { label: 'Instagram', href: site.social.instagram },
+].filter((l): l is { label: string; href: string } => Boolean(l.href));
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container-site">
+    <div class="footer-top grid-site">
+      <div class="footer-intro">
+        <a href="/" aria-label="IsmailApps, home" class="footer-logo"><Logo size="1.5rem" /></a>
+        <p class="footer-blurb">
+          A software product studio. We build SaaS and AI products for founders, and we run our own.
+        </p>
+      </div>
+
+      <nav class="footer-col footer-services" aria-labelledby="footer-services">
+        <h2 id="footer-services" class="t-label">Services</h2>
+        <ul>
+          {services.map((s) => <li><a href={`/services/${s.slug}`}>{s.title}</a></li>)}
+        </ul>
+      </nav>
+
+      <nav class="footer-col footer-studio" aria-labelledby="footer-studio">
+        <h2 id="footer-studio" class="t-label">Studio</h2>
+        <ul>
+          <li><a href="/work">Work</a></li>
+          <li><a href="/products">Products</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/contact">Start a project</a></li>
+        </ul>
+      </nav>
+
+      <nav class="footer-col footer-elsewhere" aria-labelledby="footer-elsewhere">
+        <h2 id="footer-elsewhere" class="t-label">Elsewhere</h2>
+        <ul>
+          {
+            elsewhere.map((l) => (
+              <li>
+                <a href={l.href} rel="me noopener">
+                  {l.label}
+                </a>
+              </li>
+            ))
+          }
+          <li>
+            <a
+              href={site.products.hamstalk}
+              rel="noopener"
+              data-umami-event="outbound_hamstalk"
+              data-umami-event-location="footer">Hamstalk <span aria-hidden="true">↗</span></a
+            >
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="footer-bottom">
+      <a href={`mailto:${site.email}`} class="t-mono footer-email">{site.email}</a>
+      <ul class="footer-legal t-mono">
+        <li><a href="/privacy">Privacy</a></li>
+        <li><a href="/imprint">Imprint</a></li>
+        <li><span>© {year} IsmailApps</span></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--color-rule);
+    padding-block: clamp(3.5rem, 7vw, 5.5rem) 2rem;
+    font-size: 0.9375rem;
+  }
+  .footer-top {
+    row-gap: 2.5rem;
+  }
+  .footer-intro {
+    grid-column: 1 / -1;
+  }
+  .footer-logo {
+    display: inline-flex;
+    text-decoration: none;
+  }
+  .footer-blurb {
+    margin-top: 1rem;
+    max-width: 30ch;
+    color: var(--color-ink-muted);
+  }
+  .footer-col {
+    grid-column: span 2;
+  }
+  .footer-services {
+    grid-column: 1 / -1;
+  }
+  .footer-col h2 {
+    margin: 0 0 0.9rem;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+  .footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.15rem;
+  }
+  .footer-col a {
+    display: inline-block;
+    padding-block: 0.3rem;
+    text-decoration: none;
+  }
+  .footer-col a:hover,
+  .footer-legal a:hover,
+  .footer-email:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem 2rem;
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-rule);
+    color: var(--color-ink-muted);
+  }
+  .footer-email {
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .footer-legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .footer-legal a {
+    text-decoration: none;
+    display: inline-block;
+    padding-block: 0.25rem;
+  }
+
+  @media (width >= 40rem) {
+    .footer-services {
+      grid-column: span 4;
+    }
+  }
+  @media (width >= 56.25rem) {
+    .footer-intro {
+      grid-column: 1 / span 4;
+    }
+    .footer-services {
+      grid-column: 6 / span 3;
+    }
+    .footer-studio {
+      grid-column: 9 / span 2;
+    }
+    .footer-elsewhere {
+      grid-column: 11 / span 2;
+    }
+  }
+</style>

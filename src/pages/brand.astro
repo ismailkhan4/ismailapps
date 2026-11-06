@@ -1,0 +1,653 @@
+---
+/**
+ * INTERNAL brand-system review page (Milestone 1). Not linked, not indexed,
+ * excluded from the sitemap, and removed before the production launch.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Logo from '../components/ui/Logo.astro';
+import Tag from '../components/ui/Tag.astro';
+import VersionTag from '../components/ui/VersionTag.astro';
+import Button from '../components/ui/Button.astro';
+import TextLink from '../components/ui/TextLink.astro';
+import AnnotatedFrame from '../components/ui/AnnotatedFrame.astro';
+import Hero from '../components/sections/Hero.astro';
+import { contrastRatio } from '../lib/contrast';
+
+const palette = [
+  { token: 'paper', hex: '#F5F2EA', use: 'Page background' },
+  { token: 'surface', hex: '#FBF9F4', use: 'Raised panels, frames' },
+  { token: 'ink', hex: '#17150F', use: 'Text and headings' },
+  { token: 'ink-muted', hex: '#5E584D', use: 'Secondary text, annotations, form borders' },
+  { token: 'rule', hex: '#D9D3C5', use: 'Dividers only (decorative)' },
+  { token: 'signal', hex: '#E2481B', use: 'Large type, dots, keylines — not small text' },
+  { token: 'signal-ink', hex: '#B8360C', use: 'Primary button fill, accent links' },
+  { token: 'live', hex: '#1E7046', use: '“● Live” status only' },
+].map((c) => ({
+  ...c,
+  onPaper: contrastRatio(c.hex, '#F5F2EA'),
+  dark: ['ink', 'ink-muted', 'signal', 'signal-ink', 'live'].includes(c.token),
+}));
+
+const rating = (r: number) => (r >= 7 ? 'AAA' : r >= 4.5 ? 'AA' : r >= 3 ? 'AA large / graphics' : 'decorative only');
+
+---
+
+<BaseLayout title="Brand system" description="Internal brand-system reference page." noindex>
+  <div class="container-site brand-intro">
+    <p class="t-label">internal · not part of the public site</p>
+    <h1 class="t-h1">Brand system</h1>
+    <p class="t-lead measure">
+      The approved “Production notes” system: logo, type, colour, tags, buttons and frames. Use this page as the
+      reference when building new sections.
+    </p>
+    <nav aria-label="Sections on this page" class="brand-toc t-mono">
+      <a href="#logo">01 logo</a>
+      <a href="#type">02 type</a>
+      <a href="#colour">03 colour</a>
+      <a href="#tags">04 tags</a>
+      <a href="#buttons">05 buttons</a>
+      <a href="#frames">06 frames</a>
+      <a href="#social">07 social</a>
+      <a href="#grid">08 grid</a>
+      <a href="#hero">09 hero</a>
+    </nav>
+  </div>
+
+  <!-- 01 LOGO -->
+  <section id="logo" class="section brand-section">
+    <div class="container-site">
+      <header class="brand-head">
+        <p class="t-label">01</p>
+        <h2 class="t-h2">Logo: Tittle</h2>
+        <p class="measure brand-sub">
+          The dot on the i in “Ismail” is a small square in signal orange: the same status pixel used across the site. The
+          compact mark is that i on its own (favicon, avatars).
+        </p>
+      </header>
+      <div class="logo-boards">
+        <div class="board board-paper"><Logo size="clamp(2rem, 5vw, 3.5rem)" /></div>
+        <div class="board board-ink"><Logo size="clamp(2rem, 5vw, 3.5rem)" tone="paper" /></div>
+        <div class="board board-marks">
+          {
+            [64, 32, 16].map((px) => (
+              <figure class="mark-sample">
+                <img src="/favicon.svg" width={px} height={px} alt="" />
+                <figcaption class="t-label">{px}px</figcaption>
+              </figure>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 TYPE -->
+  <section id="type" class="section brand-section">
+    <div class="container-site">
+      <header class="brand-head">
+        <p class="t-label">02</p>
+        <h2 class="t-h2">Type: Schibsted Grotesk + IBM Plex Mono</h2>
+        <p class="measure brand-sub">
+          Grotesk for headings and body; mono only for tags, annotations, labels and metadata.
+        </p>
+      </header>
+      <article class="specimen">
+        <p class="spec-label t-label">display · 600</p>
+        <p class="t-display spec-display">Built to hold up after the demo.</p>
+        <p class="spec-label t-label">h2 · h3</p>
+        <p class="t-h2 spec-h">What we build</p>
+        <p class="t-h3 spec-h">Prototype to production</p>
+        <p class="spec-label t-label">lead</p>
+        <p class="t-lead">Built it with AI tools, no-code or a freelancer? We make it production-ready.</p>
+        <p class="spec-label t-label">body · 17–18px</p>
+        <div class="spec-body">
+          <p>
+            Getting to a demo is easy now. Getting to software that holds up with real users, real data and real payments
+            is the hard part. We start from scratch, or from what you already built: we read the code, keep what works, and
+            harden or rebuild the parts that won't hold.
+          </p>
+          <p>
+            Auth, billing, migrations, background jobs, deployment and monitoring are where prototypes usually give way.
+            Those are the parts we plan first.
+          </p>
+        </div>
+        <p class="spec-label t-label">annotations · numerals</p>
+        <p class="t-mono spec-mono">v0.1 prototype → v1.0 production · 0123456789 · €3–10k · auth + roles · il1I0O</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- 03 COLOUR -->
+  <section id="colour" class="section brand-section">
+    <div class="container-site">
+      <header class="brand-head">
+        <p class="t-label">03</p>
+        <h2 class="t-h2">Colour</h2>
+      </header>
+      <ul class="swatches">
+        {
+          palette.map((c) => (
+            <li class="swatch">
+              <span class="swatch-chip" style={`background:${c.hex}`}>
+                {c.dark && <span style="color:#fff">Aa</span>}
+              </span>
+              <span class="swatch-info">
+                <span class="swatch-token">{c.token}</span>
+                <span class="t-mono">{c.hex}</span>
+                <span class="swatch-use">{c.use}</span>
+                <span class="t-label">
+                  on paper {c.onPaper.toFixed(2)}:1 · {rating(c.onPaper)}
+                </span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="brand-note measure">
+        The page reads as paper and ink; signal appears once or twice per screen. White on signal-ink is
+        {contrastRatio('#FFFFFF', '#B8360C').toFixed(2)}:1. Form fields use ink-muted borders because rule
+        ({contrastRatio('#D9D3C5', '#F5F2EA').toFixed(2)}:1) is too faint for a control boundary.
+      </p>
+    </div>
+  </section>
+
+  <!-- 04 TAGS -->
+  <section id="tags" class="section brand-section">
+    <div class="container-site">
+      <header class="brand-head">
+        <p class="t-label">04</p>
+        <h2 class="t-h2">Tags: the notation system</h2>
+      </header>
+      <div class="tag-grid">
+        <div>
+          <p class="t-label">version transition · plays once on load</p>
+          <div class="tag-row" id="vtag-demo"><VersionTag /></div>
+          <button type="button" class="link replay" data-replay>Replay</button>
+        </div>
+        <div>
+          <p class="t-label">status</p>
+          <div class="tag-row">
+            <Tag tone="live">Live</Tag>
+            <Tag tone="beta">Beta</Tag>
+            <Tag tone="dev">In development</Tag>
+          </div>
+        </div>
+        <div>
+          <p class="t-label">process</p>
+          <div class="tag-row">
+            <Tag>scoping sprint</Tag>
+            <Tag tone="signal">fixed quote</Tag>
+            <Tag>staging · early access</Tag>
+            <Tag label="you own">repo · hosting · accounts</Tag>
+          </div>
+        </div>
+        <div>
+          <p class="t-label">metadata</p>
+          <div class="tag-row">
+            <Tag tone="quiet">SaaS · client project</Tag>
+            <Tag tone="quiet">AI SaaS · client project</Tag>
+            <Tag tone="quiet">our own product</Tag>
+          </div>
+        </div>
+      </div>
+      <p class="brand-note measure">
+        Rules: green is only ever “Live”. Tags state facts — never a claim we haven't approved (no “week 2”, no “weekly
+        demo”). Status is always written out in words, never colour alone.
+      </p>
+    </div>
+  </section>
+
+  <!-- 05 BUTTONS -->
+  <section id="buttons" class="section brand-section">
+    <div class="container-site">
+      <header class="brand-head">
+        <p class="t-label">05</p>
+        <h2 class="t-h2">Buttons and links</h2>
+      </header>
+      <table class="states">
+        <thead>
+          <tr>
+            <th scope="col" class="t-label">variant</th>
+            <th scope="col" class="t-label">default</th>
+            <th scope="col" class="t-label">hover</th>
+            <th scope="col" class="t-label">focus</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Primary</th>
+            <td><span class="btn btn-primary">Start a project</span></td>
+            <td><span class="btn btn-primary is-hover">Start a project</span></td>
+            <td><span class="btn btn-primary is-focus">Start a project</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Secondary</th>
+            <td><span class="btn btn-secondary">See our work</span></td>
+            <td><span class="btn btn-secondary is-hover">See our work</span></td>
+            <td><span class="btn btn-secondary is-focus">See our work</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Text link</th>
+            <td><span class="link">Read the case study <span class="link-arrow">→</span></span></td>
+            <td><span class="link is-hover">Read the case study <span class="link-arrow">→</span></span></td>
+            <td><span class="link is-focus">Read the case study <span class="link-arrow">→</span></span></td>
+          </tr>
+          <tr>
+            <th scope="row">External</th>
+            <td><span class="link link-accent">Visit hamstalk.com <span class="link-arrow">↗</span></span></td>
+            <td>
+              <span class="link link-accent is-hover">Visit hamstalk.com <span class="link-arrow link-arrow-external">↗</span></span>
+            </td>
+            <td><span class="link link-accent is-focus">Visit hamstalk.com <span class="link-arrow">↗</span></span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="live-buttons">
+        <p class="t-label">live — try hover and Tab</p>
+        <div class="tag-row">
+          <Button href="#buttons">Start a project</Button>
+          <Button href="#buttons" variant="secondary">See our work</Button>
+          <TextLink href="#buttons">Read the case study</TextLink>
+          <TextLink href="#buttons" external accent>Visit hamstalk.com</TextLink>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 FRAMES -->
+  <section id="frames" class="section brand-section">
+    <div class="container-site">
+      <header class="brand-head">
+        <p class="t-label">06</p>
+        <h2 class="t-h2">Screenshot frames</h2>
+        <p class="measure brand-sub">
+          Real screenshots only. Until they arrive, frames show a labelled empty grid — never an invented interface. Callout
+          text below is example wording and must be checked against each project before use.
+        </p>
+      </header>
+      <div class="frames-grid">
+        <AnnotatedFrame
+          kind="browser"
+          address="app.example.com"
+          placeholder="client product"
+          notes={[
+            { text: 'example callout: auth + roles', x: 18, y: 26, side: 'right' },
+            { text: 'example callout: billing', x: 82, y: 58, side: 'left' },
+            { text: 'example callout: you own the repo', x: 30, y: 82, side: 'right' },
+          ]}
+        />
+        <AnnotatedFrame
+          kind="phone"
+          placeholder="phone screen"
+          notes={[
+            { text: 'example: 5-minute lesson', x: 60, y: 30, side: 'right' },
+            { text: 'example: installable', x: 40, y: 75, side: 'left' },
+          ]}
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 SOCIAL -->
+  <section id="social" class="section brand-section">
+    <div class="container-site">
+      <header class="brand-head">
+        <p class="t-label">07</p>
+        <h2 class="t-h2">Social preview template · 1200×630</h2>
+        <p class="measure brand-sub">
+          Generated per page at build time in Milestone 4. Variables: page title, kicker tag, path.
+        </p>
+      </header>
+      <div class="og-wrap">
+        <div class="og">
+          <div class="og-grid" aria-hidden="true"></div>
+          <div class="og-top">
+            <Logo size="3.4cqw" />
+            <span class="og-path">ismailapps.com/services/prototype-to-production</span>
+          </div>
+          <p class="og-title">From prototype to a product your customers can rely on.</p>
+          <div class="og-bottom">
+            <span class="og-tag">v0.1 prototype → <b>v1.0 production</b></span>
+            <span class="og-kicker">Software product studio</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 GRID -->
+  <section id="grid" class="section brand-section">
+    <div class="container-site">
+      <header class="brand-head">
+        <p class="t-label">08</p>
+        <h2 class="t-h2">Grid and rhythm</h2>
+        <p class="measure brand-sub">
+          12 columns from 900px (8 on tablet, 4 on mobile), ~1200px content width, sections separated by a 1px rule and
+          generous space rather than boxes.
+        </p>
+      </header>
+      <div class="grid-site grid-demo" aria-hidden="true">
+        {Array.from({ length: 12 }, (_, i) => <span class="t-label">{i + 1}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 HERO -->
+  <section id="hero" class="brand-section hero-preview">
+    <div class="container-site">
+      <header class="brand-head">
+        <p class="t-label">09 · hero preview (headline A)</p>
+      </header>
+    </div>
+    <Hero />
+  </section>
+</BaseLayout>
+
+<script>
+  document.querySelector('[data-replay]')?.addEventListener('click', () => {
+    const tag = document.querySelector('#vtag-demo .vtag');
+    if (!tag) return;
+    tag.classList.remove('vtag-animate');
+    void (tag as HTMLElement).offsetWidth;
+    tag.classList.add('vtag-animate');
+  });
+</script>
+
+<style>
+  .brand-intro {
+    padding-block: clamp(3rem, 7vw, 5rem) 3rem;
+  }
+  .brand-intro h1 {
+    margin: 0.75rem 0 1rem;
+  }
+  .brand-toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    margin-top: 2rem;
+  }
+  .brand-toc a {
+    color: var(--color-ink-muted);
+    text-decoration: none;
+    padding-block: 0.25rem;
+  }
+  .brand-toc a:hover {
+    color: var(--color-ink);
+    text-decoration: underline;
+  }
+  .brand-section {
+    border-top: 1px solid var(--color-rule);
+  }
+  .brand-head {
+    margin-bottom: 2.5rem;
+  }
+  .brand-head h2 {
+    margin: 0.4rem 0 0;
+  }
+  .brand-sub {
+    margin-top: 0.75rem;
+    color: var(--color-ink-muted);
+  }
+  .brand-note {
+    margin-top: 2.5rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--color-signal);
+  }
+
+  /* Logo */
+  .logo-boards {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .board {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 10rem;
+    padding: 1.5rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-sm);
+  }
+  .board-paper {
+    background: var(--color-paper);
+  }
+  .board-ink {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+  .board-marks {
+    gap: 2rem;
+    background: var(--color-surface);
+    align-items: flex-end;
+  }
+  .mark-sample {
+    margin: 0;
+    display: grid;
+    justify-items: center;
+    gap: 0.5rem;
+  }
+  @media (width >= 56.25rem) {
+    .logo-boards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* Type */
+  .specimen {
+    padding: clamp(1.25rem, 3vw, 2.5rem);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+  }
+  .spec-label {
+    margin: 1.75rem 0 0.5rem;
+  }
+  .spec-label:first-child {
+    margin-top: 0;
+  }
+  .spec-display {
+    margin: 0;
+  }
+  .spec-h {
+    margin: 0 0 0.25rem;
+  }
+  .t-lead {
+    margin: 0;
+  }
+  .spec-body p {
+    margin: 0 0 0.9rem;
+    max-width: 62ch;
+  }
+  .spec-mono {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  /* Colour */
+  .swatches {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: 1.25rem;
+  }
+  .swatch {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .swatch-chip {
+    display: flex;
+    align-items: flex-end;
+    padding: 0.75rem;
+    height: 6.5rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 1.5rem;
+  }
+  .swatch-info {
+    display: grid;
+    gap: 0.15rem;
+    font-size: 0.9375rem;
+  }
+  .swatch-token {
+    font-weight: 600;
+  }
+  .swatch-use {
+    color: var(--color-ink-muted);
+  }
+
+  /* Tags */
+  .tag-grid {
+    display: grid;
+    gap: 2.25rem;
+  }
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+    margin-top: 0.75rem;
+  }
+  .replay {
+    margin-top: 1rem;
+    border: 0;
+    background-color: transparent;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  @media (width >= 56.25rem) {
+    .tag-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem 3rem;
+    }
+  }
+
+  /* Buttons */
+  .states {
+    width: 100%;
+    border-collapse: collapse;
+    display: block;
+    overflow-x: auto;
+  }
+  .states th,
+  .states td {
+    padding: 1rem 1.5rem 1rem 0;
+    border-bottom: 1px solid var(--color-rule);
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .states thead th {
+    font-weight: 400;
+  }
+  .states tbody th {
+    font-weight: 600;
+  }
+  .live-buttons {
+    margin-top: 2.5rem;
+  }
+
+  /* Frames */
+  .frames-grid {
+    display: grid;
+    gap: 3rem;
+    align-items: start;
+  }
+  @media (width >= 56.25rem) {
+    .frames-grid {
+      grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+      gap: 4rem;
+    }
+  }
+
+  /* Social preview, drawn in container-query units so it scales exactly. */
+  .og-wrap {
+    container-type: inline-size;
+    max-width: 960px;
+    border: 1px solid var(--color-rule);
+  }
+  .og {
+    position: relative;
+    aspect-ratio: 1200 / 630;
+    background: var(--color-paper);
+    padding: 5cqw 5.5cqw;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+  .og-grid {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(90deg, var(--color-rule) 1px, transparent 1px);
+    background-size: calc(100cqw / 12) 100%;
+    opacity: 0.55;
+  }
+  .og-top,
+  .og-bottom {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .og-path,
+  .og-kicker {
+    font-family: var(--font-mono);
+    font-size: 1.6cqw;
+    color: var(--color-ink-muted);
+  }
+  .og-title {
+    position: relative;
+    margin: 0;
+    max-width: 18ch;
+    font-size: 6cqw;
+    font-weight: 600;
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+  .og-tag {
+    font-family: var(--font-mono);
+    font-size: 1.7cqw;
+    padding: 0.7cqw 1.2cqw;
+    border: 1px solid var(--color-ink);
+    border-radius: 0.4cqw;
+    background: var(--color-surface);
+  }
+  .og-tag b {
+    font-weight: 500;
+  }
+
+  /* Grid demo */
+  .grid-demo {
+    height: 9rem;
+  }
+  .grid-demo span {
+    background: color-mix(in srgb, var(--color-signal) 9%, transparent);
+    border-inline: 1px solid color-mix(in srgb, var(--color-signal) 35%, transparent);
+    padding: 0.4rem;
+  }
+  .grid-demo span:nth-child(n + 5) {
+    display: none;
+  }
+  @media (width >= 40rem) {
+    .grid-demo span:nth-child(n + 5) {
+      display: block;
+    }
+    .grid-demo span:nth-child(n + 9) {
+      display: none;
+    }
+  }
+  @media (width >= 56.25rem) {
+    .grid-demo span:nth-child(n + 9) {
+      display: block;
+    }
+  }
+
+  .hero-preview {
+    padding-top: var(--section-space);
+  }
+</style>

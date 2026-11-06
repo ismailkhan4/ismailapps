@@ -1,0 +1,254 @@
+---
+/**
+ * A browser or phone frame with small monospace callouts on leader lines.
+ * Desktop: callouts sit on the image and draw in on scroll.
+ * Small screens: numbered markers on the image, notes listed below it.
+ *
+ * Only ever put real, approved screenshots in the slot. Until they exist,
+ * use the `placeholder` prop — it renders a clearly labelled empty frame.
+ */
+import Placeholder from './Placeholder.astro';
+
+export interface Note {
+  text: string;
+  /** Anchor point, in % of the screen area. */
+  x: number;
+  y: number;
+  /** Which way the label extends from the anchor. */
+  side?: 'left' | 'right';
+}
+
+interface Props {
+  kind?: 'browser' | 'phone';
+  /** Shown in the browser address bar. */
+  address?: string;
+  notes?: Note[];
+  /** Label for a missing screenshot. Renders a placeholder screen. */
+  placeholder?: string;
+}
+
+const { kind = 'browser', address, notes = [], placeholder } = Astro.props;
+const screenRatio = kind === 'phone' ? '9 / 19' : '16 / 10';
+---
+
+<figure class:list={['frame', `frame-${kind}`]}>
+  <div class="frame-body">
+    {
+      kind === 'browser' && (
+        <div class="frame-bar" aria-hidden="true">
+          <span class="frame-dots">
+            <i />
+            <i />
+            <i />
+          </span>
+          {address && <span class="frame-address t-mono">{address}</span>}
+        </div>
+      )
+    }
+    <div class="frame-screen" style={`aspect-ratio:${screenRatio}`}>
+      {
+        placeholder ? (
+          <div class="frame-empty">
+            <Placeholder label={`screenshot: ${placeholder}`} />
+          </div>
+        ) : (
+          <slot />
+        )
+      }
+      {
+        notes.map((n, i) => (
+          <span
+            class:list={['note', `note-${n.side ?? 'right'}`]}
+            style={`left:${n.x}%;top:${n.y}%`}
+            data-reveal
+            aria-hidden="true"
+          >
+            <span class="note-dot">{i + 1}</span>
+            <span class="note-line" />
+            <span class="note-label t-mono">{n.text}</span>
+          </span>
+        ))
+      }
+    </div>
+  </div>
+  {
+    notes.length > 0 && (
+      <figcaption class="frame-notes">
+        <ol class="t-mono">
+          {notes.map((n) => (
+            <li>{n.text}</li>
+          ))}
+        </ol>
+      </figcaption>
+    )
+  }
+</figure>
+
+<style>
+  .frame {
+    margin: 0;
+  }
+  .frame-body {
+    position: relative;
+    background: var(--color-surface);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+  }
+  .frame-phone .frame-body {
+    max-width: 19rem;
+    margin-inline: auto;
+    padding: 0.6rem;
+    border-radius: 2rem;
+    border-color: var(--color-ink);
+  }
+  .frame-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.6rem 0.85rem;
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .frame-dots {
+    display: inline-flex;
+    gap: 0.35rem;
+  }
+  .frame-dots i {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    border: 1px solid var(--color-rule);
+  }
+  .frame-address {
+    flex: 1;
+    max-width: 22rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-paper);
+    color: var(--color-ink-muted);
+    font-size: 0.75rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .frame-screen {
+    position: relative;
+    overflow: visible;
+  }
+  .frame-phone .frame-screen {
+    border-radius: 1.5rem;
+    border: 1px solid var(--color-rule);
+  }
+  .frame-screen :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+  }
+  .frame-empty {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    text-align: center;
+    background-image:
+      linear-gradient(var(--color-rule) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-rule) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: -1px -1px;
+    opacity: 0.9;
+  }
+
+  /* Callouts */
+  .note {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    translate: -0.6rem -50%;
+  }
+  .note-left {
+    flex-direction: row-reverse;
+    translate: calc(-100% + 0.6rem) -50%;
+  }
+  .note-dot {
+    display: grid;
+    place-items: center;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 50%;
+    background: var(--color-ink);
+    color: var(--color-paper);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    flex: none;
+    box-shadow: 0 0 0 3px var(--color-surface);
+  }
+  .note-line,
+  .note-label {
+    display: none;
+  }
+
+  .frame-notes ol {
+    margin: 1rem 0 0;
+    padding-left: 1.4rem;
+    color: var(--color-ink-muted);
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  @media (width >= 56.25rem) {
+    .note-dot {
+      width: 0.6rem;
+      height: 0.6rem;
+      font-size: 0;
+      background: var(--color-signal);
+    }
+    .note-line {
+      display: block;
+      width: 2.5rem;
+      height: 1px;
+      background: var(--color-ink);
+      transform-origin: left center;
+    }
+    .note-left .note-line {
+      transform-origin: right center;
+    }
+    .note-label {
+      display: block;
+      padding: 0.3rem 0.55rem;
+      background: var(--color-paper);
+      border: 1px solid var(--color-ink);
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
+    .frame-notes {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      :global(.js) .note[data-reveal] {
+        transform: none;
+      }
+      :global(.js) .note .note-line {
+        transform: scaleX(0);
+        transition: transform 500ms var(--ease-precise) 150ms;
+      }
+      :global(.js) .note .note-label {
+        opacity: 0;
+        transition: opacity 400ms var(--ease-precise) 550ms;
+      }
+      :global(.js) .note.is-visible .note-line {
+        transform: scaleX(1);
+      }
+      :global(.js) .note.is-visible .note-label {
+        opacity: 1;
+      }
+    }
+  }
+</style>

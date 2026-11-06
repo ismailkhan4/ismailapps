@@ -1,0 +1,324 @@
+---
+import Logo from '../ui/Logo.astro';
+import Button from '../ui/Button.astro';
+import { primaryNav, services, site } from '../../lib/site';
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`);
+---
+
+<header class="site-header">
+  <div class="container-site header-inner">
+    <a href="/" class="header-logo" aria-label="IsmailApps, home">
+      <Logo />
+    </a>
+
+    <!-- Desktop navigation (≥900px). The Services menu is a native <details>
+         disclosure: it opens on click/Enter/Space, not hover, and works without JS. -->
+    <nav class="nav-desktop" aria-label="Main">
+      <ul class="nav-list">
+        {
+          primaryNav.map((item) =>
+            'children' in item ? (
+              <li class="nav-item">
+                <details class="nav-disclosure" data-disclosure>
+                  <summary class:list={['nav-link', isCurrent(item.href) && 'is-current']}>
+                    {item.label}
+                    <svg class="nav-chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+                      <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+                    </svg>
+                  </summary>
+                  <div class="nav-panel">
+                    <ul>
+                      {item.children.map((s, i) => (
+                        <li>
+                          <a
+                            href={`/services/${s.slug}`}
+                            class="nav-panel-link"
+                            aria-current={isCurrent(`/services/${s.slug}`) ? 'page' : undefined}
+                          >
+                            <span class="t-label nav-panel-num">0{i + 1}</span>
+                            <span>
+                              <span class="nav-panel-title">{s.title}</span>
+                              <span class="nav-panel-short">{s.short}</span>
+                            </span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                    <a href="/services" class="nav-panel-all">
+                      All services <span aria-hidden="true">→</span>
+                    </a>
+                  </div>
+                </details>
+              </li>
+            ) : (
+              <li class="nav-item">
+                <a
+                  href={item.href}
+                  class:list={['nav-link', isCurrent(item.href) && 'is-current']}
+                  aria-current={isCurrent(item.href) ? 'page' : undefined}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ),
+          )
+        }
+      </ul>
+    </nav>
+
+    <Button href="/contact" class="header-cta" event="cta_click" location="header">Start a project</Button>
+
+    <!-- Mobile navigation (<900px): full-screen panel, also a native <details>. -->
+    <details class="nav-mobile" data-mobile-menu>
+      <summary class="nav-mobile-toggle">
+        <span class="when-closed">Menu</span><span class="when-open">Close</span>
+      </summary>
+      <div class="nav-mobile-panel">
+        <nav aria-label="Main" class="container-site">
+          <ul class="mobile-list">
+            <li><a href="/work" class="mobile-link">Work</a></li>
+            <li>
+              <a href="/services" class="mobile-link">Services</a>
+              <ul class="mobile-sub">
+                {
+                  services.map((s) => (
+                    <li>
+                      <a href={`/services/${s.slug}`}>{s.title}</a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </li>
+            <li><a href="/products" class="mobile-link">Products</a></li>
+            <li><a href="/about" class="mobile-link">About</a></li>
+          </ul>
+          <div class="mobile-foot">
+            <Button href="/contact" event="cta_click" location="mobile-menu" arrow>Start a project</Button>
+            <a href={`mailto:${site.email}`} class="t-mono mobile-email">{site.email}</a>
+          </div>
+        </nav>
+      </div>
+    </details>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    --header-h: 4.25rem;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--color-paper);
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    height: var(--header-h);
+  }
+  .header-logo {
+    display: inline-flex;
+    padding-block: 0.5rem;
+    text-decoration: none;
+    margin-right: auto;
+  }
+
+  /* Desktop nav */
+  .nav-desktop {
+    display: none;
+  }
+  .nav-list {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-item {
+    position: relative;
+  }
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.6rem 0.8rem;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--color-ink);
+    cursor: pointer;
+    list-style: none;
+    border-radius: var(--radius-sm);
+  }
+  .nav-link::-webkit-details-marker {
+    display: none;
+  }
+  .nav-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+    text-decoration-thickness: 1px;
+  }
+  .nav-link.is-current {
+    text-decoration: underline;
+    text-decoration-color: var(--color-signal);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.45em;
+  }
+  .nav-chevron {
+    transition: transform 160ms var(--ease-precise);
+  }
+  .nav-disclosure[open] .nav-chevron {
+    transform: rotate(180deg);
+  }
+  .nav-panel {
+    position: absolute;
+    top: calc(100% + 0.9rem);
+    left: -1rem;
+    width: 26rem;
+    padding: 0.5rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    box-shadow: 0 12px 32px -18px rgb(23 21 15 / 0.35);
+  }
+  .nav-panel ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-panel-link {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 0.25rem;
+    padding: 0.7rem 0.75rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+  }
+  .nav-panel-link:hover,
+  .nav-panel-link[aria-current='page'] {
+    background: var(--color-paper);
+  }
+  .nav-panel-num {
+    padding-top: 0.15rem;
+  }
+  .nav-panel-title {
+    display: block;
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+  .nav-panel-short {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+    line-height: 1.4;
+  }
+  .nav-panel-all {
+    display: block;
+    margin-top: 0.25rem;
+    padding: 0.75rem;
+    border-top: 1px solid var(--color-rule);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .nav-panel-all:hover {
+    text-decoration: underline;
+  }
+
+  .header-cta {
+    display: none;
+  }
+
+  /* Mobile nav */
+  .nav-mobile-toggle {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 0.9rem;
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  .nav-mobile-toggle::-webkit-details-marker {
+    display: none;
+  }
+  .when-open,
+  .nav-mobile[open] .when-closed {
+    display: none;
+  }
+  .nav-mobile[open] .when-open {
+    display: inline;
+  }
+  .nav-mobile-panel {
+    position: fixed;
+    inset: var(--header-h) 0 0 0;
+    background: var(--color-paper);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-block: 1.5rem 2.5rem;
+    border-top: 1px solid var(--color-rule);
+  }
+  .mobile-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .mobile-list > li {
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .mobile-link {
+    display: block;
+    padding: 0.85rem 0;
+    font-size: var(--step-2);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+  .mobile-sub {
+    list-style: none;
+    margin: -0.25rem 0 1rem;
+    padding: 0 0 0 1rem;
+    border-left: 1px solid var(--color-rule);
+  }
+  .mobile-sub a {
+    display: block;
+    padding: 0.55rem 0;
+    color: var(--color-ink-muted);
+    text-decoration: none;
+  }
+  .mobile-foot {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+  .mobile-email {
+    color: var(--color-ink-muted);
+  }
+
+  @media (width >= 56.25rem) {
+    .nav-desktop {
+      display: block;
+      margin-right: auto;
+    }
+    .header-cta {
+      display: inline-flex;
+    }
+    .nav-mobile {
+      display: none;
+    }
+    .header-logo {
+      margin-right: 1rem;
+    }
+  }
+</style>

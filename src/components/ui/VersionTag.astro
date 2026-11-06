@@ -1,0 +1,113 @@
+---
+/**
+ * The signature moment: `v0.1 prototype → v1.0 production`.
+ * Plays once on page load (CSS only). The final state is the static markup,
+ * so it reads correctly without JS and under prefers-reduced-motion.
+ */
+---
+
+<p class="vtag vtag-animate">
+  <span class="vtag-from"><span class="vtag-strike" aria-hidden="true"></span>v0.1 prototype</span>
+  <span class="vtag-arrow" aria-hidden="true">→</span>
+  <span class="sr-only">, now</span>
+  <span class="vtag-to"><span class="vtag-dot" aria-hidden="true"></span>v1.0 production</span>
+</p>
+
+<style>
+  .vtag {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55em;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    line-height: 1.35;
+    margin: 0;
+  }
+  .vtag-from,
+  .vtag-to {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.3em 0.65em;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+  }
+  .vtag-from {
+    color: var(--color-ink-muted);
+    border: 1px dashed var(--color-ink-muted);
+  }
+  .vtag-strike {
+    position: absolute;
+    left: 0.55em;
+    right: 0.55em;
+    top: 50%;
+    height: 1px;
+    background: var(--color-ink-muted);
+    transform-origin: left center;
+  }
+  .vtag-arrow {
+    color: var(--color-ink-muted);
+  }
+  .vtag-to {
+    color: var(--color-ink);
+    background: var(--color-surface);
+    border: 1px solid var(--color-ink);
+  }
+  .vtag-dot {
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background: var(--color-signal);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .vtag-animate .vtag-from {
+      animation: vtag-from-settle 500ms var(--ease-precise) 450ms both;
+    }
+    .vtag-animate .vtag-strike {
+      animation: vtag-strike 420ms var(--ease-precise) 450ms both;
+    }
+    .vtag-animate .vtag-arrow {
+      animation: vtag-arrow 360ms var(--ease-precise) 800ms both;
+    }
+    .vtag-animate .vtag-to {
+      animation: vtag-reveal 560ms var(--ease-precise) 1000ms both;
+    }
+    .vtag-animate .vtag-dot {
+      animation: vtag-dot 300ms var(--ease-precise) 1450ms both;
+    }
+  }
+
+  @keyframes vtag-from-settle {
+    from {
+      color: var(--color-ink);
+      border-color: var(--color-ink);
+    }
+  }
+  @keyframes vtag-strike {
+    from {
+      transform: scaleX(0);
+    }
+  }
+  @keyframes vtag-arrow {
+    from {
+      opacity: 0;
+      transform: translateX(-6px);
+    }
+  }
+  @keyframes vtag-reveal {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+  @keyframes vtag-dot {
+    from {
+      transform: scale(0);
+    }
+  }
+</style>

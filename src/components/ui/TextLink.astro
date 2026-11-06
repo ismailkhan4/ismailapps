@@ -1,0 +1,41 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = HTMLAttributes<'a'> & {
+  href: string;
+  /** Opens a third-party site: adds ↗ and a hidden "(opens external site)" hint. */
+  external?: boolean;
+  accent?: boolean;
+  event?: string;
+  location?: string;
+};
+
+const {
+  href,
+  external = false,
+  accent = false,
+  event,
+  location,
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={['link', accent && 'link-accent', className]}
+  rel={external ? 'noopener' : undefined}
+  data-umami-event={event}
+  data-umami-event-location={event ? location : undefined}
+  {...rest}
+>
+  <span><slot /></span>
+  {
+    external ? (
+      <span class="link-arrow link-arrow-external" aria-hidden="true">↗</span>
+    ) : (
+      <span class="link-arrow" aria-hidden="true">→</span>
+    )
+  }
+  {external && <span class="sr-only">(external site)</span>}
+</a>

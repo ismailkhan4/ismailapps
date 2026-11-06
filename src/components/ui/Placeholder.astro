@@ -1,0 +1,12 @@
+---
+/**
+ * Visible stand-in for a fact the founder has not supplied yet.
+ * Production builds fail while any of these render (placeholder guard).
+ */
+interface Props {
+  label: string;
+}
+const { label } = Astro.props;
+---
+
+<span class="placeholder" data-placeholder={label}>[{label}]</span>

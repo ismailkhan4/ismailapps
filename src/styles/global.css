@@ -1,0 +1,404 @@
+@import 'tailwindcss';
+
+/*
+ * IsmailApps — "Production notes" design tokens.
+ * The palette is closed: the default Tailwind colours are removed so that
+ * off-brand colours cannot creep in. Contrast ratios (WCAG 2.x) on paper:
+ *   ink 16.3:1 · ink-muted 6.3:1 · signal-ink 5.26:1 · live 5.42:1
+ *   signal 3.63:1 → large text (≥24px, or ≥18.66px bold) and graphics only
+ *   white on signal-ink 5.88:1 · rule 1.33:1 → decorative lines only
+ * Form controls use ink-muted borders (≥3:1, WCAG 1.4.11), never `rule`.
+ */
+@theme {
+  --color-*: initial;
+  --color-paper: #f5f2ea;
+  --color-surface: #fbf9f4;
+  --color-ink: #17150f;
+  --color-ink-muted: #5e584d;
+  --color-rule: #d9d3c5;
+  --color-signal: #e2481b;
+  --color-signal-ink: #b8360c;
+  --color-live: #1e7046;
+  --color-white: #ffffff;
+
+  --font-*: initial;
+  --font-sans: 'Schibsted Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --breakpoint-*: initial;
+  --breakpoint-sm: 40rem; /* 640px */
+  --breakpoint-md: 56.25rem; /* 900px: header switches to full menu below */
+  --breakpoint-lg: 75rem; /* 1200px */
+  --breakpoint-xl: 90rem; /* 1440px */
+
+  --radius-*: initial;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+
+  --ease-precise: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@layer base {
+  :root {
+    /* Layout */
+    --site-max: 75rem; /* ~1200px content width */
+    --gutter: clamp(1.25rem, 4vw, 2.5rem);
+    --section-space: clamp(4.5rem, 10vw, 8.5rem);
+    --measure: 68ch;
+
+    /* Fluid type scale (360px → 1440px) */
+    --step--1: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem); /* 13–14: mono labels */
+    --step-0: clamp(1.0625rem, 1.04rem + 0.1vw, 1.125rem); /* 17–18: body */
+    --step-1: clamp(1.25rem, 1.18rem + 0.3vw, 1.4375rem); /* 20–23: lead */
+    --step-2: clamp(1.5rem, 1.35rem + 0.65vw, 1.9375rem); /* 24–31: h3 */
+    --step-3: clamp(1.875rem, 1.55rem + 1.45vw, 2.875rem); /* 30–46: h2 */
+    --step-4: clamp(2.5rem, 1.95rem + 2.5vw, 4.25rem); /* 40–68: h1 */
+    --step-5: clamp(2.625rem, 1.75rem + 3.9vw, 5.5rem); /* 42–88: display */
+
+    color-scheme: light;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-size: var(--step-0);
+    line-height: 1.6;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
+    flex: 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  ::selection {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  /* One focus style everywhere: 2px ink outline with paper offset (≥3:1 on all surfaces). */
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  [id] {
+    scroll-margin-top: 6rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+}
+
+@layer components {
+  .container-site {
+    width: 100%;
+    max-width: calc(var(--site-max) + var(--gutter) * 2);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  /* 12-column grid on desktop, 4 on mobile, 8 on tablet. */
+  .grid-site {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: clamp(1rem, 2.4vw, 1.5rem);
+  }
+  @media (width >= 40rem) {
+    .grid-site {
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+    }
+  }
+  @media (width >= 56.25rem) {
+    .grid-site {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+  }
+
+  .section {
+    padding-block: var(--section-space);
+  }
+  .section + .section {
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .t-display {
+    font-size: var(--step-5);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    font-weight: 600;
+  }
+  .t-h1,
+  .t-h2,
+  .t-h3 {
+    font-weight: 600;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+  .t-h1 {
+    font-size: var(--step-4);
+    letter-spacing: -0.03em;
+  }
+  .t-h2 {
+    font-size: var(--step-3);
+    letter-spacing: -0.025em;
+  }
+  .t-h3 {
+    font-size: var(--step-2);
+    line-height: 1.2;
+  }
+  .t-lead {
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: var(--color-ink-muted);
+  }
+  .t-mono {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0;
+    line-height: 1.5;
+  }
+  .t-label {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+    text-transform: lowercase;
+  }
+  .measure {
+    max-width: var(--measure);
+  }
+
+  .sr-only-focusable:not(:focus) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Placeholder content: visible in previews, blocked from production builds. */
+  .placeholder {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent 0 4px,
+      color-mix(in srgb, var(--color-signal) 12%, transparent) 4px 8px
+    );
+    outline: 1px dashed var(--color-signal-ink);
+    outline-offset: 1px;
+    padding: 0 0.3em;
+    color: var(--color-ink);
+    border-radius: 2px;
+  }
+}
+
+/* Scroll-reveal: only active when JS is present and motion is allowed. */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 600ms var(--ease-precise),
+      transform 600ms var(--ease-precise);
+  }
+  .js [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Primitives: buttons, links, tags. Kept global so the brand review   */
+/* page can show forced hover/focus states with .is-hover / .is-focus. */
+/* ------------------------------------------------------------------ */
+@layer components {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6em;
+    min-height: 2.875rem; /* 46px touch target */
+    padding: 0.7em 1.25em;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.005em;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color 160ms var(--ease-precise),
+      color 160ms var(--ease-precise),
+      border-color 160ms var(--ease-precise);
+  }
+  .btn-primary {
+    background: var(--color-signal-ink);
+    color: var(--color-white);
+  }
+  .btn-primary:hover,
+  .btn-primary.is-hover {
+    background: var(--color-ink);
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+  .btn-secondary:hover,
+  .btn-secondary.is-hover {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .btn.is-focus {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+  .btn-arrow {
+    display: inline-block;
+    transition: transform 200ms var(--ease-precise);
+  }
+  .btn:hover .btn-arrow,
+  .btn.is-hover .btn-arrow {
+    transform: translateX(3px);
+  }
+
+  /* Text link: underline grows from the left on hover; arrow nudges. */
+  .link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4em;
+    font-weight: 600;
+    color: var(--color-ink);
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 100% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    padding-bottom: 2px;
+    transition: background-size 260ms var(--ease-precise);
+  }
+  .link-accent {
+    color: var(--color-signal-ink);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .link:hover,
+    .link.is-hover {
+      background-size: 0% 1px;
+      background-position: 100% 100%;
+      animation: link-underline 420ms var(--ease-precise) forwards;
+    }
+  }
+  .link-arrow {
+    display: inline-block;
+    transition: transform 200ms var(--ease-precise);
+  }
+  .link:hover .link-arrow,
+  .link.is-hover .link-arrow {
+    transform: translateX(3px);
+  }
+  .link:hover .link-arrow-external,
+  .link.is-hover .link-arrow-external {
+    transform: translate(2px, -2px);
+  }
+  .link.is-focus {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+
+  /* Tags: the brand's signature notation. */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.3em 0.65em;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    font-weight: 400;
+    line-height: 1.35;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+  .tag-quiet {
+    background: transparent;
+    color: var(--color-ink-muted);
+  }
+  .tag-dot {
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background: currentColor;
+    flex: none;
+  }
+  .tag-live {
+    color: var(--color-live);
+  }
+  .tag-signal {
+    border-color: var(--color-signal);
+  }
+  .tag-signal .tag-dot {
+    color: var(--color-signal);
+  }
+  .tag-dev .tag-dot {
+    background: transparent;
+    border: 1.5px solid var(--color-ink-muted);
+  }
+  .tag-key {
+    color: var(--color-ink-muted);
+  }
+}
+
+@keyframes link-underline {
+  0% {
+    background-size: 100% 1px;
+    background-position: 100% 100%;
+  }
+  45% {
+    background-size: 0% 1px;
+    background-position: 100% 100%;
+  }
+  46% {
+    background-size: 0% 1px;
+    background-position: 0 100%;
+  }
+  100% {
+    background-size: 100% 1px;
+    background-position: 0 100%;
+  }
+}

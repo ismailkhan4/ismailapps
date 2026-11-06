@@ -1,0 +1,25 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = HTMLAttributes<'a'> & {
+  href: string;
+  variant?: 'primary' | 'secondary';
+  arrow?: boolean;
+  /** Umami event name, e.g. "cta_click". Never put personal data in events. */
+  event?: string;
+  /** Where the CTA sits, sent as an event property. */
+  location?: string;
+};
+
+const { href, variant = 'primary', arrow = false, event, location, class: className, ...rest } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={['btn', `btn-${variant}`, className]}
+  data-umami-event={event}
+  data-umami-event-location={event ? location : undefined}
+  {...rest}
+>
+  <slot />{arrow && <span class="btn-arrow" aria-hidden="true">→</span>}
+</a>

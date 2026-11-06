@@ -1,0 +1,50 @@
+---
+/**
+ * IsmailApps wordmark ("Tittle"): the dot of the i in "Ismail" is a
+ * signal-orange square, the same status pixel used across the site.
+ * The favicon (public/favicon.svg) is that i on its own.
+ */
+interface Props {
+  /** Font size of the wordmark; everything scales from it. */
+  size?: string;
+  tone?: 'ink' | 'paper';
+}
+const { size = '1.375rem', tone = 'ink' } = Astro.props;
+---
+
+<span class:list={['logo', tone === 'paper' && 'logo-on-paper']} style={`--logo-size:${size}`}>
+  <span class="sr-only">IsmailApps</span>
+  <span aria-hidden="true">Isma<span class="logo-i">ı</span>lApps</span>
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-sans);
+    font-size: var(--logo-size);
+    font-weight: 680;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+  .logo-on-paper {
+    color: var(--color-paper);
+  }
+  /* Dotless ı with a square signal-orange tittle. */
+  .logo-i {
+    position: relative;
+    display: inline-block;
+  }
+  .logo-i::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0.02em;
+    width: 0.21em;
+    height: 0.21em;
+    translate: -50% 0;
+    background: var(--color-signal);
+  }
+</style>
