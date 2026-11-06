@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/sections/PageHero.astro';
+import OwnProduct from '../../components/sections/OwnProduct.astro';
+import SectionHeading from '../../components/ui/SectionHeading.astro';
+import CTASection from '../../components/sections/CTASection.astro';
+
+const reasons = [
+  {
+    title: 'We live with the consequences',
+    detail: 'When something breaks in our own product, we are the ones who fix it. That changes how carefully we build for clients.',
+  },
+  {
+    title: 'We make the hard cuts',
+    detail: 'Deciding what not to build is easier to judge when it is our own time and money. We bring that discipline to your scope.',
+  },
+  {
+    title: 'We run what we ship',
+    detail: 'Hosting, updates and support are part of the job, not an afterthought once the build is done.',
+  },
+];
+---
+
+<BaseLayout
+  title="Products"
+  description="IsmailApps builds and runs its own software products. Hamstalk, five-minute German lessons for software engineers, is the first."
+>
+  <PageHero
+    crumbs={[{ href: '/', label: 'Home' }, { label: 'Products' }]}
+    title="Software we build and run ourselves"
+    lead="Most of our work is for clients. Alongside it, we design, build, launch and operate products of our own, and bring what we learn back to every client project."
+    cta={{ href: '/products/hamstalk', label: 'Meet Hamstalk', location: 'products-hero' }}
+    secondary={{ href: '/contact', label: 'Start a project' }}
+  />
+
+  <OwnProduct label="01 · hamstalk" />
+
+  <section class="section" aria-labelledby="why-title">
+    <div class="container-site">
+      <SectionHeading id="why-title" label="02 · why" title="Why a client studio builds its own products" />
+      <ol class="reasons">
+        {
+          reasons.map((r, i) => (
+            <li class="reason" data-reveal style={`--d:${i}`}>
+              <span class="t-mono reason-n">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class="reason-title">{r.title}</h3>
+              <p class="reason-detail">{r.detail}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <CTASection location="products-final" />
+</BaseLayout>
+
+<style>
+  .reasons {
+    display: grid;
+    gap: 1rem;
+    list-style: none;
+    margin: clamp(2rem, 4vw, 3rem) 0 0;
+    padding: 0;
+  }
+  .reason {
+    display: flex;
+    flex-direction: column;
+    min-height: 15rem;
+    padding: 1.75rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .reason[data-reveal] {
+      transition-delay: calc(var(--d) * 90ms);
+    }
+  }
+  .reason-n {
+    color: var(--color-signal-ink);
+  }
+  .reason-title {
+    margin: auto 0 0.5rem;
+    padding-top: 2rem;
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  .reason-detail {
+    margin: 0;
+    color: var(--color-ink-muted);
+  }
+  @media (width >= 56.25rem) {
+    .reasons {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

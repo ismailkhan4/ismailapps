@@ -5,14 +5,21 @@ import Tag from '../ui/Tag.astro';
 import AnnotatedFrame from '../ui/AnnotatedFrame.astro';
 import { getWork, workHref } from '../../lib/content';
 
+interface Props {
+  label?: string;
+  title?: string;
+  /** Show the "See all work" link (off on /work itself). */
+  showAll?: boolean;
+}
+const { label = '02 · selected work', title = "SaaS products we've helped ship", showAll = true } = Astro.props;
 const projects = await getWork('case-study');
 ---
 
 <section class="section" aria-labelledby="work-title">
   <div class="container-site">
     <div class="work-head">
-      <SectionHeading id="work-title" label="02 · selected work" title="SaaS products we've shipped for clients" />
-      <TextLink href="/work">See all work</TextLink>
+      <SectionHeading id="work-title" label={label} title={title} />
+      {showAll && <TextLink href="/work">See all work</TextLink>}
     </div>
     <div class="projects">
       {

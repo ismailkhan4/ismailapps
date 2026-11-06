@@ -3,6 +3,10 @@ import TextLink from '../ui/TextLink.astro';
 import AnnotatedFrame from '../ui/AnnotatedFrame.astro';
 import { getProducts } from '../../lib/content';
 
+interface Props {
+  label?: string;
+}
+const { label = '03 · our own product' } = Astro.props;
 const [product] = await getProducts();
 ---
 
@@ -11,7 +15,7 @@ const [product] = await getProducts();
     <section class="own" aria-labelledby="own-title">
       <div class="container-site grid-site own-grid">
         <div class="own-copy">
-          <p class="own-kicker t-mono">03 · our own product</p>
+          <p class="own-kicker t-mono">{label}</p>
           <h2 id="own-title" class="own-title">
             We run software too.
           </h2>

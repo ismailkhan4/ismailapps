@@ -1,0 +1,449 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getEntries } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/sections/PageHero.astro';
+import FactSheet from '../../components/ui/FactSheet.astro';
+import SectionHeading from '../../components/ui/SectionHeading.astro';
+import AnnotatedFrame from '../../components/ui/AnnotatedFrame.astro';
+import RichText from '../../components/ui/RichText.astro';
+import CTASection from '../../components/sections/CTASection.astro';
+import { getCaseNeighbours, getWork } from '../../lib/content';
+
+export const getStaticPaths = (async () => {
+  const cases = await getWork('case-study');
+  return cases.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+const d = entry.data;
+const host = new URL(d.url).hostname;
+const services = await getEntries(d.services);
+const { next } = await getCaseNeighbours(entry.id);
+
+const snapshot = [
+  { key: 'client', value: `${d.clientLocation}` },
+  { key: 'product', value: d.category },
+  ...(d.scope ? [{ key: 'our part', value: d.scope }] : []),
+  ...(d.timeline ? [{ key: 'timeline', value: d.timeline }] : []),
+  { key: 'status', value: d.status === 'live' ? `Live · ${host}` : 'Offline' },
+  ...(services.length ? [{ key: 'services', value: services.map((s) => s.data.title).join(', ') }] : []),
+];
+const title = d.seo?.title ?? `${d.title} case study`;
+const description = d.seo?.description ?? d.summary;
+---
+
+<BaseLayout title={title} description={description}>
+  <!-- 1. Snapshot -->
+  <PageHero
+    crumbs={[{ href: '/', label: 'Home' }, { href: '/work', label: 'Work' }, { label: d.title }]}
+    kicker={`case study · ${d.category} · client project`}
+    title={d.title}
+    lead={d.summary}
+    cta={{ href: d.url, label: `Visit ${host}`, location: `case-hero:${entry.id}`, event: 'outbound_client' }}
+    secondary={{ href: '/contact', label: 'Start a project' }}
+  >
+    <FactSheet slot="aside" label="snapshot" rows={snapshot} />
+  </PageHero>
+
+  {
+    d.cover && (
+      <section class="shot" aria-label={`${d.title} screenshot`}>
+        <div class="container-site" data-clip>
+          <AnnotatedFrame address={host} image={d.cover} alt={`The ${d.title} website, ${host}`} />
+          <p class="t-label shot-hint">hover to scroll the page</p>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    d.role && (
+      <section class="role" aria-label="Our role">
+        <div class="container-site grid-site">
+          <p class="t-label role-label">our role</p>
+          <p class="role-text" data-reveal>
+            <RichText text={d.role} />
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- 2. The problem -->
+  {
+    d.problem && (
+      <section class="section" aria-labelledby="problem-title">
+        <div class="container-site grid-site split">
+          <div class="split-head">
+            <SectionHeading id="problem-title" label="01 · the problem" title="What it had to solve" />
+          </div>
+          <p class="problem split-body" data-reveal>
+            <RichText text={d.problem} />
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- 3. What we built -->
+  {
+    d.built.length > 0 && (
+      <section class="section" aria-labelledby="built-title">
+        <div class="container-site">
+          <SectionHeading id="built-title" label="02 · what we built" title="What we built" />
+          <ol class="cards">
+            {d.built.map((b, i) => (
+              <li class="card" data-reveal style={`--d:${i}`}>
+                <span class="t-mono card-n">{String(i + 1).padStart(2, '0')}</span>
+                <h3 class="card-title">{b.title}</h3>
+                <p class="card-detail">{b.detail}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- 4. How we built it: decisions, then stack -->
+  {
+    (d.decisions.length > 0 || d.stack.length > 0) && (
+      <section class="section" aria-labelledby="how-title">
+        <div class="container-site grid-site split">
+          <div class="split-head">
+            <SectionHeading id="how-title" label="03 · how we built it" title="Decisions and stack" />
+          </div>
+          <div class="split-body">
+            {d.decisions.length > 0 && (
+              <ol class="decisions">
+                {d.decisions.map((x, i) => (
+                  <li data-reveal style={`--d:${i}`}>
+                    <h3 class="decision-title">
+                      <RichText text={x.title} />
+                    </h3>
+                    <p class="decision-detail">
+                      <RichText text={x.detail} />
+                    </p>
+                  </li>
+                ))}
+              </ol>
+            )}
+            {d.stack.length > 0 && (
+              <div class="stack">
+                <p class="t-label">stack</p>
+                <ul>
+                  {d.stack.map((t) => (
+                    <li class="stack-pill t-mono">
+                      <RichText text={t} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- 5. Outcome -->
+  {
+    d.outcome.length > 0 && (
+      <section class="section" aria-labelledby="outcome-title">
+        <div class="container-site grid-site split">
+          <div class="split-head">
+            <SectionHeading id="outcome-title" label="04 · outcome" title="Where it is now" />
+          </div>
+          <ul class="outcome split-body">
+            {d.outcome.map((o, i) => (
+              <li data-reveal style={`--d:${i}`}>
+                <span class="outcome-dot" aria-hidden="true" />
+                <RichText text={o} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- 6. Quote: only rendered when the schema has verified written approval -->
+  {
+    d.quote && (
+      <section class="section" aria-label="Client quote">
+        <figure class="container-site quote">
+          <blockquote>
+            <p>“{d.quote.text}”</p>
+          </blockquote>
+          <figcaption class="t-mono">
+            {d.quote.name}, {d.quote.role}
+          </figcaption>
+        </figure>
+      </section>
+    )
+  }
+
+  <!-- Next case study -->
+  {
+    next && (
+      <nav class="next" aria-label="Next case study">
+        <a href={`/work/${next.id}`} class="next-link">
+          <span class="container-site next-inner">
+            <span class="t-label next-label">next case study</span>
+            <span class="next-title">
+              {next.data.title} <span aria-hidden="true">→</span>
+            </span>
+            <span class="next-summary">{next.data.summary}</span>
+          </span>
+        </a>
+      </nav>
+    )
+  }
+
+  <!-- 7. CTA -->
+  <CTASection location={`case-final:${entry.id}`} sub="Building something similar? Tell us where your product is today, and we'll tell you honestly what it needs next." />
+</BaseLayout>
+
+<style>
+  .shot {
+    padding-bottom: var(--section-space);
+  }
+  .shot-hint {
+    margin: 0.75rem 0 0;
+  }
+  @media (hover: none) {
+    .shot-hint {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .shot [data-clip] {
+      clip-path: inset(6% 10% 6% 10% round 1.5rem);
+      transform: translateY(2rem);
+      transition:
+        clip-path 1300ms cubic-bezier(0.7, 0, 0.2, 1),
+        transform 1300ms cubic-bezier(0.2, 0.7, 0, 1);
+    }
+    :global(.js) .shot [data-clip]:global(.is-open) {
+      clip-path: inset(0 0 0 0 round 0);
+      transform: none;
+    }
+    :global(.js) [data-reveal][style*='--d'] {
+      transition-delay: calc(var(--d) * 80ms);
+    }
+  }
+
+  .role {
+    padding-block: var(--section-space);
+    border-top: 1px solid var(--color-rule);
+  }
+  .role-label,
+  .role-text {
+    grid-column: 1 / -1;
+  }
+  .role-label {
+    margin: 0 0 1rem;
+  }
+  .role-text {
+    margin: 0;
+    max-width: 30ch;
+    font-size: var(--step-3);
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+  }
+
+  .split {
+    row-gap: 2rem;
+  }
+  .split-head,
+  .split-body {
+    grid-column: 1 / -1;
+  }
+  .problem {
+    margin: 0;
+    font-size: var(--step-1);
+    line-height: 1.5;
+    max-width: 52ch;
+  }
+
+  .cards {
+    display: grid;
+    gap: 1rem;
+    list-style: none;
+    margin: clamp(2rem, 4vw, 3rem) 0 0;
+    padding: 0;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    min-height: 13rem;
+    padding: 1.75rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    transition:
+      transform 500ms cubic-bezier(0.2, 0.7, 0, 1),
+      border-color 300ms;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-ink);
+  }
+  .card-n {
+    color: var(--color-signal-ink);
+  }
+  .card-title {
+    margin: auto 0 0.5rem;
+    padding-top: 2rem;
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  .card-detail {
+    margin: 0;
+    color: var(--color-ink-muted);
+  }
+
+  .decisions,
+  .outcome {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-ink);
+  }
+  .decisions li {
+    padding: 1.4rem 0;
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .decision-title {
+    margin: 0 0 0.4rem;
+    font-size: var(--step-1);
+    letter-spacing: -0.015em;
+  }
+  .decision-detail {
+    margin: 0;
+    color: var(--color-ink-muted);
+    max-width: 56ch;
+  }
+  .stack {
+    margin-top: 2rem;
+  }
+  .stack ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0;
+  }
+  .stack-pill {
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius-pill);
+    font-size: 0.875rem;
+  }
+  .outcome li {
+    display: grid;
+    grid-template-columns: 1.5rem 1fr;
+    align-items: baseline;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--color-rule);
+    font-size: var(--step-1);
+  }
+  .outcome-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--color-live);
+  }
+
+  .quote {
+    margin: 0 auto;
+  }
+  .quote blockquote {
+    margin: 0;
+    font-size: var(--step-3);
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+    max-width: 32ch;
+  }
+  .quote p {
+    margin: 0;
+  }
+  .quote figcaption {
+    margin-top: 1.25rem;
+    color: var(--color-ink-muted);
+  }
+
+  .next {
+    border-top: 1px solid var(--color-rule);
+  }
+  .next-link {
+    display: block;
+    padding-block: clamp(3rem, 7vw, 5rem);
+    text-decoration: none;
+    transition: background-color 400ms var(--ease-precise);
+  }
+  .next-inner {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .next-title {
+    font-size: clamp(2.5rem, 1.4rem + 5vw, 6rem);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: 1;
+  }
+  .next-title span {
+    display: inline-block;
+    transition: transform 400ms cubic-bezier(0.2, 0.7, 0, 1);
+  }
+  .next-summary {
+    max-width: 52ch;
+    color: var(--color-ink-muted);
+  }
+  .next-link:hover,
+  .next-link:focus-visible {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .next-link:hover .next-label,
+  .next-link:hover .next-summary,
+  .next-link:focus-visible .next-label,
+  .next-link:focus-visible .next-summary {
+    color: var(--color-ink-soft);
+  }
+  .next-link:hover .next-title span {
+    transform: translateX(0.75rem);
+  }
+
+  @media (width >= 40rem) {
+    .cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (width >= 56.25rem) {
+    .role-label {
+      grid-column: 1 / span 3;
+      padding-top: 0.8rem;
+    }
+    .role-text {
+      grid-column: 4 / span 9;
+    }
+    .split-head {
+      grid-column: 1 / span 4;
+      align-self: start;
+      position: sticky;
+      top: 7rem;
+    }
+    .split-body {
+      grid-column: 5 / span 8;
+    }
+    .cards {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>

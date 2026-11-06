@@ -70,9 +70,17 @@ const work = defineCollection({
     /** Verified facts about the product itself (not claims about our work). */
     productFacts: z.array(z.string()).default([]),
     services: z.array(reference('services')).default([]),
-    /** Filled in Milestone 3 from founder-supplied material only. */
+    /* Case-study fields: founder-supplied facts only; unknowns as [[placeholders]]. */
+    /** What we did on the project, in a sentence. */
     role: z.string().optional(),
-    year: z.number().int().optional(),
+    /** Our part in a few words, for the snapshot sheet, e.g. "Front end · integrations". */
+    scope: z.string().optional(),
+    /** e.g. "2023–2024". */
+    timeline: z.string().optional(),
+    /** The problem the product solves, from the client's own public positioning. */
+    problem: z.string().optional(),
+    built: z.array(z.object({ title: z.string(), detail: z.string() })).default([]),
+    decisions: z.array(z.object({ title: z.string(), detail: z.string() })).default([]),
     stack: z.array(z.string()).default([]),
     outcome: z.array(z.string()).default([]),
     quote: z
@@ -106,6 +114,7 @@ const products = defineCollection({
       summary: z.string(),
       audience: z.string(),
       facts: z.array(z.string()).default([]),
+      features: z.array(z.object({ title: z.string(), detail: z.string() })).default([]),
       seo: seo.optional(),
     })
     .refine((p) => p.status !== 'live' || Boolean(p.url), {

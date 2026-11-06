@@ -20,6 +20,14 @@ export function workHref(entry: CollectionEntry<'work'>): string {
   return entry.data.kind === 'case-study' ? `/work/${entry.id}` : `/work#${entry.id}`;
 }
 
+/** Previous and next case studies, wrapping around, for "next case" navigation. */
+export async function getCaseNeighbours(id: string) {
+  const cases = await getWork('case-study');
+  const i = cases.findIndex((c) => c.id === id);
+  if (i === -1 || cases.length < 2) return { next: undefined };
+  return { next: cases[(i + 1) % cases.length] };
+}
+
 export function contactHref(service?: CollectionEntry<'services'>): string {
   return service ? `/contact?service=${service.data.formValue}` : '/contact';
 }

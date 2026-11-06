@@ -1,0 +1,236 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/sections/PageHero.astro';
+import AnnotatedFrame from '../../components/ui/AnnotatedFrame.astro';
+import SectionHeading from '../../components/ui/SectionHeading.astro';
+import TextLink from '../../components/ui/TextLink.astro';
+import CTASection from '../../components/sections/CTASection.astro';
+import { getProducts } from '../../lib/content';
+
+export const getStaticPaths = (async () => {
+  const products = await getProducts();
+  return products.map((product) => ({ params: { slug: product.id }, props: { product } }));
+}) satisfies GetStaticPaths;
+
+const { product } = Astro.props;
+const d = product.data;
+const host = d.url ? new URL(d.url).hostname : undefined;
+const statusLabel = d.status === 'live' ? (d.statusNote ? `Live · ${d.statusNote}` : 'Live') : d.status.replace('-', ' ');
+---
+
+<BaseLayout title={d.seo?.title ?? d.name} description={d.seo?.description ?? d.summary}>
+  <PageHero
+    crumbs={[{ href: '/', label: 'Home' }, { href: '/products', label: 'Products' }, { label: d.name }]}
+    kicker={`${d.name} · an IsmailApps product`}
+    tag={statusLabel}
+    title={d.tagline}
+    lead={d.summary}
+    cta={d.url ? { href: d.url, label: `Visit ${host}`, location: `product-hero:${product.id}`, event: `outbound_${product.id}` } : undefined}
+    secondary={{ href: '#features', label: 'How it works' }}
+  >
+    {
+      d.mobileCover && (
+        <div slot="aside" class="phone-aside" data-tilt="8">
+          <AnnotatedFrame kind="phone" image={d.mobileCover} alt={`${d.name} on a phone`} />
+        </div>
+      )
+    }
+  </PageHero>
+
+  <section class="audience" aria-label="Who it's for">
+    <div class="container-site grid-site">
+      <p class="t-label audience-label">who it's for</p>
+      <p class="audience-text" data-reveal>{d.audience}.</p>
+    </div>
+  </section>
+
+  {
+    d.features.length > 0 && (
+      <section class="section" id="features" aria-labelledby="features-title">
+        <div class="container-site">
+          <SectionHeading id="features-title" label="how it works" title={`Inside ${d.name}`} />
+          <ol class="features">
+            {d.features.map((f, i) => (
+              <li class="feature" data-reveal style={`--d:${i}`}>
+                <span class="t-mono feature-n">{String(i + 1).padStart(2, '0')}</span>
+                <h3 class="feature-title">{f.title}</h3>
+                <p class="feature-detail">{f.detail}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    d.cover && (
+      <section class="shot" aria-label={`${d.name} on desktop`}>
+        <div class="container-site">
+          <AnnotatedFrame address={host} image={d.cover} alt={`The ${d.name} website on desktop`} />
+          <p class="t-label shot-hint">hover to scroll the page</p>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section" aria-labelledby="ours-title">
+    <div class="container-site grid-site ours">
+      <div class="ours-head">
+        <p class="t-label">built and run by us</p>
+        <h2 id="ours-title" class="t-h2 ours-title">The same team builds for clients.</h2>
+      </div>
+      <div class="ours-body">
+        <p>
+          {d.name} is designed, built and operated by IsmailApps. Running our own product keeps our decisions honest, and
+          we bring what it teaches us to every client project.
+        </p>
+        <TextLink href="/services">What we build for clients</TextLink>
+      </div>
+    </div>
+  </section>
+
+  <CTASection location={`product-final:${product.id}`} />
+</BaseLayout>
+
+<style>
+  .phone-aside {
+    --rx: 0deg;
+    --ry: 0deg;
+    transform: perspective(1000px) rotate(-3deg) rotateX(var(--rx)) rotateY(var(--ry));
+    transition: transform 600ms cubic-bezier(0.2, 0.7, 0, 1);
+  }
+  .phone-aside :global(.frame-body) {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    box-shadow: 0 30px 60px -25px rgb(23 21 15 / 0.5);
+  }
+
+  .audience {
+    padding-block: var(--section-space);
+    border-top: 1px solid var(--color-rule);
+  }
+  .audience-label,
+  .audience-text {
+    grid-column: 1 / -1;
+  }
+  .audience-label {
+    margin: 0 0 1rem;
+  }
+  .audience-text {
+    margin: 0;
+    max-width: 24ch;
+    font-size: var(--step-4);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.035em;
+  }
+
+  .features {
+    display: grid;
+    gap: 1rem;
+    list-style: none;
+    margin: clamp(2rem, 4vw, 3rem) 0 0;
+    padding: 0;
+  }
+  .feature {
+    display: flex;
+    flex-direction: column;
+    min-height: 13rem;
+    padding: 1.75rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+  .feature:nth-child(2) {
+    background: var(--color-signal-ink);
+    border-color: var(--color-signal-ink);
+    color: var(--color-white);
+  }
+  .feature:nth-child(2) .feature-n,
+  .feature:nth-child(2) .feature-detail {
+    color: var(--color-signal-tint);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .feature[data-reveal] {
+      transition-delay: calc(var(--d) * 80ms);
+    }
+  }
+  .feature-n {
+    color: var(--color-signal-ink);
+  }
+  .feature-title {
+    margin: auto 0 0.5rem;
+    padding-top: 2rem;
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  .feature-detail {
+    margin: 0;
+    color: var(--color-ink-muted);
+  }
+
+  .shot {
+    padding-bottom: var(--section-space);
+  }
+  .shot-hint {
+    margin: 0.75rem 0 0;
+  }
+  @media (hover: none) {
+    .shot-hint {
+      display: none;
+    }
+  }
+
+  .ours {
+    row-gap: 1.5rem;
+  }
+  .ours-head,
+  .ours-body {
+    grid-column: 1 / -1;
+  }
+  .ours-title {
+    margin: 0.6rem 0 0;
+    max-width: 16ch;
+  }
+  .ours-body p {
+    margin: 0 0 1.5rem;
+    max-width: 48ch;
+    font-size: var(--step-1);
+    line-height: 1.5;
+  }
+
+  @media (width >= 40rem) {
+    .features {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (width >= 56.25rem) {
+    .audience-label {
+      grid-column: 1 / span 3;
+      padding-top: 1rem;
+    }
+    .audience-text {
+      grid-column: 4 / span 9;
+    }
+    .features {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+    .feature {
+      grid-column: span 2;
+    }
+    .feature:nth-child(4),
+    .feature:nth-child(5) {
+      grid-column: span 3;
+    }
+    .ours-head {
+      grid-column: 1 / span 5;
+    }
+    .ours-body {
+      grid-column: 7 / span 6;
+      align-self: end;
+    }
+  }
+</style>

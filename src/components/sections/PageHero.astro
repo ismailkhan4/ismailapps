@@ -10,12 +10,14 @@ import TextLink from '../ui/TextLink.astro';
 
 interface Props {
   crumbs: { href?: string; label: string }[];
-  kicker: string;
+  /** Small label above the headline. Leave out when it would just repeat the breadcrumb. */
+  kicker?: string | undefined;
   /** Optional orange pill next to the kicker. */
   tag?: string | undefined;
   title: string;
   lead: string;
-  cta?: { href: string; location: string; label?: string };
+  /** Primary button. `event` defaults to cta_click; external links get ↗ and open normally. */
+  cta?: { href: string; location: string; label?: string; event?: string } | undefined;
   secondary?: { href: string; label: string };
 }
 const { crumbs, kicker, tag, title, lead, cta, secondary } = Astro.props;
@@ -27,10 +29,14 @@ const hasAside = Astro.slots.has('aside');
   <div class="container-site grid-site page-hero-grid">
     <div class="page-hero-copy">
       <Breadcrumbs items={crumbs} />
-      <p class="page-kicker">
-        <span class="t-label">{kicker}</span>
-        {tag && <span class="t-mono page-tag">{tag}</span>}
-      </p>
+      {
+        (kicker || tag) && (
+          <p class="page-kicker">
+            {kicker && <span class="t-label">{kicker}</span>}
+            {tag && <span class="t-mono page-tag">{tag}</span>}
+          </p>
+        )
+      }
       <h1 id="page-title" class="t-display page-title">
         {
           words.map((w, i) => (
@@ -49,7 +55,7 @@ const hasAside = Astro.slots.has('aside');
           <div class="page-actions">
             {cta && (
               <span data-magnetic class="magnetic">
-                <Button href={cta.href} event="cta_click" location={cta.location} arrow>
+                <Button href={cta.href} event={cta.event ?? 'cta_click'} location={cta.location} arrow>
                   {cta.label ?? 'Start a project'}
                 </Button>
               </span>
@@ -89,6 +95,9 @@ const hasAside = Astro.slots.has('aside');
     gap: 0.75rem;
     margin: 2rem 0 0;
   }
+  .page-kicker + .page-title {
+    margin-top: 1rem;
+  }
   .page-tag {
     padding: 0.2rem 0.7rem;
     border-radius: var(--radius-pill);
@@ -97,7 +106,7 @@ const hasAside = Astro.slots.has('aside');
     font-size: 0.75rem;
   }
   .page-title {
-    margin: 1rem 0 0;
+    margin: 2rem 0 0;
     max-width: 16ch;
   }
   .page-lead {
