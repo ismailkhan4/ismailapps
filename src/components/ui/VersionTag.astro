@@ -15,6 +15,7 @@
 
 <style>
   .vtag {
+    --vtag-strong: var(--color-ink);
     display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
@@ -82,8 +83,8 @@
 
   @keyframes vtag-from-settle {
     from {
-      color: var(--color-ink);
-      border-color: var(--color-ink);
+      color: var(--vtag-strong);
+      border-color: var(--vtag-strong);
     }
   }
   @keyframes vtag-strike {

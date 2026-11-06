@@ -1,0 +1,71 @@
+---
+/**
+ * A "release notes" sheet of key facts. Only approved facts belong here.
+ * Values may contain [[placeholders]].
+ */
+import RichText from './RichText.astro';
+
+interface Props {
+  label: string;
+  rows: { key: string; value: string }[];
+}
+const { label, rows } = Astro.props;
+---
+
+<aside class="sheet" aria-label={label}>
+  <p class="sheet-head t-mono">
+    <span>{label}</span>
+  </p>
+  <dl class="sheet-list">
+    {
+      rows.map((r) => (
+        <div class="sheet-row">
+          <dt class="t-mono">{r.key}</dt>
+          <dd>
+            <RichText text={r.value} />
+          </dd>
+        </div>
+      ))
+    }
+  </dl>
+</aside>
+
+<style>
+  .sheet {
+    background: var(--color-surface);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-sm);
+  }
+  .sheet-head {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    padding: 0.8rem 1.1rem;
+    border-bottom: 1px solid var(--color-rule);
+    color: var(--color-ink-muted);
+  }
+  .sheet-list {
+    margin: 0;
+    padding: 0.4rem 1.1rem;
+  }
+  .sheet-row {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: 1rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px dashed var(--color-rule);
+  }
+  .sheet-row:last-child {
+    border-bottom: 0;
+  }
+  .sheet-row dt {
+    color: var(--color-ink-muted);
+    padding-top: 0.12rem;
+  }
+  .sheet-row dd {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+</style>

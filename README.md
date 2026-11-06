@@ -26,6 +26,12 @@ render through `<Placeholder label="…" />`: a hatched, clearly marked stand-in
 `integrations/placeholder-guard.mjs` scans every built page and **fails a production build** while any remain.
 Site-wide facts live in `src/lib/site.ts`; optional links set to `null` are hidden rather than invented.
 
+## Screenshots
+
+Work and product images are real captures of the live sites, never mock-ups:
+`node scripts/capture-work.mjs` refreshes `src/assets/work/*.png` (it hides cookie banners instead of accepting them).
+Content files reference them as `cover` / `mobileCover`; Astro converts them to WebP at build time.
+
 ## Brand system
 
 - Tokens: `src/styles/global.css` (`@theme`). The palette is closed: Tailwind's default colours are removed.

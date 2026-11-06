@@ -1,0 +1,217 @@
+---
+/**
+ * "How we work" as a release: on wide screens the section pins and a giant
+ * version number ticks from v0.1 to v1.0 as each step goes by (motion.ts).
+ * Without pinning (mobile, reduced motion, no JS) it is a plain list where each
+ * step shows its own version tag.
+ */
+import Tag from '../ui/Tag.astro';
+
+type Step = { title: string; detail: string; v?: string };
+interface Props {
+  label?: string;
+  title?: string;
+  /** Defaults to the studio's engagement process. */
+  steps?: Step[];
+  /** Show the "you own" note under the steps. */
+  ownership?: boolean;
+  id?: string;
+}
+
+const defaultSteps: Step[] = [
+  { v: 'v0.1', title: 'Scoping sprint', detail: 'We pressure-test the idea and agree scope, flows and architecture.' },
+  { v: 'v0.3', title: 'Fixed quote', detail: 'You get a written plan and a fixed price before the build starts.' },
+  { v: 'v0.6', title: 'Build, with staging access', detail: 'You click through a working staging build early in the project.' },
+  { v: 'v1.0', title: 'Launch', detail: 'We deploy to your accounts and hand over.' },
+  { v: 'v1.x', title: 'Ongoing care', detail: 'Maintenance and new features, or a clean handover to your team.' },
+];
+
+const {
+  label = '04 · how we work',
+  title = 'From first call to v1.0',
+  steps: input = defaultSteps,
+  ownership = true,
+  id,
+} = Astro.props;
+
+// Steps without an explicit version count up evenly from v0.1 to v1.0 (e.g. 0.1, 0.3, 0.5, 0.7, 1.0).
+const steps = input.map((s, i) => ({
+  ...s,
+  v: s.v ?? (i === input.length - 1 ? 'v1.0' : `v0.${1 + Math.round((i * 8) / Math.max(1, input.length - 1))}`),
+}));
+---
+
+<section class="release panel-ink" data-pin="release" aria-labelledby="how-title" id={id}>
+  <div class="release-inner" data-pin-inner>
+    <div class="container-site grid-site release-grid">
+      <div class="release-left">
+        <p class="t-label">{label}</p>
+        <h2 id="how-title" class="t-h2 release-title">{title}</h2>
+        <p class="release-counter" aria-hidden="true" data-release-counter>{steps[0]?.v}</p>
+        <div class="release-progress" aria-hidden="true"><span></span></div>
+      </div>
+      <ol class="release-steps">
+        {
+          steps.map((s) => (
+            <li class="release-step" data-release-step={s.v}>
+              <span class="t-mono release-v">{s.v}</span>
+              <div>
+                <h3 class="release-step-title">{s.title}</h3>
+                <p class="release-step-detail">{s.detail}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+    {
+      ownership && (
+        <div class="container-site release-own">
+          <Tag tone="signal" label="you own">
+            repo · hosting · accounts
+          </Tag>
+          <p>From day one. If you ever want to work with someone else, nothing has to be handed back.</p>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .release {
+    /* Same gap as the panels' side inset, so stacked panels read as separate tiles. */
+    margin-top: clamp(0.5rem, 1.2vw, 1rem);
+    padding-block: var(--section-space);
+  }
+  .release-grid {
+    row-gap: 2.5rem;
+  }
+  .release-left,
+  .release-steps {
+    grid-column: 1 / -1;
+  }
+  .release-title {
+    margin: 0.6rem 0 0;
+    max-width: 12ch;
+  }
+  .release-counter,
+  .release-progress {
+    display: none;
+  }
+  .release-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .release-step {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: 1rem;
+    padding: 1.4rem 0;
+    border-top: 1px solid var(--color-ink-rule);
+  }
+  .release-v {
+    color: var(--color-signal);
+    padding-top: 0.2rem;
+  }
+  .release-step-title {
+    margin: 0 0 0.35rem;
+    font-size: var(--step-1);
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+  }
+  .release-step-detail {
+    margin: 0;
+    color: var(--color-ink-soft);
+    max-width: 44ch;
+  }
+  .release-own {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  }
+  .release-own p {
+    margin: 0;
+    color: var(--color-ink-soft);
+  }
+  @media (width >= 56.25rem) {
+    .release-left {
+      grid-column: 1 / span 6;
+    }
+    .release-steps {
+      grid-column: 8 / span 5;
+    }
+    .release-own {
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 1.5rem;
+    }
+  }
+
+  /* Pinned mode */
+  .release:global(.is-pinned) {
+    padding-block: 0;
+  }
+  .release:global(.is-pinned) .release-inner {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 4.25rem;
+  }
+  .release:global(.is-pinned) .release-counter {
+    display: block;
+    margin: 1.5rem 0 0;
+    font-size: clamp(6rem, 15vw, 15rem);
+    font-weight: 600;
+    letter-spacing: -0.06em;
+    line-height: 0.9;
+    color: var(--color-paper);
+  }
+  .release:global(.is-pinned) .release-counter:global(.tick) {
+    animation: counter-tick 500ms cubic-bezier(0.2, 0.7, 0, 1);
+  }
+  .release:global(.is-pinned) .release-progress {
+    display: block;
+    height: 2px;
+    margin-top: 1.5rem;
+    background: var(--color-ink-rule);
+  }
+  .release-progress span {
+    display: block;
+    height: 100%;
+    background: var(--color-signal);
+    transform-origin: left;
+    transform: scaleX(var(--p, 0));
+  }
+  .release:global(.is-pinned) .release-step {
+    opacity: 0.35;
+    transition:
+      opacity 400ms var(--ease-precise),
+      transform 500ms cubic-bezier(0.2, 0.7, 0, 1);
+  }
+  .release:global(.is-pinned) .release-step:global(.is-done) {
+    opacity: 0.6;
+  }
+  .release:global(.is-pinned) .release-step:global(.is-current) {
+    opacity: 1;
+    transform: translateX(-0.5rem);
+  }
+  .release:global(.is-pinned) .release-step:global(.is-current) .release-v {
+    color: var(--color-ink);
+    background: var(--color-signal);
+    border-radius: var(--radius-pill);
+    padding: 0.15rem 0.5rem;
+    align-self: start;
+    justify-self: start;
+  }
+  @keyframes counter-tick {
+    from {
+      opacity: 0;
+      transform: translateY(0.25em);
+      filter: blur(8px);
+    }
+  }
+</style>

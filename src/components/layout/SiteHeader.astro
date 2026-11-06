@@ -1,7 +1,10 @@
 ---
 import Logo from '../ui/Logo.astro';
 import Button from '../ui/Button.astro';
-import { primaryNav, services, site } from '../../lib/site';
+import { primaryNav, site } from '../../lib/site';
+import { getServices } from '../../lib/content';
+
+const services = await getServices();
 
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`);
@@ -19,7 +22,7 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
       <ul class="nav-list">
         {
           primaryNav.map((item) =>
-            'children' in item ? (
+            'hasMenu' in item ? (
               <li class="nav-item">
                 <details class="nav-disclosure" data-disclosure>
                   <summary class:list={['nav-link', isCurrent(item.href) && 'is-current']}>
@@ -30,17 +33,17 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
                   </summary>
                   <div class="nav-panel">
                     <ul>
-                      {item.children.map((s, i) => (
+                      {services.map((s, i) => (
                         <li>
                           <a
-                            href={`/services/${s.slug}`}
+                            href={`/services/${s.id}`}
                             class="nav-panel-link"
-                            aria-current={isCurrent(`/services/${s.slug}`) ? 'page' : undefined}
+                            aria-current={isCurrent(`/services/${s.id}`) ? 'page' : undefined}
                           >
                             <span class="t-label nav-panel-num">0{i + 1}</span>
                             <span>
-                              <span class="nav-panel-title">{s.title}</span>
-                              <span class="nav-panel-short">{s.short}</span>
+                              <span class="nav-panel-title">{s.data.title}</span>
+                              <span class="nav-panel-short">{s.data.navShort}</span>
                             </span>
                           </a>
                         </li>
@@ -85,7 +88,7 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
                 {
                   services.map((s) => (
                     <li>
-                      <a href={`/services/${s.slug}`}>{s.title}</a>
+                      <a href={`/services/${s.id}`}>{s.data.title}</a>
                     </li>
                   ))
                 }

@@ -1,0 +1,44 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import FAQ from '../ui/FAQ.astro';
+
+interface Props {
+  items: { q: string; a: string }[];
+  label: string;
+  title?: string;
+}
+const { items, label, title = 'Questions founders ask' } = Astro.props;
+---
+
+<section class="section" aria-labelledby="faq-title">
+  <div class="container-site grid-site faq-grid">
+    <div class="faq-head">
+      <SectionHeading id="faq-title" label={label} title={title} />
+    </div>
+    <div class="faq-list">
+      <FAQ items={items} />
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq-grid {
+    row-gap: 2.5rem;
+  }
+  .faq-head,
+  .faq-list {
+    grid-column: 1 / -1;
+  }
+  @media (width >= 56.25rem) {
+    /* The heading stays in view while the questions scroll past. */
+    .faq-head {
+      grid-column: 1 / span 4;
+      align-self: start;
+      position: sticky;
+      top: 7rem;
+    }
+    .faq-list {
+      grid-column: 5 / span 8;
+    }
+  }
+</style>

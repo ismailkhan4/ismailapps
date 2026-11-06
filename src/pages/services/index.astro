@@ -1,0 +1,138 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/sections/PageHero.astro';
+import ServiceCard from '../../components/ui/ServiceCard.astro';
+import ReleaseCounter from '../../components/sections/ReleaseCounter.astro';
+import CTASection from '../../components/sections/CTASection.astro';
+import { getServices } from '../../lib/content';
+
+const services = await getServices();
+---
+
+<BaseLayout
+  title="Services"
+  description="Scoping sprints, SaaS and AI product development, prototype to production, ongoing product engineering, and websites for software businesses."
+>
+  <PageHero
+    crumbs={[{ href: '/', label: 'Home' }, { label: 'Services' }]}
+    kicker="services"
+    title="What we build"
+    lead="We take SaaS and AI products from an idea, or from whatever you have already built, to software that holds up with real users. Start with a scoping sprint, or tell us where you are."
+    cta={{ href: '/contact', location: 'services-hero' }}
+    secondary={{ href: '#how', label: 'How we work' }}
+  />
+
+  <section class="bento-wrap" aria-label="All services">
+    <div class="container-site">
+      <ol class="bento">
+        {
+          services.map((s, i) => (
+            <li class={`bento-item bento-${i + 1}`} data-reveal style={`--d:${i}`}>
+              <ServiceCard service={s} index={i} />
+            </li>
+          ))
+        }
+        <li class="bento-item bento-unsure" data-reveal style={`--d:${services.length}`}>
+          <a href="/contact?service=not-sure" class="unsure">
+            <span class="t-mono unsure-label">not sure yet?</span>
+            <span class="unsure-title">Tell us where your product is, and we'll suggest where to start.</span>
+            <span class="unsure-more">
+              Start the conversation <span aria-hidden="true">→</span>
+            </span>
+          </a>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <ReleaseCounter id="how" label="process" />
+  <CTASection location="services-overview" />
+</BaseLayout>
+
+<style>
+  .bento-wrap {
+    padding-bottom: var(--section-space);
+  }
+  .bento {
+    display: grid;
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .bento-item {
+    min-width: 0;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .bento-item[data-reveal] {
+      transition-delay: calc(var(--d) * 80ms);
+    }
+  }
+  .unsure {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    height: 100%;
+    min-height: 16rem;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    background: var(--color-ink);
+    color: var(--color-paper);
+    text-decoration: none;
+    transition: transform 500ms cubic-bezier(0.2, 0.7, 0, 1);
+  }
+  .unsure:hover,
+  .unsure:focus-visible {
+    transform: translateY(-6px);
+  }
+  .unsure:focus-visible {
+    outline-color: var(--color-ink);
+  }
+  .unsure-label {
+    color: var(--color-ink-soft);
+  }
+  .unsure-title {
+    margin-top: auto;
+    max-width: 22ch;
+    font-size: var(--step-3);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  .unsure-more {
+    font-weight: 600;
+    color: var(--color-signal);
+  }
+  @media (width >= 40rem) {
+    .bento {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .bento-unsure {
+      grid-column: 1 / -1;
+    }
+  }
+  /* Desktop bento: 4 + 8 / 8 + 4 / 4 + 8 on a 12-column grid. */
+  @media (width >= 56.25rem) {
+    .bento {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+    .bento-1 {
+      grid-column: span 4;
+    }
+    .bento-2 {
+      grid-column: span 8;
+    }
+    .bento-3 {
+      grid-column: span 8;
+    }
+    .bento-4 {
+      grid-column: span 4;
+    }
+    .bento-5 {
+      grid-column: span 4;
+    }
+    .bento-unsure {
+      grid-column: span 8;
+    }
+  }
+</style>

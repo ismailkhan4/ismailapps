@@ -1,12 +1,62 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/sections/Hero.astro';
+import WorkIndex from '../components/sections/WorkIndex.astro';
+import ServicesRail from '../components/sections/ServicesRail.astro';
+import SelectedWork from '../components/sections/SelectedWork.astro';
+import OwnProduct from '../components/sections/OwnProduct.astro';
+import ReleaseCounter from '../components/sections/ReleaseCounter.astro';
+import StudioNote from '../components/sections/StudioNote.astro';
+import FAQSection from '../components/sections/FAQSection.astro';
+import CTASection from '../components/sections/CTASection.astro';
+
+const faqs = [
+  {
+    q: 'How much does a project cost?',
+    a: 'Every build gets a fixed quote after the scoping sprint, so you know the price before work starts. The sprint itself has a fixed price of [[scoping sprint price]]. The project form asks for a rough budget range so we can tell you early whether we are a good fit.',
+  },
+  {
+    q: 'Can you take over a product built with AI tools, no-code or a freelancer?',
+    a: 'Yes, it is one of our core services. We start by reviewing what exists, then tell you plainly what can stay, what needs hardening and what should be rebuilt. Not every prototype is worth saving, and we will say so when one is not.',
+  },
+  {
+    q: 'Can you work on an existing SaaS product?',
+    a: 'Yes. Product engineering & maintenance is a monthly arrangement for teams that need features, AI work, integrations or upkeep on a live product.',
+  },
+  {
+    q: 'Who owns the code and the accounts?',
+    a: 'You do, from day one. The repository, hosting and third-party accounts are yours, and we work inside them.',
+  },
+  {
+    q: 'Where are you based, and when can we talk?',
+    a: 'IsmailApps is run from Pakistan and works with clients in Europe and the United States. Calls are scheduled within [[working hours in CET]].',
+  },
+  {
+    q: 'What happens after launch?',
+    a: 'Either we keep going on a monthly engineering arrangement, or we hand over cleanly to your team, with the code and accounts already in your name.',
+  },
+  {
+    q: 'Do you build websites?',
+    a: 'Yes, conversion-focused websites for software and service businesses. It is a smaller part of what we do; most of our work is SaaS and AI products.',
+  },
+  {
+    q: 'How do we start?',
+    a: 'Tell us where your product is today through the project form. We reply by email and suggest a call; if it is a fit, the usual next step is a scoping sprint.',
+  },
+];
 ---
 
-<!-- Milestone 1: only the hero exists. The remaining homepage sections are built in Milestone 2. -->
 <BaseLayout
   title="SaaS and AI product studio"
-  description="IsmailApps designs, builds and maintains SaaS and AI products for founders, from a first scope to production, and runs its own."
+  description="IsmailApps designs, builds and maintains SaaS and AI products for founders, from a first scope or an AI-built prototype to production, and runs its own."
 >
   <Hero />
+  <WorkIndex />
+  <ServicesRail />
+  <SelectedWork />
+  <OwnProduct />
+  <ReleaseCounter />
+  <StudioNote />
+  <FAQSection items={faqs} label="06 · faq" />
+  <CTASection location="home-final" />
 </BaseLayout>

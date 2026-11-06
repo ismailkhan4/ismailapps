@@ -1,0 +1,109 @@
+---
+/**
+ * "What we build" as a rail of service cards. On wide screens the section pins
+ * and vertical scrolling moves the rail sideways (motion.ts). Elsewhere it is a
+ * native horizontal scroller with snap points, so it always works.
+ */
+import TextLink from '../ui/TextLink.astro';
+import ServiceCard from '../ui/ServiceCard.astro';
+import { getServices } from '../../lib/content';
+
+const services = await getServices();
+---
+
+<section class="rail" data-pin="rail" aria-labelledby="build-title">
+  <div class="rail-inner" data-pin-inner>
+    <div class="container-site rail-head">
+      <div>
+        <p class="t-label">01 · services</p>
+        <h2 id="build-title" class="t-h2 rail-title">What we build</h2>
+      </div>
+      <div class="rail-side">
+        <p class="rail-intro">Five ways to work with us. Most projects start with a scoping sprint.</p>
+        <TextLink href="/services">All services</TextLink>
+      </div>
+    </div>
+    <ol class="rail-track" data-rail-track>
+      {
+        services.map((s, i) => (
+          <li class:list={['card', s.data.featured && 'is-featured']}>
+            <ServiceCard service={s} index={i} />
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .rail {
+    position: relative;
+    padding-block: var(--section-space);
+  }
+  .rail-head {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+  .rail-title {
+    margin: 0.6rem 0 0;
+  }
+  .rail-intro {
+    margin: 0 0 1rem;
+    max-width: 34ch;
+    color: var(--color-ink-muted);
+  }
+  .rail-track {
+    --edge: max(var(--gutter), calc((100vw - var(--site-max)) / 2));
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem var(--edge) 1.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--edge);
+    scrollbar-width: thin;
+    will-change: transform;
+  }
+  .card {
+    flex: none;
+    width: min(82vw, 21rem);
+    scroll-snap-align: start;
+  }
+  .card.is-featured {
+    width: min(86vw, 27rem);
+  }
+  @media (width >= 56.25rem) {
+    .rail-head {
+      grid-template-columns: 1fr auto;
+      align-items: end;
+    }
+    .card,
+    .card.is-featured {
+      width: 24rem;
+    }
+    .card.is-featured {
+      width: 30rem;
+    }
+  }
+
+  /* Pinned mode (set by motion.ts on wide screens with motion allowed). */
+  .rail:global(.is-pinned) {
+    padding-block: 0;
+  }
+  .rail:global(.is-pinned) .rail-inner {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 4.25rem;
+    overflow: hidden;
+  }
+  .rail:global(.is-pinned) .rail-track {
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+</style>

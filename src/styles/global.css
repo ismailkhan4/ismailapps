@@ -20,6 +20,11 @@
   --color-signal-ink: #b8360c;
   --color-live: #1e7046;
   --color-white: #ffffff;
+  /* Dark and accent sections (added for the livelier layout) */
+  --color-ink-raised: #221f18; /* panels on ink */
+  --color-ink-rule: #3a3529; /* lines on ink (decorative) */
+  --color-ink-soft: #a9a293; /* secondary text on ink: 7.2:1 */
+  --color-signal-tint: #fbe3d9; /* secondary text on signal-ink: 4.8:1 */
 
   --font-*: initial;
   --font-sans: 'Schibsted Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
@@ -34,6 +39,9 @@
   --radius-*: initial;
   --radius-sm: 4px;
   --radius-md: 6px;
+  --radius-lg: 1rem;
+  --radius-xl: 1.75rem;
+  --radius-pill: 999px;
 
   --ease-precise: cubic-bezier(0.2, 0, 0, 1);
 }
@@ -191,7 +199,6 @@
     font-family: var(--font-mono);
     font-size: var(--step--1);
     color: var(--color-ink-muted);
-    text-transform: lowercase;
   }
   .measure {
     max-width: var(--measure);
@@ -248,10 +255,10 @@
     align-items: center;
     justify-content: center;
     gap: 0.6em;
-    min-height: 2.875rem; /* 46px touch target */
-    padding: 0.7em 1.25em;
+    min-height: 3rem; /* 48px touch target */
+    padding: 0.75em 1.5em;
     border: 1px solid transparent;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-pill);
     font-family: var(--font-sans);
     font-size: 1rem;
     font-weight: 600;
@@ -302,7 +309,7 @@
     align-items: baseline;
     gap: 0.4em;
     font-weight: 600;
-    color: var(--color-ink);
+    color: inherit;
     text-decoration: none;
     background-image: linear-gradient(currentColor, currentColor);
     background-size: 100% 1px;
@@ -353,7 +360,7 @@
     font-weight: 400;
     line-height: 1.35;
     color: var(--color-ink);
-    white-space: nowrap;
+    max-width: 100%;
   }
   .tag-quiet {
     background: transparent;
@@ -400,5 +407,90 @@
   100% {
     background-size: 100% 1px;
     background-position: 0 100%;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Dark panels                                                        */
+/* ------------------------------------------------------------------ */
+@layer components {
+  /* A full-width ink panel, inset from the page edge with large corners. */
+  .panel-ink {
+    margin-inline: clamp(0.5rem, 1.2vw, 1rem);
+    border-radius: var(--radius-xl);
+    background: var(--color-ink);
+    color: var(--color-paper);
+    /* clip (not hidden) so position: sticky still works inside pinned panels */
+    overflow: clip;
+  }
+  .panel-ink .t-lead,
+  .panel-ink .t-label {
+    color: var(--color-ink-soft);
+  }
+  .panel-ink :focus-visible {
+    outline-color: var(--color-paper);
+  }
+  .panel-ink .tag {
+    background: var(--color-ink-raised);
+    border-color: var(--color-ink-rule);
+    color: var(--color-paper);
+  }
+  .panel-ink .tag-key {
+    color: var(--color-ink-soft);
+  }
+}
+
+/* Cross-document page transitions (no JS). Old page lifts away, new page rises in. */
+@view-transition {
+  navigation: auto;
+}
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: vt-out 280ms var(--ease-precise) both;
+  }
+  ::view-transition-new(root) {
+    animation: vt-in 520ms var(--ease-precise) 80ms both;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+@keyframes vt-out {
+  to {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+/* Mask reveal: words slide up from behind a baseline. */
+.mask-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+.mask-word > span {
+  display: inline-block;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .mask-word > span {
+    animation: mask-up 900ms cubic-bezier(0.2, 0.7, 0, 1) both;
+    animation-delay: calc(120ms + var(--i, 0) * 45ms);
+  }
+}
+@keyframes mask-up {
+  from {
+    transform: translateY(105%);
   }
 }

@@ -1,6 +1,9 @@
 ---
 import Logo from '../ui/Logo.astro';
-import { services, site } from '../../lib/site';
+import { site } from '../../lib/site';
+import { getServices } from '../../lib/content';
+
+const services = await getServices();
 
 const elsewhere = [
   { label: 'LinkedIn', href: site.social.linkedin },
@@ -24,7 +27,7 @@ const year = new Date().getFullYear();
       <nav class="footer-col footer-services" aria-labelledby="footer-services">
         <h2 id="footer-services" class="t-label">Services</h2>
         <ul>
-          {services.map((s) => <li><a href={`/services/${s.slug}`}>{s.title}</a></li>)}
+          {services.map((s) => <li><a href={`/services/${s.id}`}>{s.data.title}</a></li>)}
         </ul>
       </nav>
 

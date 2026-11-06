@@ -29,20 +29,9 @@ export const site = {
   },
 } as const;
 
-export type NavService = { slug: string; title: string; short: string };
-
-/** Service order used in the header, footer and homepage. */
-export const services: readonly NavService[] = [
-  { slug: 'scoping-sprint', title: 'Product scoping sprint', short: 'Scope, flows and a fixed quote' },
-  { slug: 'product-development', title: 'SaaS & AI product development', short: 'Your MVP or v1, built properly' },
-  { slug: 'prototype-to-production', title: 'Prototype to production', short: 'From AI tools, no-code or a freelancer' },
-  { slug: 'product-engineering', title: 'Product engineering & maintenance', short: 'Ongoing work on a live product' },
-  { slug: 'websites', title: 'Websites', short: 'For software and service businesses' },
-];
-
 export const primaryNav = [
   { href: '/work', label: 'Work' },
-  { href: '/services', label: 'Services', children: services },
+  { href: '/services', label: 'Services', hasMenu: true },
   { href: '/products', label: 'Products' },
   { href: '/about', label: 'About' },
 ] as const;

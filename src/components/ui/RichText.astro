@@ -1,0 +1,11 @@
+---
+/** Renders content text, turning [[label]] into a visible <Placeholder>. */
+import Placeholder from './Placeholder.astro';
+
+interface Props {
+  text: string;
+}
+const parts = Astro.props.text.split(/\[\[(.+?)\]\]/);
+---
+
+{parts.map((part, i) => (i % 2 === 1 ? <Placeholder label={part} /> : part))}

@@ -1,0 +1,147 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import TextLink from '../ui/TextLink.astro';
+import Tag from '../ui/Tag.astro';
+import AnnotatedFrame from '../ui/AnnotatedFrame.astro';
+import { getWork, workHref } from '../../lib/content';
+
+const projects = await getWork('case-study');
+---
+
+<section class="section" aria-labelledby="work-title">
+  <div class="container-site">
+    <div class="work-head">
+      <SectionHeading id="work-title" label="02 · selected work" title="SaaS products we've shipped for clients" />
+      <TextLink href="/work">See all work</TextLink>
+    </div>
+    <div class="projects">
+      {
+        projects.map((p, i) => (
+          <article class:list={['grid-site project', i % 2 === 1 && 'is-flipped']} aria-labelledby={`p-${p.id}`}>
+            <div class="project-visual" data-clip>
+              <AnnotatedFrame
+                address={new URL(p.data.url).hostname}
+                image={p.data.cover}
+                alt={`The ${p.data.title} website, ${new URL(p.data.url).hostname}`}
+                placeholder={p.data.cover ? undefined : p.data.title}
+              />
+              {p.data.cover && <p class="t-label project-hint">hover to scroll the page</p>}
+            </div>
+            <div class="project-copy">
+              <p class="project-tags">
+                <Tag tone="quiet">{p.data.category} · client project</Tag>
+                {p.data.status === 'live' && <Tag tone="live">Live</Tag>}
+              </p>
+              <h3 id={`p-${p.id}`} class="t-h3 project-title">
+                {p.data.title}
+              </h3>
+              <p class="project-summary">{p.data.summary}</p>
+              {p.data.productFacts.length > 0 && (
+                <ul class="project-facts t-mono">
+                  {p.data.productFacts.map((f) => (
+                    <li>{f}</li>
+                  ))}
+                </ul>
+              )}
+              <p class="t-label project-client">client · {p.data.clientLocation}</p>
+              <div class="project-links">
+                <TextLink href={workHref(p)}>Read the case study</TextLink>
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .work-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: end;
+    gap: 1.5rem;
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+  .projects {
+    display: grid;
+    gap: clamp(3.5rem, 8vw, 6.5rem);
+  }
+  .project {
+    row-gap: 1.75rem;
+    align-items: center;
+  }
+  .project-visual,
+  .project-copy {
+    grid-column: 1 / -1;
+  }
+  /* Unfolding reveal: the frame opens from a smaller rounded window. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .project-visual {
+      clip-path: inset(10% 14% 10% 14% round 1.5rem);
+      transform: translateY(2rem);
+      transition:
+        clip-path 1300ms cubic-bezier(0.7, 0, 0.2, 1),
+        transform 1300ms cubic-bezier(0.2, 0.7, 0, 1);
+    }
+    :global(.js) .project-visual:global(.is-open) {
+      clip-path: inset(0 0 0 0 round 0);
+      transform: none;
+    }
+  }
+  .project-hint {
+    margin: 0.75rem 0 0;
+  }
+  @media (hover: none) {
+    .project-hint {
+      display: none;
+    }
+  }
+  .project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+  }
+  .project-title {
+    margin: 1rem 0 0.75rem;
+  }
+  .project-summary {
+    margin: 0;
+    max-width: 46ch;
+  }
+  .project-facts {
+    list-style: none;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.35rem;
+    color: var(--color-ink-muted);
+  }
+  .project-facts li::before {
+    content: '— ';
+  }
+  .project-client {
+    margin: 1.25rem 0 0;
+  }
+  .project-links {
+    margin-top: 1.5rem;
+  }
+  @media (width >= 56.25rem) {
+    .project-visual {
+      grid-column: 1 / span 7;
+    }
+    .project-copy {
+      grid-column: 9 / span 4;
+    }
+    .is-flipped .project-visual {
+      grid-column: 6 / span 7;
+      grid-row: 1;
+    }
+    .is-flipped .project-copy {
+      grid-column: 1 / span 4;
+      grid-row: 1;
+    }
+  }
+</style>

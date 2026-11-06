@@ -1,0 +1,137 @@
+---
+/**
+ * Hero for inner pages, matching the homepage: breadcrumbs, a kicker, a headline
+ * whose words rise from a mask, a lead, a magnetic primary CTA, and an optional
+ * aside (e.g. a fact sheet) that rises in after the headline.
+ */
+import Breadcrumbs from '../ui/Breadcrumbs.astro';
+import Button from '../ui/Button.astro';
+import TextLink from '../ui/TextLink.astro';
+
+interface Props {
+  crumbs: { href?: string; label: string }[];
+  kicker: string;
+  /** Optional orange pill next to the kicker. */
+  tag?: string | undefined;
+  title: string;
+  lead: string;
+  cta?: { href: string; location: string; label?: string };
+  secondary?: { href: string; label: string };
+}
+const { crumbs, kicker, tag, title, lead, cta, secondary } = Astro.props;
+const words = title.split(' ');
+const hasAside = Astro.slots.has('aside');
+---
+
+<section class:list={['page-hero', hasAside && 'has-aside']} aria-labelledby="page-title">
+  <div class="container-site grid-site page-hero-grid">
+    <div class="page-hero-copy">
+      <Breadcrumbs items={crumbs} />
+      <p class="page-kicker">
+        <span class="t-label">{kicker}</span>
+        {tag && <span class="t-mono page-tag">{tag}</span>}
+      </p>
+      <h1 id="page-title" class="t-display page-title">
+        {
+          words.map((w, i) => (
+            <>
+              {i > 0 && ' '}
+              <span class="mask-word" style={`--i:${i}`}>
+                <span>{w}</span>
+              </span>
+            </>
+          ))
+        }
+      </h1>
+      <p class="t-lead page-lead">{lead}</p>
+      {
+        (cta || secondary) && (
+          <div class="page-actions">
+            {cta && (
+              <span data-magnetic class="magnetic">
+                <Button href={cta.href} event="cta_click" location={cta.location} arrow>
+                  {cta.label ?? 'Start a project'}
+                </Button>
+              </span>
+            )}
+            {secondary && <TextLink href={secondary.href}>{secondary.label}</TextLink>}
+          </div>
+        )
+      }
+    </div>
+    {
+      hasAside && (
+        <div class="page-hero-aside">
+          <slot name="aside" />
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .page-hero {
+    padding-block: clamp(2.5rem, 6vw, 5rem) clamp(3.5rem, 7vw, 6rem);
+  }
+  .page-hero-grid {
+    row-gap: 3rem;
+    align-items: end;
+  }
+  .page-hero-copy,
+  .page-hero-aside {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+  .page-kicker {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 2rem 0 0;
+  }
+  .page-tag {
+    padding: 0.2rem 0.7rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-signal-ink);
+    color: var(--color-white);
+    font-size: 0.75rem;
+  }
+  .page-title {
+    margin: 1rem 0 0;
+    max-width: 16ch;
+  }
+  .page-lead {
+    margin: 1.75rem 0 0;
+    max-width: 46ch;
+  }
+  .page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem 2rem;
+    margin-top: 2.5rem;
+  }
+  .magnetic {
+    display: inline-block;
+    transition: transform 400ms cubic-bezier(0.2, 0.7, 0, 1);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .page-hero-aside {
+      animation: aside-rise 1100ms cubic-bezier(0.2, 0.7, 0, 1) 500ms backwards;
+    }
+  }
+  @keyframes aside-rise {
+    from {
+      opacity: 0;
+      transform: translateY(2rem);
+    }
+  }
+  @media (width >= 56.25rem) {
+    .has-aside .page-hero-copy {
+      grid-column: 1 / span 7;
+    }
+    .page-hero-aside {
+      grid-column: 9 / span 4;
+    }
+  }
+</style>

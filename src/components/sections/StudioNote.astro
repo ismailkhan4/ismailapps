@@ -1,0 +1,57 @@
+---
+import TextLink from '../ui/TextLink.astro';
+---
+
+<section class="section" aria-labelledby="studio-title">
+  <div class="container-site grid-site studio">
+    <p class="t-label studio-label">05 · studio note</p>
+    <div class="studio-body">
+      <h2 id="studio-title" class="t-h2 studio-title">A small studio, on purpose.</h2>
+      <p class="studio-text">
+        IsmailApps is led by Ismail, who scopes every project and stays accountable from the first call to maintenance.
+        For each build we bring in specialists from a trusted network (design, mobile, QA, DevOps and AI engineering), so
+        you get the right people for the work without paying for an agency's overhead.
+      </p>
+      <p class="studio-small">
+        We work from Pakistan with clients in Europe and the United States.
+      </p>
+      <TextLink href="/about">About the studio</TextLink>
+    </div>
+  </div>
+</section>
+
+<style>
+  .studio {
+    row-gap: 1rem;
+  }
+  .studio-label,
+  .studio-body {
+    grid-column: 1 / -1;
+  }
+  .studio-label {
+    margin: 0;
+  }
+  .studio-title {
+    margin: 0 0 1.5rem;
+  }
+  .studio-text {
+    margin: 0;
+    font-size: var(--step-2);
+    line-height: 1.4;
+    letter-spacing: -0.015em;
+    max-width: 34ch;
+  }
+  .studio-small {
+    margin: 1.5rem 0 1.75rem;
+    color: var(--color-ink-muted);
+  }
+  @media (width >= 56.25rem) {
+    .studio-label {
+      grid-column: 1 / span 3;
+      padding-top: 0.6rem;
+    }
+    .studio-body {
+      grid-column: 4 / span 8;
+    }
+  }
+</style>

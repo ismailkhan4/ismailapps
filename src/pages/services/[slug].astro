@@ -1,0 +1,267 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getEntries, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/sections/PageHero.astro';
+import FactSheet from '../../components/ui/FactSheet.astro';
+import SectionHeading from '../../components/ui/SectionHeading.astro';
+import ReleaseCounter from '../../components/sections/ReleaseCounter.astro';
+import WorkIndex from '../../components/sections/WorkIndex.astro';
+import FAQSection from '../../components/sections/FAQSection.astro';
+import CTASection from '../../components/sections/CTASection.astro';
+import { contactHref, getServices } from '../../lib/content';
+
+export const getStaticPaths = (async () => {
+  const services = await getServices();
+  return services.map((service) => ({ params: { slug: service.id }, props: { service } }));
+}) satisfies GetStaticPaths;
+
+const { service } = Astro.props;
+const d = service.data;
+const { Content } = await render(service);
+const related = (await getEntries(d.relatedWork)).filter((w) => !w.data.draft);
+const others = (await getServices()).filter((s) => s.id !== service.id);
+const contact = contactHref(service);
+---
+
+<BaseLayout title={d.seo.title} description={d.seo.description}>
+  <!-- 1. Problem and promise -->
+  <PageHero
+    crumbs={[{ href: '/', label: 'Home' }, { href: '/services', label: 'Services' }, { label: d.title }]}
+    kicker={d.title}
+    tag={d.tag}
+    title={d.headline}
+    lead={d.problem}
+    cta={{ href: contact, location: `service-hero:${service.id}` }}
+    secondary={{ href: '#how', label: 'How it works' }}
+  >
+    <FactSheet slot="aside" label="service notes" rows={d.facts} />
+  </PageHero>
+
+  <section class="promise" aria-label="Our approach">
+    <div class="container-site grid-site">
+      <div class="prose" data-reveal>
+        <Content />
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Who it's for -->
+  <section class="section" aria-labelledby="for-title">
+    <div class="container-site grid-site split">
+      <div class="split-head"><SectionHeading id="for-title" label="01 · fit" title="Who it's for" /></div>
+      <ul class="for-list split-body">
+        {
+          d.forWho.map((line, i) => (
+            <li data-reveal style={`--d:${i}`}>
+              <span class="for-arrow" aria-hidden="true">
+                →
+              </span>
+              {line}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3. What you get -->
+  <section class="section" aria-labelledby="get-title">
+    <div class="container-site">
+      <SectionHeading id="get-title" label="02 · deliverables" title="What you get" />
+      <ol class="get-list">
+        {
+          d.deliverables.map((item, i) => (
+            <li class="get-card" data-reveal style={`--d:${i}`}>
+              <span class="t-mono get-num">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class="get-title">{item.title}</h3>
+              <p class="get-detail">{item.detail}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- 4. How it works -->
+  <ReleaseCounter id="how" label="03 · process" title="How it works" steps={d.steps} />
+
+  <!-- 5. Related work -->
+  {related.length > 0 && <WorkIndex label="04 · work we've shipped" work={related} products={false} />}
+
+  <!-- 6. FAQ -->
+  <FAQSection items={d.faqs} label="05 · faq" title="Questions" />
+
+  <!-- Other services -->
+  <nav class="others" aria-labelledby="others-title">
+    <div class="container-site">
+      <h2 id="others-title" class="t-label others-title">other services</h2>
+      <ul>
+        {
+          others.map((s) => (
+            <li>
+              <a href={`/services/${s.id}`} class="other-pill">
+                {s.data.title} <span aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </nav>
+
+  <!-- 7. CTA -->
+  <CTASection href={contact} location={`service-final:${service.id}`} />
+</BaseLayout>
+
+<style>
+  .promise {
+    padding-block: var(--section-space);
+    border-top: 1px solid var(--color-rule);
+  }
+  .prose {
+    grid-column: 1 / -1;
+    font-size: var(--step-3);
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+  }
+  .prose :global(p) {
+    margin: 0;
+    max-width: 30ch;
+  }
+
+  .split {
+    row-gap: 2rem;
+  }
+  .split-head,
+  .split-body {
+    grid-column: 1 / -1;
+  }
+  .for-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-ink);
+  }
+  .for-list li {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--color-rule);
+    font-size: var(--step-1);
+    line-height: 1.4;
+  }
+  .for-arrow {
+    color: var(--color-signal-ink);
+  }
+
+  .get-list {
+    list-style: none;
+    margin: clamp(2rem, 4vw, 3rem) 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+  .get-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 13rem;
+    padding: 1.75rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    transition:
+      transform 500ms cubic-bezier(0.2, 0.7, 0, 1),
+      border-color 300ms,
+      box-shadow 500ms cubic-bezier(0.2, 0.7, 0, 1);
+  }
+  .get-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-ink);
+    box-shadow: 0 24px 50px -32px rgb(23 21 15 / 0.45);
+  }
+  .get-num {
+    color: var(--color-signal-ink);
+  }
+  .get-title {
+    margin: auto 0 0.5rem;
+    padding-top: 2rem;
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  .get-detail {
+    margin: 0;
+    color: var(--color-ink-muted);
+    max-width: 40ch;
+  }
+
+  /* Staggered reveal for lists and cards. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) [data-reveal][style*='--d'] {
+      transition-delay: calc(var(--d) * 80ms);
+    }
+  }
+
+  .others {
+    border-top: 1px solid var(--color-rule);
+    padding-block: 2.5rem;
+  }
+  .others-title {
+    margin: 0 0 1rem;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+  .others ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .other-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.1rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      background-color 250ms,
+      color 250ms,
+      border-color 250ms;
+  }
+  .other-pill:hover,
+  .other-pill:focus-visible {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  @media (width >= 40rem) {
+    .get-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (width >= 56.25rem) {
+    .prose {
+      grid-column: 3 / span 9;
+    }
+    .split-head {
+      grid-column: 1 / span 4;
+      align-self: start;
+      position: sticky;
+      top: 7rem;
+    }
+    .split-body {
+      grid-column: 5 / span 8;
+    }
+    .get-list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>
