@@ -9,10 +9,10 @@ export const site = {
   email: 'hello@ismailapps.com',
   founder: {
     displayName: 'Ismail',
-    /** Full legal name for the imprint. [NEEDED] */
-    legalName: null as string | null,
-    /** Postal address for the imprint. [NEEDED] */
-    postalAddress: null as string | null,
+    /** Full legal name for the imprint and privacy policy. */
+    legalName: 'Muhammad Ismail',
+    /** Postal address for the imprint and privacy policy. */
+    postalAddress: 'J3 Block, Johar Town, Lahore, Pakistan',
   },
   /** Not registered yet. Never claim otherwise. */
   registration: null as null | { country: string; legalName: string; number: string },
@@ -22,8 +22,10 @@ export const site = {
     x: null as string | null,
     instagram: null as string | null,
   },
-  /** Cal.com booking link for /contact/thanks. [NEEDED] */
-  calUrl: null as string | null,
+  /** Booking link shown after an inquiry (a plain link: no embed, no third-party cookies). */
+  calUrl: 'https://cal.com/ismailapps',
+  /** Umami Cloud website id. Analytics only load when this is set (PUBLIC_UMAMI_WEBSITE_ID). */
+  umamiWebsiteId: (import.meta.env.PUBLIC_UMAMI_WEBSITE_ID as string | undefined) || null,
   products: {
     hamstalk: 'https://hamstalk.com',
   },

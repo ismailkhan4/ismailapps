@@ -1,6 +1,7 @@
 import { defineCollection, reference } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { needValues } from './lib/inquiry';
 
 /**
  * Content rules that protect the site from publishing anything unverified:
@@ -18,8 +19,6 @@ const seo = z.object({
 
 const qa = z.object({ q: z.string(), a: z.string() });
 
-/** The values of the inquiry form's "What do you need?" field. */
-export const inquiryNeeds = ['new-product', 'prototype-to-production', 'saas-engineering', 'website', 'not-sure'] as const;
 
 const services = defineCollection({
   loader: glob({ pattern: '*.mdx', base: './src/content/services' }),
@@ -39,7 +38,7 @@ const services = defineCollection({
     /** Lead paragraph: the problem. */
     problem: z.string(),
     /** Pre-selects the inquiry form: /contact?service=<formValue> */
-    formValue: z.enum(inquiryNeeds),
+    formValue: z.enum(needValues),
     /** Key facts shown as a release-notes sheet in the page hero. */
     facts: z.array(z.object({ key: z.string(), value: z.string() })).min(2).max(5),
     forWho: z.array(z.string()).min(2),

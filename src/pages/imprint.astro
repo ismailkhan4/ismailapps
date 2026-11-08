@@ -1,0 +1,42 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import { site } from '../lib/site';
+---
+
+<LegalLayout
+  title="Imprint"
+  description="Legal notice for ismailapps.com: who is responsible for this website and how to contact them."
+  updated="8 November 2026"
+>
+  <h2>Responsible for this website</h2>
+  <address>
+    {site.founder.legalName}<br />
+    {site.founder.postalAddress}
+  </address>
+
+  <h2>Contact</h2>
+  <p>Email: <a href={`mailto:${site.email}`}>{site.email}</a></p>
+
+  <h2>Business status</h2>
+  <p>
+    IsmailApps is the name under which {site.founder.legalName} offers software product services. It is not a registered
+    company yet, so it has no company registration or VAT number. This notice will be updated with company details once a
+    company is registered.
+  </p>
+
+  <h2>Responsible for content</h2>
+  <p>{site.founder.legalName}, at the address above.</p>
+
+  <h2>Liability for content and links</h2>
+  <p>
+    We write the content of this website with care, but cannot guarantee that it is complete, accurate or up to date.
+    This website links to external sites, including client projects. Their operators are responsible for their content.
+    If we learn that a linked page contains unlawful content, we will remove the link.
+  </p>
+
+  <h2>Client work</h2>
+  <p>
+    Supervise, Whatever AI, Vectum and Artbeak are products and websites owned by our clients. Their names and
+    screenshots appear here as examples of work we contributed to.
+  </p>
+</LegalLayout>

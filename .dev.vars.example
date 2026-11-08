@@ -1,0 +1,7 @@
+# Local secrets for `pnpm dev` / `pnpm preview`. Copy to .dev.vars (git-ignored).
+# Production values: `pnpm wrangler secret put TURNSTILE_SECRET_KEY` and `... RESEND_API_KEY`.
+
+# Cloudflare's published test secret: always passes. Use the real secret in production.
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+# Leave empty locally to skip sending real email (the inquiry is still stored).
+RESEND_API_KEY=

@@ -13,7 +13,11 @@
     "build:preview": "astro check && ALLOW_PLACEHOLDERS=1 astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "astro": "astro"
+    "astro": "astro",
+    "og": "node scripts/generate-og.mjs",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
+    "cf-types": "wrangler types"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.6",

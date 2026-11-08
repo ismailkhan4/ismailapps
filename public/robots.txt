@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /brand
+Disallow: /contact/thanks
+Disallow: /api/
+
+Sitemap: https://ismailapps.com/sitemap-index.xml

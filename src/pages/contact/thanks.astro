@@ -1,0 +1,146 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TextLink from '../../components/ui/TextLink.astro';
+import { site } from '../../lib/site';
+---
+
+<BaseLayout
+  title="Thanks, we have your details"
+  description="Your project inquiry reached IsmailApps. Ismail will reply by email."
+  noindex
+>
+  <section class="thanks" aria-labelledby="thanks-title">
+    <div class="container-site grid-site">
+      <div class="thanks-copy">
+        <p class="thanks-status t-mono">
+          <span class="dot" aria-hidden="true"></span> received
+        </p>
+        <h1 id="thanks-title" class="t-display thanks-title">Thanks. We have your project details.</h1>
+        <p class="t-lead thanks-lead">
+          Ismail reads every inquiry himself and will reply by email, usually with a few questions. A confirmation with a
+          copy of your details is on its way to your inbox.
+        </p>
+      </div>
+      <div class="thanks-card">
+        <p class="t-label">want to talk sooner?</p>
+        <h2 class="thanks-card-title">Book a call</h2>
+        <p class="thanks-card-text">Pick a time that suits you. It opens Cal.com in a new tab.</p>
+        <a
+          href={site.calUrl}
+          target="_blank"
+          rel="noopener"
+          class="btn btn-primary"
+          data-umami-event="cal_link_click"
+          data-umami-event-location="thanks"
+        >
+          Book a call <span class="btn-arrow" aria-hidden="true">↗</span>
+          <span class="sr-only">(opens cal.com in a new tab)</span>
+        </a>
+      </div>
+    </div>
+    <div class="container-site thanks-links">
+      <TextLink href="/work">See our work</TextLink>
+      <TextLink href="/">Back to the homepage</TextLink>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // Count one inquiry per arrival (not on refresh). No personal data is sent.
+  const KEY = 'inquiry_tracked';
+  if (!sessionStorage.getItem(KEY)) {
+    sessionStorage.setItem(KEY, '1');
+    let tries = 0;
+    const track = () => {
+      const umami = (window as unknown as { umami?: { track: (e: string) => void } }).umami;
+      if (umami) umami.track('inquiry_submitted');
+      else if (tries++ < 20) setTimeout(track, 250);
+    };
+    track();
+  }
+</script>
+
+<style>
+  .thanks {
+    padding-block: clamp(3rem, 8vw, 6rem) var(--section-space);
+  }
+  .thanks :global(.grid-site) {
+    row-gap: 3rem;
+    align-items: end;
+  }
+  .thanks-copy,
+  .thanks-card {
+    grid-column: 1 / -1;
+  }
+  .thanks-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.35rem 0.8rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-pill);
+    color: var(--color-ink);
+  }
+  /* Green is reserved for "Live" status; this uses the brand signal. */
+  .dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--color-signal);
+  }
+  .thanks-title {
+    margin: 1.5rem 0 0;
+    max-width: 13ch;
+  }
+  .thanks-lead {
+    margin: 1.5rem 0 0;
+    max-width: 46ch;
+  }
+  .thanks-card {
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    border: 1px solid var(--color-rule);
+  }
+  .thanks-card p {
+    margin: 0;
+  }
+  .thanks-card-title {
+    margin: 0.5rem 0;
+    font-size: var(--step-3);
+    letter-spacing: -0.03em;
+  }
+  .thanks-card-text {
+    margin-bottom: 1.5rem !important;
+    color: var(--color-ink-muted);
+  }
+  .thanks-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    margin-top: 3rem;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .thanks-copy {
+      animation: rise 900ms cubic-bezier(0.2, 0.7, 0, 1) both;
+    }
+    .thanks-card {
+      animation: rise 900ms cubic-bezier(0.2, 0.7, 0, 1) 200ms both;
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(1.5rem);
+    }
+  }
+  @media (width >= 56.25rem) {
+    .thanks-copy {
+      grid-column: 1 / span 7;
+    }
+    .thanks-card {
+      grid-column: 9 / span 4;
+    }
+  }
+</style>

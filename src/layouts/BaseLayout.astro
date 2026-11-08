@@ -7,6 +7,7 @@ import displayFont from '@fontsource-variable/schibsted-grotesk/files/schibsted-
 import SiteHeader from '../components/layout/SiteHeader.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
 import { site } from '../lib/site';
+import { ogKey } from '../lib/seo';
 
 interface Props {
   title: string;
@@ -16,8 +17,26 @@ interface Props {
 }
 
 const { title, description, noindex = false } = Astro.props;
-const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', site.url);
+const path = Astro.url.pathname.replace(/\.html$/, '').replace(/(^|\/)index$/, '').replace(/\/$/, '') || '/';
+const canonical = new URL(path, site.url);
 const fullTitle = title === site.name ? title : `${title} · ${site.name}`;
+
+// Social images are generated per page by scripts/generate-og.mjs into public/og/.
+const ogFiles = Object.keys(import.meta.glob('/public/og/*.png'));
+const key = ogKey(path);
+const ogFile = ogFiles.includes(`/public/og/${key}.png`) ? key : 'default';
+const ogImage = new URL(`/og/${ogFile}.png`, site.url);
+
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: site.name,
+  url: site.url,
+  logo: new URL('/icon-512.png', site.url).href,
+  email: site.email,
+  description: 'A software product studio that designs, builds and maintains SaaS and AI products for founders, and runs its own.',
+  founder: { '@type': 'Person', name: site.founder.legalName },
+};
 ---
 
 <!doctype html>
@@ -37,7 +56,26 @@ const fullTitle = title === site.name ? title : `${title} · ${site.name}`;
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${title}: IsmailApps`} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script type="application/ld+json" set:html={JSON.stringify(organization)} />
+    {
+      site.umamiWebsiteId && (
+        <script
+          is:inline
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id={site.umamiWebsiteId}
+          data-domains="ismailapps.com"
+          data-do-not-track="true"
+        />
+      )
+    }
     <script is:inline>
       document.documentElement.classList.add('js');
     </script>

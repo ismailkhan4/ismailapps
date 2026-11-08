@@ -21,7 +21,7 @@ export default defineConfig({
     mdx(),
     sitemap({
       // Internal review pages are never indexed.
-      filter: (page) => !page.includes('/brand'),
+      filter: (page) => !/\/(brand|contact\/thanks|404)(\.html)?$/.test(page),
     }),
     placeholderGuard(),
   ],

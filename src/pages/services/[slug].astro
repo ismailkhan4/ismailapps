@@ -10,6 +10,8 @@ import WorkIndex from '../../components/sections/WorkIndex.astro';
 import FAQSection from '../../components/sections/FAQSection.astro';
 import CTASection from '../../components/sections/CTASection.astro';
 import { contactHref, getServices } from '../../lib/content';
+import { provider } from '../../lib/seo';
+import { site } from '../../lib/site';
 
 export const getStaticPaths = (async () => {
   const services = await getServices();
@@ -22,9 +24,18 @@ const { Content } = await render(service);
 const related = (await getEntries(d.relatedWork)).filter((w) => !w.data.draft);
 const others = (await getServices()).filter((s) => s.id !== service.id);
 const contact = contactHref(service);
+const serviceLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: d.title,
+  description: d.oneLiner,
+  url: new URL(`/services/${service.id}`, site.url).href,
+  provider,
+};
 ---
 
 <BaseLayout title={d.seo.title} description={d.seo.description}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceLd)} />
   <!-- 1. Problem and promise -->
   <PageHero
     crumbs={[{ href: '/', label: 'Home' }, { href: '/services', label: 'Services' }, { label: d.title }]}

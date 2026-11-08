@@ -1,0 +1,129 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import { site } from '../lib/site';
+
+const toc = [
+  { id: 'who', label: 'Who we are' },
+  { id: 'inquiries', label: 'Project inquiries' },
+  { id: 'email', label: 'Email' },
+  { id: 'spam', label: 'Spam protection' },
+  { id: 'analytics', label: 'Analytics' },
+  { id: 'hosting', label: 'Hosting and logs' },
+  { id: 'booking', label: 'Booking a call' },
+  { id: 'processors', label: 'Who processes data' },
+  { id: 'cookies', label: 'Cookies' },
+  { id: 'rights', label: 'Your rights' },
+  { id: 'changes', label: 'Changes' },
+];
+---
+
+<LegalLayout
+  title="Privacy policy"
+  description="How IsmailApps handles personal data on ismailapps.com: project inquiries, email, spam protection, cookieless analytics and booking calls."
+  updated="8 November 2026"
+  toc={toc}
+>
+  <p>
+    This policy explains what personal data this website processes, why, and for how long. We collect as little as we
+    can: the details you choose to send us in a project inquiry, and the technical minimum needed to run the site.
+  </p>
+
+  <h2 id="who">Who we are</h2>
+  <p>
+    IsmailApps is the name under which {site.founder.legalName} offers software product services. It is not a registered
+    company yet. The person responsible for your data (the controller) is:
+  </p>
+  <address>
+    {site.founder.legalName}<br />
+    {site.founder.postalAddress}<br />
+    <a href={`mailto:${site.email}`}>{site.email}</a>
+  </address>
+  <p>We work from Pakistan, so the information you send us is also accessed from there.</p>
+
+  <h2 id="inquiries">Project inquiries</h2>
+  <p>
+    When you use the form on <a href="/contact">Start a project</a>, we receive your name, email address, company or
+    product name (optional), what you need, where your product is today, your budget range and timeline, your
+    description, and an optional link.
+  </p>
+  <ul>
+    <li><strong>Why:</strong> to reply to you and, if you want, to prepare a proposal.</li>
+    <li>
+      <strong>Legal basis:</strong> steps taken at your request before a possible contract (Art. 6(1)(b) GDPR), and our
+      legitimate interest in answering business enquiries (Art. 6(1)(f) GDPR).
+    </li>
+    <li>
+      <strong>How:</strong> the inquiry is stored in a database run by Cloudflare and sent by email (through Resend) to
+      us and, as a confirmation, to you.
+    </li>
+    <li>
+      <strong>How long:</strong> inquiries are deleted automatically after 24 months. If we start working together,
+      the relevant details become part of our client records.
+    </li>
+  </ul>
+
+  <h2 id="email">Email</h2>
+  <p>
+    Messages sent to {site.email} are forwarded by Cloudflare Email Routing to our mailbox, which is hosted by Google
+    (Gmail). We keep correspondence for as long as needed to deal with your request, and no longer than 24 months unless
+    we work together.
+  </p>
+
+  <h2 id="spam">Spam protection</h2>
+  <p>
+    The contact form uses Cloudflare Turnstile to tell people from bots. On that page only, Turnstile processes technical
+    information about your browser and device. It is not used for advertising. Our legal basis is our legitimate interest
+    in keeping the form free of abuse (Art. 6(1)(f) GDPR).
+  </p>
+
+  <h2 id="analytics">Analytics</h2>
+  <p>
+    We use Umami Cloud to count visits and a few events (for example, a click on "Start a project" or a submitted
+    inquiry). Umami does not use cookies and does not collect personal data; we only see aggregated numbers. We never send
+    your name, email or messages to analytics. If your browser sends a "Do Not Track" signal, no analytics are recorded.
+  </p>
+
+  <h2 id="hosting">Hosting and logs</h2>
+  <p>
+    The website is hosted on Cloudflare. To deliver pages and protect the site from attacks, Cloudflare processes
+    technical data such as your IP address and browser information. This is our legitimate interest in running a secure
+    website (Art. 6(1)(f) GDPR).
+  </p>
+
+  <h2 id="booking">Booking a call</h2>
+  <p>
+    After an inquiry we offer a link to book a call on Cal.com. The booking page is not embedded in our site: it only
+    loads if you open it. What you enter there is processed by Cal.com under its own privacy policy, and shared with us
+    to arrange the call.
+  </p>
+
+  <h2 id="processors">Who processes data for us</h2>
+  <ul>
+    <li><strong>Cloudflare</strong>: hosting, database, spam protection (Turnstile) and email forwarding.</li>
+    <li><strong>Resend</strong>: sending inquiry notifications and confirmations.</li>
+    <li><strong>Google</strong>: our email inbox (Gmail).</li>
+    <li><strong>Umami</strong>: cookieless, aggregated website analytics.</li>
+    <li><strong>Cal.com</strong>: booking calls, only if you choose to.</li>
+  </ul>
+  <p>
+    Some of these providers process data outside the EU and EEA, including in the United States. Where they do, they rely
+    on transfer safeguards such as Standard Contractual Clauses, as described in their own terms.
+  </p>
+
+  <h2 id="cookies">Cookies</h2>
+  <p>
+    This website does not set cookies, so there is no cookie banner. Cloudflare Turnstile on the contact page may store
+    technical data needed for spam protection, as described in Cloudflare's privacy policy.
+  </p>
+
+  <h2 id="rights">Your rights</h2>
+  <p>
+    You can ask us for access to the personal data we hold about you, and ask us to correct it, delete it, restrict its
+    use, or give it to you in a portable format. You can also object to processing based on legitimate interest. Email
+    <a href={`mailto:${site.email}`}>{site.email}</a> and we will reply within a month.
+  </p>
+  <p>You also have the right to complain to a data protection supervisory authority.</p>
+
+  <h2 id="changes">Changes</h2>
+  <p>If we change how we handle data, we will update this page and the date at the top.</p>
+</LegalLayout>

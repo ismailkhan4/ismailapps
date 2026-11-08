@@ -1,0 +1,415 @@
+---
+/**
+ * Project inquiry form. Posts to /api/inquiry; src/scripts/inquiry.ts enhances it
+ * (preselect from ?service=, live validation, fetch submit, error states).
+ * Spam protection: hidden honeypot + Cloudflare Turnstile (verified on the server).
+ */
+import { HONEYPOT, budgets, limits, needs, stages, timelines } from '../../lib/inquiry';
+import { site } from '../../lib/site';
+
+// Cloudflare's published always-pass test key for local work. Production builds are
+// blocked by the placeholder guard until PUBLIC_TURNSTILE_SITE_KEY is set.
+const TEST_SITE_KEY = '1x00000000000000000000AA';
+const siteKey = (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined) || TEST_SITE_KEY;
+const usingTestKey = siteKey === TEST_SITE_KEY;
+---
+
+<form class="inq" method="post" action="/api/inquiry" novalidate data-inquiry-form>
+  <div class="inq-banner" role="alert" data-form-banner hidden></div>
+
+  <!-- 01 -->
+  <fieldset class="inq-step">
+    <legend class="inq-legend"><span class="t-mono inq-n">01</span> About you</legend>
+    <div class="inq-row">
+      <div class="field">
+        <label for="f-name">Name</label>
+        <input id="f-name" name="name" type="text" autocomplete="name" required maxlength="120" aria-describedby="e-name" />
+        <p class="field-error" id="e-name" data-error-for="name" hidden></p>
+      </div>
+      <div class="field">
+        <label for="f-email">Email</label>
+        <input id="f-email" name="email" type="email" autocomplete="email" required maxlength="254" aria-describedby="e-email" />
+        <p class="field-error" id="e-email" data-error-for="email" hidden></p>
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-company">Company or product <span class="optional">optional</span></label>
+      <input id="f-company" name="company" type="text" autocomplete="organization" maxlength="160" aria-describedby="e-company" />
+      <p class="field-error" id="e-company" data-error-for="company" hidden></p>
+    </div>
+  </fieldset>
+
+  <!-- 02 -->
+  <fieldset class="inq-step" aria-describedby="e-need">
+    <legend class="inq-legend"><span class="t-mono inq-n">02</span> What do you need?</legend>
+    <div class="choices choices-cards">
+      {
+        needs.map((n) => (
+          <label class="choice choice-card">
+            <input type="radio" name="need" value={n.value} required />
+            <span class="choice-body">
+              <span class="choice-label">{n.label}</span>
+              <span class="choice-hint">{n.hint}</span>
+            </span>
+          </label>
+        ))
+      }
+    </div>
+    <p class="field-error" id="e-need" data-error-for="need" hidden></p>
+  </fieldset>
+
+  <fieldset class="inq-step" aria-describedby="e-stage">
+    <legend class="inq-legend"><span class="t-mono inq-n">03</span> Where is it today?</legend>
+    <div class="choices">
+      {
+        stages.map((s) => (
+          <label class="choice choice-pill">
+            <input type="radio" name="stage" value={s.value} required />
+            <span>{s.label}</span>
+          </label>
+        ))
+      }
+    </div>
+    <p class="field-error" id="e-stage" data-error-for="stage" hidden></p>
+  </fieldset>
+
+  <!-- 04 -->
+  <fieldset class="inq-step">
+    <legend class="inq-legend"><span class="t-mono inq-n">04</span> Budget and timing</legend>
+    <p class="inq-sub" id="budget-label">Budget</p>
+    <div class="choices" role="radiogroup" aria-labelledby="budget-label" aria-describedby="e-budget">
+      {
+        budgets.map((b) => (
+          <label class="choice choice-pill">
+            <input type="radio" name="budget" value={b.value} required />
+            <span>{b.label}</span>
+          </label>
+        ))
+      }
+    </div>
+    <p class="field-error" id="e-budget" data-error-for="budget" hidden></p>
+    <p class="inq-sub" id="timeline-label">Timeline</p>
+    <div class="choices" role="radiogroup" aria-labelledby="timeline-label" aria-describedby="e-timeline">
+      {
+        timelines.map((t) => (
+          <label class="choice choice-pill">
+            <input type="radio" name="timeline" value={t.value} required />
+            <span>{t.label}</span>
+          </label>
+        ))
+      }
+    </div>
+    <p class="field-error" id="e-timeline" data-error-for="timeline" hidden></p>
+  </fieldset>
+
+  <!-- 05 -->
+  <fieldset class="inq-step">
+    <legend class="inq-legend"><span class="t-mono inq-n">05</span> Tell us about it</legend>
+    <div class="field">
+      <label for="f-description">
+        What are you building, and what do you need from us?
+      </label>
+      <textarea
+        id="f-description"
+        name="description"
+        rows="7"
+        required
+        minlength={limits.description.min}
+        maxlength={limits.description.max}
+        aria-describedby="h-description e-description"
+      ></textarea>
+      <p class="field-help t-mono" id="h-description">
+        <span data-count>0</span> / {limits.description.max} · at least {limits.description.min} characters
+      </p>
+      <p class="field-error" id="e-description" data-error-for="description" hidden></p>
+    </div>
+    <div class="field">
+      <label for="f-link">Link to a prototype or site <span class="optional">optional</span></label>
+      <input id="f-link" name="link" type="url" inputmode="url" placeholder="https://" maxlength="500" aria-describedby="e-link" />
+      <p class="field-error" id="e-link" data-error-for="link" hidden></p>
+    </div>
+  </fieldset>
+
+  <!-- Honeypot: hidden from people and assistive technology; bots fill it. -->
+  <div class="hp" aria-hidden="true">
+    <label for="f-hp">Leave this empty</label>
+    <input id="f-hp" name={HONEYPOT} type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div class="inq-submit">
+    <div class="cf-turnstile" data-sitekey={siteKey} data-theme="light" data-size="flexible" data-appearance="interaction-only"></div>
+    {usingTestKey && <span hidden data-placeholder="Turnstile site key (PUBLIC_TURNSTILE_SITE_KEY)" />}
+    <p class="field-error" data-error-for="cf-turnstile-response" hidden></p>
+    <p class="inq-privacy">
+      We use these details only to reply to your inquiry, and delete them after 24 months. See our{' '}
+      <a href="/privacy">privacy policy</a>.
+    </p>
+    <button type="submit" class="btn btn-primary inq-button" data-submit>
+      <span data-label-idle>Send project details <span class="btn-arrow" aria-hidden="true">→</span></span>
+      <span data-label-busy hidden>Sending…</span>
+    </button>
+  </div>
+
+  <noscript>
+    <p class="inq-noscript">
+      This form needs JavaScript for its spam protection. You can also email us at
+      <a href={`mailto:${site.email}`}>{site.email}</a> with your name, what you need, where your product is today,
+      a rough budget and timeline.
+    </p>
+  </noscript>
+</form>
+
+<style>
+  .inq {
+    display: grid;
+    gap: 0;
+  }
+  .inq-banner {
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--color-signal-ink);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    color: var(--color-ink);
+  }
+  .inq-banner :global(a) {
+    color: var(--color-signal-ink);
+    font-weight: 600;
+  }
+  .inq-step {
+    margin: 0;
+    padding: 2rem 0;
+    border: 0;
+    border-top: 1px solid var(--color-rule);
+    min-width: 0;
+  }
+  .inq-step:first-of-type {
+    border-top-color: var(--color-ink);
+  }
+  /* Floating the legend takes it out of the fieldset border, so the rule stays above it. */
+  .inq-legend {
+    float: left;
+    width: 100%;
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0;
+    margin-bottom: 1.25rem;
+    font-size: var(--step-1);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+  .inq-n {
+    color: var(--color-signal-ink);
+    font-size: 0.875rem;
+  }
+  .inq-legend + * {
+    clear: both;
+  }
+  .inq-sub {
+    margin: 1.25rem 0 0.6rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+  .inq-sub:first-of-type {
+    margin-top: 0;
+  }
+  .inq-row {
+    display: grid;
+    gap: 0 1rem;
+  }
+  .field {
+    display: grid;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+  .field label {
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+  .optional {
+    margin-left: 0.4rem;
+    font-weight: 400;
+    color: var(--color-ink-muted);
+    font-size: 0.8125rem;
+  }
+  /* Controls use ink-muted borders: 6.3:1, above the 3:1 WCAG 1.4.11 minimum. */
+  input[type='text'],
+  input[type='email'],
+  input[type='url'],
+  textarea {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--color-ink-muted);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font: inherit;
+    font-size: 1rem;
+    transition:
+      border-color 200ms,
+      box-shadow 200ms;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 10rem;
+    line-height: 1.55;
+  }
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: none;
+    border-color: var(--color-ink);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-signal) 30%, transparent);
+  }
+  [aria-invalid='true'] {
+    border-color: var(--color-signal-ink) !important;
+  }
+  .field-help {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--color-ink-muted);
+  }
+  .field-error {
+    margin: 0.35rem 0 0;
+    color: var(--color-signal-ink);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  /* Choices: native radios, visually replaced, fully keyboard accessible. */
+  .choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .choices-cards {
+    display: grid;
+    gap: 0.6rem;
+  }
+  .choice {
+    position: relative;
+    cursor: pointer;
+  }
+  .choice input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+  .choice-pill span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.55rem 1.1rem;
+    border: 1px solid var(--color-ink-muted);
+    border-radius: var(--radius-pill);
+    font-weight: 500;
+    transition:
+      background-color 200ms,
+      color 200ms,
+      border-color 200ms;
+  }
+  .choice-card .choice-body {
+    display: grid;
+    gap: 0.2rem;
+    height: 100%;
+    padding: 1rem 1.1rem 1rem 2.75rem;
+    border: 1px solid var(--color-ink-muted);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    transition:
+      background-color 200ms,
+      color 200ms,
+      border-color 200ms,
+      transform 300ms cubic-bezier(0.2, 0.7, 0, 1);
+  }
+  .choice-card .choice-body::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    top: 1.2rem;
+    width: 1rem;
+    height: 1rem;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+  }
+  .choice-label {
+    font-weight: 600;
+  }
+  .choice-hint {
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+  }
+  .choice:hover .choice-body,
+  .choice:hover span {
+    border-color: var(--color-ink);
+  }
+  .choice input:checked + span,
+  .choice input:checked + .choice-body {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .choice input:checked + .choice-body .choice-hint {
+    color: var(--color-ink-soft);
+  }
+  .choice input:checked + .choice-body::before {
+    border-color: var(--color-signal);
+    background: radial-gradient(circle, var(--color-signal) 45%, transparent 50%);
+  }
+  .choice input:focus-visible + span,
+  .choice input:focus-visible + .choice-body {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+
+  .hp {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .inq-submit {
+    display: grid;
+    gap: 1rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-ink);
+  }
+  .inq-privacy {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+    max-width: 52ch;
+  }
+  .inq-privacy a {
+    color: var(--color-ink);
+  }
+  .inq-button {
+    justify-self: start;
+    min-height: 3.5rem;
+    padding-inline: 2rem;
+    font-size: 1.0625rem;
+  }
+  .inq-button[disabled] {
+    opacity: 0.7;
+    cursor: progress;
+  }
+  .inq-noscript {
+    margin: 1.5rem 0 0;
+    padding: 1rem 1.25rem;
+    border: 1px dashed var(--color-ink-muted);
+    border-radius: var(--radius-lg);
+  }
+
+  @media (width >= 40rem) {
+    .inq-row {
+      grid-template-columns: 1fr 1fr;
+    }
+    .choices-cards {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

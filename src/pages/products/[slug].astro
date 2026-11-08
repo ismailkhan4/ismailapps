@@ -7,6 +7,7 @@ import SectionHeading from '../../components/ui/SectionHeading.astro';
 import TextLink from '../../components/ui/TextLink.astro';
 import CTASection from '../../components/sections/CTASection.astro';
 import { getProducts } from '../../lib/content';
+import { provider } from '../../lib/seo';
 
 export const getStaticPaths = (async () => {
   const products = await getProducts();
@@ -16,10 +17,22 @@ export const getStaticPaths = (async () => {
 const { product } = Astro.props;
 const d = product.data;
 const host = d.url ? new URL(d.url).hostname : undefined;
+const appLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: d.name,
+  description: d.summary,
+  ...(d.url ? { url: d.url } : {}),
+  applicationCategory: 'EducationalApplication',
+  operatingSystem: 'Web',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR', description: 'Free to start' },
+  publisher: provider,
+};
 const statusLabel = d.status === 'live' ? (d.statusNote ? `Live · ${d.statusNote}` : 'Live') : d.status.replace('-', ' ');
 ---
 
 <BaseLayout title={d.seo?.title ?? d.name} description={d.seo?.description ?? d.summary}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(appLd)} />
   <PageHero
     crumbs={[{ href: '/', label: 'Home' }, { href: '/products', label: 'Products' }, { label: d.name }]}
     kicker={`${d.name} · an IsmailApps product`}

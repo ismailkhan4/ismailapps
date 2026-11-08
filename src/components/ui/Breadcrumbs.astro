@@ -1,9 +1,14 @@
 ---
+import { breadcrumbList } from '../../lib/seo';
+
 interface Props {
   items: { href?: string; label: string }[];
 }
 const { items } = Astro.props;
+const jsonLd = breadcrumbList(items, Astro.url.pathname.replace(/\.html$/, ''));
 ---
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
 <nav aria-label="Breadcrumb" class="crumbs t-mono">
   <ol>

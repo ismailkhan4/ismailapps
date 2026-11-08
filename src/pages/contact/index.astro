@@ -1,0 +1,162 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/ui/Breadcrumbs.astro';
+import InquiryForm from '../../components/contact/InquiryForm.astro';
+import { site } from '../../lib/site';
+
+const next = [
+  { title: 'Ismail reads it', detail: 'Every inquiry is read by the person who will lead the work. He replies by email, usually with a few questions.' },
+  { title: 'A short call', detail: 'If it looks like a fit, we talk it through and you can book a time that suits you.' },
+  { title: 'Scope and a fixed quote', detail: 'Most projects start with a scoping sprint, then a fixed price before the build.' },
+];
+const words = 'Tell us where your product is today.'.split(' ');
+---
+
+<BaseLayout
+  title="Start a project"
+  description="Tell IsmailApps about your SaaS or AI product: what you need, where it is today, your budget and timeline. Ismail reads every inquiry and replies by email."
+>
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://challenges.cloudflare.com" />
+    <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  </Fragment>
+
+  <section class="contact" aria-labelledby="contact-title">
+    <div class="container-site">
+      <Breadcrumbs items={[{ href: '/', label: 'Home' }, { label: 'Start a project' }]} />
+      <h1 id="contact-title" class="t-display contact-title">
+        {
+          words.map((w, i) => (
+            <>
+              {i > 0 && ' '}
+              <span class="mask-word" style={`--i:${i}`}>
+                <span>{w}</span>
+              </span>
+            </>
+          ))
+        }
+      </h1>
+      <p class="t-lead contact-lead">
+        A few questions, about five minutes. Idea, prototype or live product: we'll tell you honestly what it needs
+        next.
+      </p>
+    </div>
+
+    <div class="container-site grid-site contact-grid">
+      <div class="contact-form">
+        <InquiryForm />
+      </div>
+      <aside class="contact-aside" aria-labelledby="next-title">
+        <div class="aside-card">
+          <h2 id="next-title" class="t-label aside-title">what happens next</h2>
+          <ol class="next">
+            {
+              next.map((n, i) => (
+                <li>
+                  <span class="t-mono next-n">{String(i + 1).padStart(2, '0')}</span>
+                  <div>
+                    <h3 class="next-title">{n.title}</h3>
+                    <p class="next-detail">{n.detail}</p>
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+        <div class="aside-mail">
+          <p class="t-label">prefer email?</p>
+          <a href={`mailto:${site.email}`} class="aside-email">{site.email}</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import '../../scripts/inquiry';
+</script>
+
+<style>
+  .contact {
+    padding-block: clamp(2.5rem, 6vw, 5rem) var(--section-space);
+  }
+  .contact-title {
+    margin: 2rem 0 0;
+    max-width: 14ch;
+  }
+  .contact-lead {
+    margin: 1.5rem 0 0;
+    max-width: 44ch;
+  }
+  .contact-grid {
+    row-gap: 3rem;
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+  }
+  .contact-form,
+  .contact-aside {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+  .aside-card {
+    padding: 1.75rem;
+    border-radius: var(--radius-lg);
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .aside-title {
+    margin: 0 0 1.25rem;
+    color: var(--color-ink-soft);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+  .next {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .next li {
+    display: grid;
+    grid-template-columns: 2.25rem 1fr;
+    padding: 1rem 0;
+    border-top: 1px solid var(--color-ink-rule);
+  }
+  .next-n {
+    color: var(--color-signal);
+    padding-top: 0.15rem;
+  }
+  .next-title {
+    margin: 0 0 0.3rem;
+    font-size: 1.0625rem;
+    letter-spacing: -0.01em;
+  }
+  .next-detail {
+    margin: 0;
+    font-size: 0.9375rem;
+    color: var(--color-ink-soft);
+  }
+  .aside-mail {
+    margin-top: 1.25rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-lg);
+  }
+  .aside-mail p {
+    margin: 0 0 0.35rem;
+  }
+  .aside-email {
+    font-weight: 600;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+  @media (width >= 56.25rem) {
+    .contact-form {
+      grid-column: 1 / span 7;
+    }
+    .contact-aside {
+      grid-column: 9 / span 4;
+      align-self: start;
+      position: sticky;
+      top: 6.5rem;
+    }
+  }
+</style>

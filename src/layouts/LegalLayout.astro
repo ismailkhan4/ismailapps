@@ -1,0 +1,132 @@
+---
+/** Long-form text pages (privacy, imprint): readable measure, sticky contents. */
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '../components/ui/Breadcrumbs.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  updated: string;
+  toc?: { id: string; label: string }[];
+}
+const { title, description, updated, toc = [] } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <section class="legal">
+    <div class="container-site">
+      <Breadcrumbs items={[{ href: '/', label: 'Home' }, { label: title }]} />
+      <h1 class="t-h1 legal-title">{title}</h1>
+      <p class="t-mono legal-updated">Last updated {updated}</p>
+    </div>
+    <div class="container-site grid-site legal-grid">
+      {
+        toc.length > 0 && (
+          <nav class="legal-toc" aria-label="On this page">
+            <p class="t-label">on this page</p>
+            <ol>
+              {toc.map((t) => (
+                <li>
+                  <a href={`#${t.id}`}>{t.label}</a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )
+      }
+      <div class="legal-body">
+        <slot />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal {
+    padding-block: clamp(2.5rem, 6vw, 5rem) var(--section-space);
+  }
+  .legal-title {
+    margin: 2rem 0 0.75rem;
+  }
+  .legal-updated {
+    margin: 0;
+    color: var(--color-ink-muted);
+  }
+  .legal-grid {
+    row-gap: 2rem;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-ink);
+  }
+  .legal-toc,
+  .legal-body {
+    grid-column: 1 / -1;
+  }
+  .legal-toc ol {
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.35rem;
+  }
+  .legal-toc a {
+    color: var(--color-ink-muted);
+    text-decoration: none;
+    font-size: 0.9375rem;
+  }
+  .legal-toc a:hover {
+    color: var(--color-ink);
+    text-decoration: underline;
+  }
+  .legal-body {
+    max-width: 68ch;
+  }
+  .legal-body :global(h2) {
+    margin: 2.5rem 0 0.75rem;
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .legal-body :global(h2:first-child) {
+    margin-top: 0;
+  }
+  .legal-body :global(h3) {
+    margin: 1.75rem 0 0.5rem;
+    font-size: var(--step-1);
+  }
+  .legal-body :global(p),
+  .legal-body :global(li) {
+    color: var(--color-ink-muted);
+  }
+  .legal-body :global(strong) {
+    color: var(--color-ink);
+  }
+  .legal-body :global(ul) {
+    padding-left: 1.25rem;
+  }
+  .legal-body :global(li) {
+    margin-bottom: 0.4rem;
+  }
+  .legal-body :global(a) {
+    color: var(--color-ink);
+    text-underline-offset: 0.2em;
+  }
+  .legal-body :global(address) {
+    margin: 1rem 0;
+    padding-left: 1rem;
+    border-left: 2px solid var(--color-rule);
+    font-style: normal;
+    color: var(--color-ink);
+  }
+  @media (width >= 56.25rem) {
+    .legal-toc {
+      grid-column: 1 / span 3;
+      align-self: start;
+      position: sticky;
+      top: 7rem;
+    }
+    .legal-body {
+      grid-column: 5 / span 8;
+    }
+  }
+</style>
