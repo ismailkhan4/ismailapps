@@ -4,11 +4,10 @@
  * the work needs it. The disciplines are set as outlined type that fills in,
  * one after another, when the list enters the viewport: the team assembling.
  * Wording rules (founder): "dedicated team", never "in-house", never a size.
- * Portrait: drop src/assets/studio/ismail.(jpg|png|webp); until then a visible placeholder.
+ * Portrait: drop src/assets/studio/ismail.(jpg|png|webp) and it appears; until then the slot is omitted.
  */
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import Placeholder from '../ui/Placeholder.astro';
 import { site } from '../../lib/site';
 
 const photos = import.meta.glob<{ default: ImageMetadata }>('../../assets/studio/ismail.{jpg,jpeg,png,webp}', {
@@ -24,22 +23,18 @@ const crew = ['Product design', 'Backend', 'Mobile', 'QA', 'DevOps', 'AI enginee
       A small studio, <span class="studio-title-2">on purpose.</span>
     </h2>
 
-    <div class="studio-photo">
-      {
-        photo ? (
+    {
+      photo && (
+        <div class="studio-photo">
           <Image
             src={photo}
             alt={`${site.founder.displayName}, who leads IsmailApps`}
             widths={[360, 720]}
             sizes="(min-width: 900px) 24vw, 60vw"
           />
-        ) : (
-          <div class="studio-photo-empty">
-            <Placeholder label="photo of Ismail" />
-          </div>
-        )
-      }
-    </div>
+        </div>
+      )
+    }
 
     <div class="studio-text">
       <p class="studio-big">

@@ -112,7 +112,7 @@ const description = d.seo?.description ?? d.summary;
       <section class="section" aria-labelledby="how-title">
         <div class="container-site grid-site split">
           <div class="split-head">
-            <SectionHeading id="how-title" title="Decisions and stack" />
+            <SectionHeading id="how-title" title={d.decisions.length > 0 ? 'Decisions and stack' : 'Stack'} />
           </div>
           <div class="split-body">
             {d.decisions.length > 0 && (
@@ -131,7 +131,7 @@ const description = d.seo?.description ?? d.summary;
             )}
             {d.stack.length > 0 && (
               <div class="stack">
-                <p class="t-label">stack</p>
+                {d.decisions.length > 0 && <p class="t-label">stack</p>}
                 <ul>
                   {d.stack.map((t) => (
                     <li class="stack-pill t-mono">
