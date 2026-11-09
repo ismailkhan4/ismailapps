@@ -1,26 +1,34 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "ismailapps-website",
-  "compatibility_date": "2026-11-01",
-  "compatibility_flags": ["nodejs_compat"],
-  // Custom entry: Astro's fetch handler plus the daily retention job.
-  "main": "./src/worker.ts",
-  "observability": { "enabled": true },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "ismailapps-inquiries",
-      // Replace with the id printed by `wrangler d1 create ismailapps-inquiries` (see README).
-      "database_id": "00000000-0000-0000-0000-000000000000",
-      "migrations_dir": "migrations"
-    }
-  ],
-  // Daily at 03:17 UTC: delete inquiries older than 24 months.
-  "triggers": { "crons": ["17 3 * * *"] },
-  "vars": {
-    // Where new inquiries are sent. Forwarded to the founder's inbox by Cloudflare Email Routing.
-    "NOTIFY_EMAIL": "hello@ismailapps.com",
-    "FROM_EMAIL": "IsmailApps <noreply@ismailapps.com>",
-    "REPLY_TO_EMAIL": "hello@ismailapps.com"
-  }
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "ismailapps-website",
+	"compatibility_date": "2026-11-01",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	// Custom entry: Astro's fetch handler plus the daily retention job.
+	"main": "./src/worker.ts",
+	"observability": {
+		"enabled": true
+	},
+	"d1_databases": [
+		{
+			// The code reads env.DB. Local dev (`pnpm dev`) uses a local copy, never production data.
+			"binding": "DB",
+			"database_name": "ismailapps-inquiries",
+			"database_id": "50bb2644-de8c-40b7-8db7-e177ddc32b76",
+			"migrations_dir": "migrations"
+		}
+	],
+	// Daily at 03:17 UTC: delete inquiries older than 24 months.
+	"triggers": {
+		"crons": [
+			"17 3 * * *"
+		]
+	},
+	"vars": {
+		// Where new inquiries are sent. Forwarded to the founder's inbox by Cloudflare Email Routing.
+		"NOTIFY_EMAIL": "hello@ismailapps.com",
+		"FROM_EMAIL": "IsmailApps <noreply@ismailapps.com>",
+		"REPLY_TO_EMAIL": "hello@ismailapps.com"
+	}
 }
