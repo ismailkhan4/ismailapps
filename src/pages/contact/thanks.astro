@@ -9,13 +9,16 @@ import { site } from '../../lib/site';
   description="Your project inquiry reached IsmailApps. Ismail will reply by email."
   noindex
 >
-  <section class="thanks" aria-labelledby="thanks-title">
+  <section class="thanks has-board" aria-labelledby="thanks-title">
+    <div class="drafting-board" aria-hidden="true"></div>
     <div class="container-site grid-site">
       <div class="thanks-copy">
         <p class="thanks-status t-mono">
           <span class="dot" aria-hidden="true"></span> received
         </p>
-        <h1 id="thanks-title" class="t-display thanks-title">Thanks. We have your project details.</h1>
+        <h1 id="thanks-title" class="t-display thanks-title">
+          Thanks. We have your project <span class="draft-word" data-text="details.">details.</span>
+        </h1>
         <p class="t-lead thanks-lead">
           Ismail reads every inquiry himself and will reply by email, usually with a few questions. A confirmation with a
           copy of your details is on its way to your inbox.

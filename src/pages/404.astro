@@ -13,10 +13,11 @@ const links = [
 ---
 
 <BaseLayout title="Page not found" description="This page does not exist on ismailapps.com." noindex>
-  <section class="nf" aria-labelledby="nf-title">
+  <section class="nf has-board" aria-labelledby="nf-title">
+    <div class="drafting-board" aria-hidden="true"></div>
     <div class="container-site">
       <p class="t-mono nf-tag">404 · not found</p>
-      <h1 id="nf-title" class="nf-title">This page never shipped.</h1>
+      <h1 id="nf-title" class="nf-title">This page never <span class="draft-word" data-text="shipped.">shipped.</span></h1>
       <p class="t-lead nf-lead">The link may be old, or the address mistyped. One of these should get you there:</p>
       <ul class="nf-links">
         {links.map((l) => <li><TextLink href={l.href}>{l.label}</TextLink></li>)}

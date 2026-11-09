@@ -1,0 +1,357 @@
+---
+/**
+ * Homepage hero: "Past the prototype." as the visual centerpiece.
+ *
+ * Line 1 is set solid. Line 2, "prototype.", is a pencil outline (the brand's
+ * draft state) with a solid copy underneath, revealed through a circular
+ * "production lens" that follows the pointer (or drifts on touch / idle).
+ * Letters near the lens gain weight on the variable axis (400–900), so the
+ * word visibly "gets built" where you look. Scrolling widens the lens until
+ * the whole word is solid: shipped. Behaviour lives in src/scripts/home.ts;
+ * without JS or with reduced motion the lens sits still and the h1 text is
+ * always available to assistive tech through the sr-only copy.
+ */
+import Button from '../ui/Button.astro';
+import { getProducts, getWork, workHref } from '../../lib/content';
+
+const work = await getWork();
+const products = await getProducts();
+const cases = work.filter((w) => w.data.kind === 'case-study');
+const shorts = work.filter((w) => w.data.kind === 'short');
+const shipped = [
+  ...cases.map((w) => ({ name: w.data.title, href: workHref(w), note: w.data.category, live: w.data.status === 'live' })),
+  ...products.map((p) => ({ name: p.data.name, href: `/products/${p.id}`, note: 'ours', live: p.data.status === 'live' })),
+  ...shorts.map((w) => ({ name: w.data.title, href: workHref(w), note: w.data.category, live: w.data.status === 'live' })),
+];
+
+const chars = (s: string) => [...s].map((c) => (c === ' ' ? ' ' : c));
+const line1 = chars('Past the');
+const line2 = chars('prototype.');
+---
+
+<section class="hero" data-hero aria-labelledby="hero-title">
+  <div class="drafting-board" aria-hidden="true"></div>
+
+  <div class="hero-top container-wide">
+    <p class="t-mono hero-kicker" data-enter="1">IsmailApps is a software product studio<br />for founders and SaaS teams</p>
+    <p class="t-mono hero-what" data-enter="2">SaaS · AI · web &amp; mobile apps<br />from first scope to production</p>
+  </div>
+
+  <h1 id="hero-title" class="hero-title container-wide">
+    <span class="sr-only">Past the prototype.</span>
+    <span class="hl hl-1" aria-hidden="true">
+      {line1.map((c, i) => <span class="ch" style={`--i:${i}`}>{c}</span>)}
+    </span>
+    <span class="hl hl-2" aria-hidden="true" data-lens>
+      <span class="hl-draft">
+        {line2.map((c, i) => <span class="ch" style={`--i:${i}`}>{c}</span>)}
+      </span>
+      <span class="hl-solid">
+        {line2.map((c, i) => <span class="ch" style={`--i:${i}`}>{c}</span>)}
+      </span>
+      <span class="lens-layer"><span class="lens-ring"><span class="t-mono lens-label">v1.0</span></span></span>
+    </span>
+  </h1>
+
+  <div class="hero-foot container-wide">
+    <p class="hero-lead" data-enter="3">
+      We take SaaS and AI products from an idea, or from what you built with AI tools, no-code or a freelancer, to
+      software that holds up with real users, real data and real payments. <span class="quiet">And we run our own.</span>
+    </p>
+    <div class="hero-actions" data-enter="4">
+      <Button href="/contact" event="cta_click" location="hero" arrow class="btn-sweep">Start a project</Button>
+      <a href="#shipped" class="link">See what we shipped <span class="link-arrow" aria-hidden="true">↓</span></a>
+    </div>
+    <div class="hero-shipped" data-enter="6">
+      <p class="t-mono hero-shipped-label">Shipped &amp; live</p>
+      <ul>
+        {
+          shipped.map((s) => (
+            <li>
+              <a href={s.href}>
+                <span class:list={['dot', s.live && 'is-live']} aria-hidden="true" />
+                {s.name}
+                <span class="t-mono note">{s.note}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(3rem, 6vw, 5rem);
+    overflow: clip;
+  }
+  .hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem 2rem;
+    flex-wrap: wrap;
+  }
+  .hero-kicker {
+    margin: 0;
+  }
+  .dot.is-live {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--color-signal);
+    flex: none;
+  }
+  .hero-what {
+    margin: 0;
+    color: var(--color-ink-muted);
+    text-align: right;
+  }
+
+  /* ---------- The headline ---------- */
+  .hero-title {
+    --size: clamp(3.4rem, min(16.2vw, 25vh), 17rem);
+    display: block;
+    margin-block: clamp(1.5rem, 4vw, 3rem) 0;
+    font-size: var(--size);
+    line-height: 0.86;
+    letter-spacing: -0.055em;
+    font-weight: 600;
+    text-wrap: nowrap;
+  }
+  .hl {
+    position: relative;
+    display: block;
+    width: fit-content;
+    will-change: transform;
+  }
+  .hl-1 {
+    transform: translateX(var(--shift-1, 0));
+  }
+  .hl-2 {
+    margin-left: auto;
+    margin-right: -0.04em;
+    transform: translateX(var(--shift-2, 0));
+    /* Room for descenders inside the mask box. */
+    padding-bottom: 0.08em;
+  }
+  .ch {
+    display: inline-block;
+    font-weight: var(--w, 600);
+  }
+  .hl-draft {
+    display: block;
+    color: transparent;
+    -webkit-text-stroke: max(1px, 0.011em) var(--color-ink-muted);
+  }
+  .hl-solid {
+    position: absolute;
+    inset: 0 0 0 0;
+    padding-bottom: inherit;
+    color: var(--color-ink);
+    /* --lx/--ly/--r are written by home.ts; this is the static default. */
+    -webkit-mask-image: radial-gradient(
+      circle var(--r, 0.62em) at var(--lx, 58%) var(--ly, 52%),
+      #000 calc(100% - 1px),
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      circle var(--r, 0.62em) at var(--lx, 58%) var(--ly, 52%),
+      #000 calc(100% - 1px),
+      transparent 100%
+    );
+  }
+  /* The ring's coordinate space: the second headline line (cqw/cqh defaults). */
+  .lens-layer {
+    position: absolute;
+    inset: 0;
+    container-type: size;
+    pointer-events: none;
+  }
+  .lens-ring {
+    /* Moved by translate, not left/top: compositor-only, and the constant
+       drift never registers as layout shift (CLS). */
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: calc(var(--r, 0.62em) * 2);
+    height: calc(var(--r, 0.62em) * 2);
+    translate: calc(var(--lx, 58cqw) - 50%) calc(var(--ly, 52cqh) - 50%);
+    border: 1.5px solid var(--color-signal);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: var(--ring-o, 1);
+  }
+  .lens-label {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    /* Pinned on the ring's edge, so it never hangs into the paragraph below. */
+    translate: -50% 50%;
+    padding: 0.1rem 0.45rem;
+    font-size: 0.75rem;
+    letter-spacing: 0;
+    line-height: 1.4;
+    font-weight: 500;
+    color: var(--color-white);
+    background: var(--color-signal-ink);
+    border-radius: var(--radius-sm);
+  }
+
+  /* ---------- Foot row: proof · promise · action ---------- */
+  .hero-foot {
+    display: grid;
+    gap: 2rem;
+    margin-top: clamp(2rem, 4vw, 3.25rem);
+    align-items: end;
+  }
+  .hero-shipped-label {
+    margin: 0 0 0.6rem;
+    color: var(--color-ink-muted);
+  }
+  .hero-shipped ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .hero-shipped a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding-block: 0.2rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .hero-shipped a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+  }
+  .dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    border: 1.5px solid var(--color-ink-muted);
+  }
+  .dot.is-live {
+    border: 0;
+  }
+  .note {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--color-ink-muted);
+  }
+  .hero-lead {
+    margin: 0;
+    font-size: var(--step-1);
+    line-height: 1.45;
+    max-width: 40ch;
+  }
+  .quiet {
+    color: var(--color-ink-muted);
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.75rem;
+  }
+
+  @media (width >= 56.25rem) {
+    .hero-foot {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 5fr) auto;
+      gap: 3rem;
+    }
+    /* DOM order is promise → actions → proof (phones read it top to bottom);
+       on wide screens the proof list takes the left column. */
+    .hero-shipped {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .hero-lead {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .hero-actions {
+      grid-column: 3;
+      grid-row: 1;
+    }
+    .hero-actions {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+  @media (width < 40rem) {
+    .hero-what {
+      text-align: left;
+    }
+    .hl-2 {
+      margin-right: 0;
+    }
+  }
+
+  /* ---------- Entrance choreography (CSS only, ≈1.4s, content never waits) ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .hl-1 .ch {
+      animation: ch-rise 1000ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: calc(var(--i) * 38ms);
+    }
+    .hl-1 {
+      clip-path: inset(-0.1em -0.1em -0.15em -0.1em);
+    }
+    .hl-draft .ch {
+      animation: ch-draft 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: calc(260ms + var(--i) * 45ms);
+    }
+    .hl-solid,
+    .lens-ring {
+      animation: lens-open 900ms cubic-bezier(0.16, 1, 0.3, 1) 900ms both;
+    }
+    [data-enter] {
+      animation: enter-up 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: calc(700ms + var(--d, 0) * 90ms);
+    }
+    [data-enter='2'] {
+      --d: 1;
+    }
+    [data-enter='3'] {
+      --d: 3;
+    }
+    [data-enter='4'] {
+      --d: 4;
+    }
+    [data-enter='6'] {
+      --d: 5;
+    }
+  }
+  @keyframes ch-rise {
+    from {
+      transform: translateY(105%) rotate(4deg);
+    }
+  }
+  @keyframes ch-draft {
+    from {
+      opacity: 0;
+      transform: translateY(0.25em);
+      -webkit-text-stroke-color: transparent;
+    }
+  }
+  @keyframes lens-open {
+    from {
+      opacity: 0;
+      scale: 0.6;
+    }
+  }
+  @keyframes enter-up {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+</style>

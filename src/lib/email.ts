@@ -49,14 +49,14 @@ function rows(i: Inquiry): [string, string][] {
   ];
 }
 
-const shell = (body: string) => `<!doctype html><html><body style="margin:0;padding:24px;background:#F5F2EA;font-family:Helvetica,Arial,sans-serif;color:#17150F">
-<div style="max-width:560px;margin:0 auto;background:#FBF9F4;border:1px solid #D9D3C5;border-radius:12px;padding:28px">${body}</div></body></html>`;
+const shell = (body: string) => `<!doctype html><html><body style="margin:0;padding:24px;background:#F2F3EF;font-family:Helvetica,Arial,sans-serif;color:#121412">
+<div style="max-width:560px;margin:0 auto;background:#FAFAF8;border:1px solid #D3D6D0;border-radius:12px;padding:28px">${body}</div></body></html>`;
 
 const table = (i: Inquiry) =>
   `<table style="width:100%;border-collapse:collapse;font-size:14px">${rows(i)
     .map(
       ([k, v]) =>
-        `<tr><td style="padding:8px 0;border-bottom:1px solid #D9D3C5;color:#5E584D;width:110px;vertical-align:top">${k}</td><td style="padding:8px 0;border-bottom:1px solid #D9D3C5">${escape(v)}</td></tr>`,
+        `<tr><td style="padding:8px 0;border-bottom:1px solid #D3D6D0;color:#555A54;width:110px;vertical-align:top">${k}</td><td style="padding:8px 0;border-bottom:1px solid #D3D6D0">${escape(v)}</td></tr>`,
     )
     .join('')}</table>`;
 
@@ -72,7 +72,7 @@ export function notificationMail(i: Inquiry, id: string, to: string): Mail {
     idempotencyKey: `${id}-notify`,
     text,
     html: shell(
-      `<p style="margin:0 0 4px;font-family:monospace;font-size:12px;color:#5E584D">new inquiry · ${escape(id)}</p>
+      `<p style="margin:0 0 4px;font-family:monospace;font-size:12px;color:#555A54">new inquiry · ${escape(id)}</p>
 <h1 style="margin:0 0 20px;font-size:22px">${escape(i.name)} · ${escape(labelFor(needs, i.need))}</h1>${table(i)}
 <p style="margin:20px 0 0;white-space:pre-wrap;font-size:15px;line-height:1.55">${escape(i.description)}</p>`,
     ),
@@ -106,10 +106,10 @@ You can reply to this email to reach us.`;
     html: shell(
       `<p style="margin:0 0 16px;font-size:20px;font-weight:600">Thanks, ${escape(first)}.</p>
 <p style="margin:0 0 14px;font-size:15px;line-height:1.55">Ismail reads every inquiry himself and will reply by email, usually with a few questions.</p>
-<p style="margin:0 0 24px;font-size:15px;line-height:1.55">If you would like to talk sooner, <a href="${site.calUrl}" style="color:#B8360C">book a call</a>.</p>
-<p style="margin:0 0 8px;font-family:monospace;font-size:12px;color:#5E584D">what you sent us</p>${table(i)}
-<p style="margin:16px 0 0;white-space:pre-wrap;font-size:14px;line-height:1.55;color:#5E584D">${escape(i.description)}</p>
-<p style="margin:24px 0 0;font-size:13px;color:#5E584D">IsmailApps · <a href="${site.url}" style="color:#5E584D">ismailapps.com</a> · reply to this email to reach us.</p>`,
+<p style="margin:0 0 24px;font-size:15px;line-height:1.55">If you would like to talk sooner, <a href="${site.calUrl}" style="color:#0B6B3A">book a call</a>.</p>
+<p style="margin:0 0 8px;font-family:monospace;font-size:12px;color:#555A54">what you sent us</p>${table(i)}
+<p style="margin:16px 0 0;white-space:pre-wrap;font-size:14px;line-height:1.55;color:#555A54">${escape(i.description)}</p>
+<p style="margin:24px 0 0;font-size:13px;color:#555A54">IsmailApps · <a href="${site.url}" style="color:#555A54">ismailapps.com</a> · reply to this email to reach us.</p>`,
     ),
   };
 }

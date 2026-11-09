@@ -28,24 +28,24 @@ const card = ({ title, path }) => `<!doctype html><html><head><style>
 @font-face{font-family:S;src:url(${fonts.sans}) format('woff2');font-weight:400 900}
 @font-face{font-family:M;src:url(${fonts.mono}) format('woff2')}
 *{box-sizing:border-box;margin:0}
-body{width:1200px;height:630px;background:#F5F2EA;color:#17150F;font-family:S;position:relative;overflow:hidden}
-.grid{position:absolute;inset:0;background-image:linear-gradient(90deg,#D9D3C5 1px,transparent 1px);background-size:100px 100%;opacity:.55}
+body{width:1200px;height:630px;background:#F2F3EF;color:#121412;font-family:S;position:relative;overflow:hidden}
+.grid{position:absolute;inset:0;background-image:linear-gradient(90deg,#D3D6D0 1px,transparent 1px);background-size:100px 100%;opacity:.55}
 .wrap{position:absolute;inset:60px 66px;display:flex;flex-direction:column;justify-content:space-between}
 .top,.bottom{display:flex;justify-content:space-between;align-items:center}
 .logo{font-size:40px;font-weight:680;letter-spacing:-.035em;position:relative}
-.i{position:relative;display:inline-block}.i:before{content:'';position:absolute;left:50%;top:1px;width:8px;height:8px;transform:translateX(-50%);background:#E2481B}
-.path{font-family:M;font-size:20px;color:#5E584D}
+.i{position:relative;display:inline-block}.i:before{content:'';position:absolute;left:50%;top:1px;width:8px;height:8px;transform:translateX(-50%);background:#129A4C}
+.path{font-family:M;font-size:20px;color:#555A54}
 h1{font-size:${title.length > 48 ? 64 : 76}px;line-height:1.04;letter-spacing:-.04em;font-weight:600;max-width:960px}
-.tag{font-family:M;font-size:20px;padding:10px 16px;border:1.5px solid #17150F;border-radius:6px;background:#FBF9F4;display:flex;gap:10px;align-items:center}
-.tag .from{color:#5E584D;text-decoration:line-through}.dot{width:10px;height:10px;border-radius:50%;background:#E2481B}
-.kick{font-family:M;font-size:20px;color:#5E584D}
+.tag{font-family:M;font-size:20px;padding:10px 16px;border:1.5px solid #121412;border-radius:6px;background:#FAFAF8;display:flex;gap:10px;align-items:center}
+.tag .from{color:#555A54;text-decoration:line-through}.dot{width:10px;height:10px;border-radius:50%;background:#129A4C}
+.kick{font-family:M;font-size:20px;color:#555A54}
 </style></head><body><div class="grid"></div><div class="wrap">
 <div class="top"><div class="logo">Isma<span class="i">ı</span>lApps</div><div class="path">ismailapps.com${esc(path === '/' ? '' : path)}</div></div>
 <h1>${esc(title)}</h1>
 <div class="bottom"><div class="tag"><span class="from">v0.1 prototype</span> → <span class="dot"></span> v1.0 production</div><div class="kick">Software product studio</div></div>
 </div></body></html>`;
 
-const pages = [{ key: 'default', path: '/', title: 'SaaS and AI products, built to hold up after the demo.' }];
+const pages = [{ key: 'default', path: '/', title: 'Past the prototype. SaaS and AI products that hold up with real users.' }];
 for await (const file of walk(DIST)) {
   const rel = relative(DIST, file).replace(/\.html$/, '').replace(/(^|\/)index$/, '');
   if (SKIP.test(rel)) continue;

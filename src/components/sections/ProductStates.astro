@@ -1,0 +1,251 @@
+---
+/**
+ * Services framed as the visitor's situation, using the release motif:
+ * v0 an idea · v0.x a prototype · v1.x a live product. Matches the contact
+ * form's first question. Websites are a secondary line, not a fourth state.
+ */
+import { getServices } from '../../lib/content';
+import TextLink from '../ui/TextLink.astro';
+
+interface Props {
+  /** Heading level for the section title (h1 on /services). */
+  level?: 'h1' | 'h2';
+  title?: string;
+}
+const { level = 'h2', title = 'Where is your product today?' } = Astro.props;
+const Heading = level;
+
+const services = await getServices();
+const byId = (id: string) => services.find((s) => s.id === id);
+
+const states = [
+  {
+    v: 'v0',
+    state: 'An idea',
+    line: 'You know the problem and the customer. Nothing is built yet, or only sketches.',
+    paths: [byId('scoping-sprint'), byId('product-development')],
+  },
+  {
+    v: 'v0.x',
+    state: 'A prototype that is straining',
+    line: 'Built with AI tools, no-code or a freelancer. It demos well, and breaks once real users arrive.',
+    paths: [byId('prototype-to-production')],
+    ours: true,
+  },
+  {
+    v: 'v1.x',
+    state: 'A live product',
+    line: 'Customers depend on it. You need features, AI work, integrations or upkeep without a new hire.',
+    paths: [byId('product-engineering')],
+  },
+];
+const websites = byId('websites');
+---
+
+<section class="section states" aria-labelledby="states-title">
+  <div class="container-site">
+    <div class="states-head">
+      <Heading id="states-title" class={level === 'h1' ? 't-h1' : 't-h2'}>{title}</Heading>
+      <p class="t-lead states-intro">Most projects start in one of three places. Each has a clear first step.</p>
+    </div>
+
+    <ol class="states-list">
+      {
+        states.map((s) => (
+          <li class:list={['state', s.ours && 'is-ours']}>
+            <p class="t-mono state-v">
+              <span class:list={['state-tag', s.v === 'v1.x' ? 'is-live' : 'is-draft']}>
+                {s.v === 'v1.x' && <span class="state-dot" aria-hidden="true" />}
+                {s.v}
+              </span>
+              {s.ours && <span class="state-ours">our specialty</span>}
+            </p>
+            <h3 class="t-h3 state-title">{s.state}</h3>
+            <p class="state-line">{s.line}</p>
+            <ul class="state-paths">
+              {s.paths.filter(Boolean).map((p) => (
+                <li>
+                  <a href={`/services/${p!.id}`} class="state-path">
+                    <span class="state-path-title">{p!.data.title}</span>
+                    <span class="state-path-line">{p!.data.oneLiner}</span>
+                    <span class="state-arrow" aria-hidden="true">
+                      →
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="states-foot">
+      {
+        websites && (
+          <p class="states-web">
+            We also build <a href={`/services/${websites.id}`}>websites</a> for software and service businesses.
+          </p>
+        )
+      }
+      <TextLink href="/services">All services</TextLink>
+    </div>
+  </div>
+</section>
+
+<style>
+  .states-head {
+    display: grid;
+    gap: 1.25rem 3rem;
+    align-items: end;
+  }
+  .states-head :global(h1),
+  .states-head :global(h2) {
+    margin: 0;
+    max-width: 16ch;
+  }
+  .states-intro {
+    margin: 0;
+    max-width: 36ch;
+  }
+  .states-list {
+    display: grid;
+    gap: 0;
+    list-style: none;
+    margin: clamp(2.5rem, 5vw, 4rem) 0 0;
+    padding: 0;
+    border-top: 1px solid var(--color-ink);
+  }
+  .state {
+    display: flex;
+    flex-direction: column;
+    padding: 1.75rem 0 2rem;
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .state-v {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+  }
+  .state-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    padding: 0.2em 0.6em;
+    border-radius: var(--radius-sm);
+  }
+  .state-tag.is-draft {
+    color: var(--color-ink-muted);
+    border: 1px dashed var(--color-ink-muted);
+  }
+  .state-tag.is-live {
+    color: var(--color-ink);
+    border: 1px solid var(--color-ink);
+    background: var(--color-surface);
+  }
+  .state-dot {
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background: var(--color-signal);
+  }
+  .state-ours {
+    color: var(--color-ink-muted);
+  }
+  .state-title {
+    margin: 1.25rem 0 0.75rem;
+  }
+  .state-line {
+    margin: 0;
+    color: var(--color-ink-muted);
+    max-width: 38ch;
+  }
+  .state-paths {
+    list-style: none;
+    margin: auto 0 0;
+    padding: 1.5rem 0 0;
+  }
+  .state-paths li + li {
+    margin-top: 0.5rem;
+  }
+  .state-path {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.2rem 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    text-decoration: none;
+    transition: border-color 160ms var(--ease-precise);
+  }
+  .state-path:hover {
+    border-color: var(--color-ink);
+  }
+  .state-path-title {
+    font-weight: 600;
+  }
+  .state-path-line {
+    grid-column: 1;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    color: var(--color-ink-muted);
+  }
+  .state-arrow {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    transition: transform 200ms var(--ease-precise);
+  }
+  .state-path:hover .state-arrow {
+    transform: translateX(3px);
+  }
+  .states-foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem 2rem;
+    margin-top: 2rem;
+  }
+  .states-web {
+    margin: 0;
+    color: var(--color-ink-muted);
+  }
+  .states-web a {
+    color: var(--color-ink);
+    text-underline-offset: 0.2em;
+  }
+
+  @media (width >= 56.25rem) {
+    .states-head {
+      grid-template-columns: 1fr auto;
+    }
+    /* Subgrid: tags, titles, lines and paths line up across the three columns. */
+    .states-list {
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(4, auto);
+    }
+    .state {
+      display: grid;
+      grid-row: span 4;
+      grid-template-rows: subgrid;
+      row-gap: 0;
+      padding: 1.75rem 1.75rem 2rem;
+      border-bottom: 0;
+    }
+    .state-paths {
+      margin-top: 0;
+    }
+    .state:first-child {
+      padding-left: 0;
+    }
+    .state:last-child {
+      padding-right: 0;
+    }
+    .state + .state {
+      border-left: 1px solid var(--color-rule);
+    }
+  }
+</style>

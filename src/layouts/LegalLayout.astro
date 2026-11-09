@@ -16,7 +16,10 @@ const { title, description, updated, toc = [] } = Astro.props;
   <section class="legal">
     <div class="container-site">
       <Breadcrumbs items={[{ href: '/', label: 'Home' }, { label: title }]} />
-      <h1 class="t-h1 legal-title">{title}</h1>
+      <h1 class="t-h1 legal-title">
+        {title.split(' ').slice(0, -1).join(' ')}{' '}
+        <span class="draft-word" data-text={title.split(' ').at(-1)}>{title.split(' ').at(-1)}</span>
+      </h1>
       <p class="t-mono legal-updated">Last updated {updated}</p>
     </div>
     <div class="container-site grid-site legal-grid">

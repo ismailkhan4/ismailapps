@@ -1,0 +1,396 @@
+---
+/**
+ * Shipped work as a pinned horizontal reel (wide screens). Real screenshots of
+ * the live products only (scripts/capture-work.mjs), never mock-ups.
+ *  - Each slide's frame "goes live" as it reaches the centre: dashed draft
+ *    outline → solid frame, desaturated → full colour, tilt → flat (--f).
+ *  - The tall screenshot scrolls inside its frame with the slide (--s), so you
+ *    see the real page, top to bottom.
+ *  - Our part is always stated, never implied as "end to end".
+ * Narrow screens: a native swipe carousel with scroll-snap. Reduced motion: no tilt.
+ */
+import { Image } from 'astro:assets';
+import { getWork, workHref } from '../../lib/content';
+
+interface Props {
+  /** Opens an ink section (no ink panel above it): rounded top corners. */
+  first?: boolean;
+}
+const { first = false } = Astro.props;
+const work = await getWork();
+const FRAME_RATIO = 10 / 16; // screen height / width
+const slides = work
+  .filter((w) => w.data.cover)
+  .map((w, i, all) => {
+    const cover = w.data.cover!;
+    const shift = Math.max(0, 1 - (FRAME_RATIO * cover.width) / cover.height);
+    return {
+      id: w.id,
+      n: `${String(i + 1).padStart(2, '0')} / ${String(all.length).padStart(2, '0')}`,
+      title: w.data.title,
+      host: new URL(w.data.url).hostname.replace(/^www\./, ''),
+      url: w.data.url,
+      cover,
+      shift,
+      category: w.data.category,
+      location: w.data.clientLocation,
+      part: w.data.scope ?? (w.data.kind === 'short' ? 'Website' : ''),
+      summary: w.data.summary,
+      href: workHref(w),
+      isCase: w.data.kind === 'case-study',
+      live: w.data.status === 'live',
+    };
+  });
+---
+
+<section id="shipped" class:list={['reel', first && 'is-first']} data-reel data-theme="ink" aria-labelledby="reel-title">
+  <div class="reel-stage" data-reel-stage>
+    <div class="container-wide reel-head">
+      <h2 id="reel-title" class="reel-title">Shipped, and still running.</h2>
+      <p class="reel-intro">
+        Client products and websites we've worked on, as they look in production today. Our part on each is stated
+        plainly.
+      </p>
+      <p class="t-mono reel-count" aria-hidden="true"><span data-reel-n>01</span> / {String(slides.length).padStart(2, '0')}</p>
+    </div>
+
+    <ol class="reel-track" data-reel-track>
+      {
+        slides.map((s) => (
+          <li class="slide" id={s.id} data-slide style={`--max:${(s.shift * 100).toFixed(2)}%`}>
+            <article aria-labelledby={`slide-${s.id}`}>
+              <a href={s.isCase ? s.href : s.url} rel={s.isCase ? undefined : 'noopener'} class="frame" tabindex="-1" aria-hidden="true">
+                <span class="frame-bar">
+                  <span class="frame-dots">
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                  <span class="t-mono frame-host">{s.host}</span>
+                </span>
+                <span class="frame-screen">
+                  <Image
+                    src={s.cover}
+                    alt=""
+                    widths={[560, 960, 1280]}
+                    sizes="(min-width: 900px) 56vw, 86vw"
+                    loading="lazy"
+                    class="frame-img"
+                  />
+                </span>
+              </a>
+              <div class="slide-meta">
+                <p class="t-mono slide-status">
+                  {s.live && <span class="live-dot" aria-hidden="true" />}
+                  {s.live ? 'live' : 'offline'} · {s.host}
+                </p>
+                <h3 id={`slide-${s.id}`} class="slide-title">
+                  {s.title}
+                </h3>
+                <p class="slide-summary">{s.summary}</p>
+                <dl class="t-mono slide-facts">
+                  <div>
+                    <dt>type</dt>
+                    <dd>{s.category} · client in {s.location}</dd>
+                  </div>
+                  {s.part && (
+                    <div>
+                      <dt>our part</dt>
+                      <dd>{s.part}</dd>
+                    </div>
+                  )}
+                </dl>
+                {s.isCase ? (
+                  <a href={s.href} class="link slide-link">
+                    Read the case study
+                    <span class="link-arrow" aria-hidden="true">
+                      →
+                    </span>
+                  </a>
+                ) : (
+                  <a
+                    href={s.url}
+                    rel="noopener"
+                    class="link slide-link"
+                    data-umami-event="outbound_client"
+                    data-umami-event-location={`reel:${s.id}`}
+                  >
+                    Visit {s.host}
+                    <span class="link-arrow link-arrow-external" aria-hidden="true">
+                      ↗
+                    </span>
+                    <span class="sr-only">(external site)</span>
+                  </a>
+                )}
+              </div>
+            </article>
+          </li>
+        ))
+      }
+    </ol>
+    <div class="reel-progress" aria-hidden="true"><span></span></div>
+  </div>
+</section>
+
+<style>
+  .reel {
+    background: var(--color-ink);
+    color: var(--color-paper);
+    padding-block: var(--section-space);
+    overflow: clip;
+  }
+  .reel.is-first {
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+  .reel :focus-visible {
+    outline-color: var(--color-paper);
+  }
+  .reel-head {
+    display: grid;
+    gap: 1rem 3rem;
+    align-items: end;
+  }
+  .reel-title {
+    margin: 0;
+    font-size: var(--step-4);
+    letter-spacing: -0.035em;
+    max-width: 12ch;
+  }
+  .reel-intro {
+    margin: 0;
+    color: var(--color-ink-soft);
+    max-width: 40ch;
+  }
+  .reel-count {
+    display: none;
+    margin: 0;
+    color: var(--color-ink-soft);
+  }
+
+  /* Narrow: swipe carousel */
+  .reel-track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: min(86vw, 34rem);
+    gap: 1rem;
+    list-style: none;
+    margin: 2.5rem 0 0;
+    padding: 0 var(--gutter) 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .reel-track::-webkit-scrollbar {
+    display: none;
+  }
+  .slide {
+    --f: 1;
+    /* Contain absolutely positioned children (the sr-only "external site" note),
+       or off-screen slides would widen the page. */
+    position: relative;
+    scroll-snap-align: start;
+    min-width: 0;
+  }
+  .slide article {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .frame {
+    display: block;
+    border-radius: var(--radius-lg);
+    background: var(--color-ink-raised);
+    outline: 1px dashed var(--color-ink-soft);
+    outline-offset: -1px;
+    text-decoration: none;
+    overflow: hidden;
+    transform-origin: center;
+  }
+  .slide:global(.is-live) .frame,
+  .reel:not(:global(.is-pinned)) .frame {
+    outline: 1px solid var(--color-ink-rule);
+  }
+  .frame-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.6rem 0.85rem;
+    border-bottom: 1px solid var(--color-ink-rule);
+  }
+  .frame-dots {
+    display: inline-flex;
+    gap: 0.35rem;
+  }
+  .frame-dots i {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    border: 1px solid var(--color-ink-rule);
+  }
+  .frame-host {
+    font-size: 0.75rem;
+    color: var(--color-ink-soft);
+  }
+  .frame-screen {
+    display: block;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--color-paper);
+  }
+  .frame-screen :global(.frame-img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    transform: translateY(calc(var(--s, 0) * var(--max) * -1));
+    will-change: transform;
+  }
+
+  .slide-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    color: var(--color-ink-soft);
+  }
+  .live-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--color-signal);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-signal) 50%, transparent);
+  }
+  .slide-title {
+    margin: 0.6rem 0 0.9rem;
+    font-size: clamp(2.5rem, 5.5vw, 5.5rem);
+    line-height: 0.92;
+    letter-spacing: -0.05em;
+  }
+  .slide-summary {
+    margin: 0;
+    color: var(--color-ink-soft);
+    max-width: 40ch;
+  }
+  .slide-facts {
+    display: grid;
+    gap: 0.3rem;
+    margin: 1.25rem 0 0;
+  }
+  .slide-facts div {
+    display: grid;
+    grid-template-columns: 5.5rem 1fr;
+    gap: 0.75rem;
+  }
+  .slide-facts dt {
+    color: var(--color-ink-soft);
+  }
+  .slide-facts dd {
+    margin: 0;
+  }
+  .slide-link {
+    margin-top: 1.5rem;
+    color: var(--color-paper);
+  }
+  .reel-progress {
+    display: none;
+  }
+
+  @media (width >= 56.25rem) {
+    /* Wide but not pinned (reduced motion): a plain two-column grid, no sideways scrolling. */
+    .reel:not(:global(.is-pinned)) .reel-track {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4rem 3rem;
+      margin-top: 3.5rem;
+      padding-inline: var(--gutter);
+      max-width: 104rem;
+      margin-inline: auto;
+      overflow: visible;
+    }
+    .reel-head {
+      grid-template-columns: auto 1fr auto;
+    }
+    .reel-count {
+      display: block;
+    }
+  }
+
+  /* ---------------- Pinned reel (set by home.ts) ---------------- */
+  .reel:global(.is-pinned) {
+    padding-block: 0;
+  }
+  .reel:global(.is-pinned) .reel-stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(1.5rem, 4vh, 3rem);
+    padding-top: 4.5rem;
+  }
+  .reel:global(.is-pinned) .reel-track {
+    display: flex;
+    gap: 6vw;
+    margin: 0;
+    padding: 0 0 0 max(var(--gutter), calc((100vw - 78vw) / 2));
+    overflow: visible;
+    scroll-snap-type: none;
+    transform: translate3d(var(--tx, 0px), 0, 0);
+    will-change: transform;
+    perspective: 1600px;
+  }
+  .reel:global(.is-pinned) .slide {
+    flex: none;
+    width: 78vw;
+  }
+  .reel:global(.is-pinned) .slide article {
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
+    gap: 3vw;
+    align-items: center;
+  }
+  .reel:global(.is-pinned) .frame-screen {
+    aspect-ratio: auto;
+    height: min(52vh, calc((78vw - 22rem - 3vw) * 0.625));
+  }
+  .reel:global(.is-pinned) .frame {
+    /* --f: 0 far from centre, 1 centred. --dir: -1 left, 1 right. */
+    transform: rotateY(calc((1 - var(--f)) * var(--dir, 1) * -22deg)) scale(calc(0.86 + var(--f) * 0.14));
+    filter: grayscale(calc(1 - var(--f))) brightness(calc(0.55 + var(--f) * 0.45));
+  }
+  .reel:global(.is-pinned) .slide-meta {
+    opacity: calc(0.25 + var(--f, 1) * 0.75);
+    transform: translateX(calc((1 - var(--f, 1)) * 3rem));
+  }
+  .reel:global(.is-pinned) .slide:global(.is-live) .live-dot {
+    animation: pulse 1600ms ease-out 1;
+  }
+  .reel:global(.is-pinned) .reel-progress {
+    display: block;
+    margin-inline: var(--gutter);
+    height: 1px;
+    background: var(--color-ink-rule);
+  }
+  .reel-progress span {
+    display: block;
+    height: 100%;
+    background: var(--color-paper);
+    transform-origin: left;
+    transform: scaleX(var(--p, 0));
+  }
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-signal) 60%, transparent);
+    }
+    100% {
+      box-shadow: 0 0 0 14px transparent;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reel:global(.is-pinned) .frame {
+      transform: none;
+    }
+  }
+</style>

@@ -5,7 +5,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/sections/PageHero.astro';
 import FactSheet from '../../components/ui/FactSheet.astro';
 import SectionHeading from '../../components/ui/SectionHeading.astro';
-import ReleaseCounter from '../../components/sections/ReleaseCounter.astro';
+import BuildProcess from '../../components/home/BuildProcess.astro';
 import WorkIndex from '../../components/sections/WorkIndex.astro';
 import FAQSection from '../../components/sections/FAQSection.astro';
 import CTASection from '../../components/sections/CTASection.astro';
@@ -59,7 +59,7 @@ const serviceLd = {
   <!-- 2. Who it's for -->
   <section class="section" aria-labelledby="for-title">
     <div class="container-site grid-site split">
-      <div class="split-head"><SectionHeading id="for-title" label="01 · fit" title="Who it's for" /></div>
+      <div class="split-head"><SectionHeading id="for-title" title="Who it's for" /></div>
       <ul class="for-list split-body">
         {
           d.forWho.map((line, i) => (
@@ -78,14 +78,14 @@ const serviceLd = {
   <!-- 3. What you get -->
   <section class="section" aria-labelledby="get-title">
     <div class="container-site">
-      <SectionHeading id="get-title" label="02 · deliverables" title="What you get" />
-      <ol class="get-list">
+      <SectionHeading id="get-title" title="What you get" />
+      <ol class="ruled">
         {
           d.deliverables.map((item, i) => (
-            <li class="get-card" data-reveal style={`--d:${i}`}>
-              <span class="t-mono get-num">{String(i + 1).padStart(2, '0')}</span>
-              <h3 class="get-title">{item.title}</h3>
-              <p class="get-detail">{item.detail}</p>
+            <li data-reveal style={`--d:${i}`}>
+              <span class="ruled-n">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class="ruled-title">{item.title}</h3>
+              <p class="ruled-detail">{item.detail}</p>
             </li>
           ))
         }
@@ -94,13 +94,13 @@ const serviceLd = {
   </section>
 
   <!-- 4. How it works -->
-  <ReleaseCounter id="how" label="03 · process" title="How it works" steps={d.steps} />
+  <BuildProcess id="how" title="How it works" sub={d.oneLiner} steps={d.steps} />
 
   <!-- 5. Related work -->
-  {related.length > 0 && <WorkIndex label="04 · work we've shipped" work={related} products={false} />}
+  {related.length > 0 && <WorkIndex label="work we've shipped" work={related} products={false} />}
 
   <!-- 6. FAQ -->
-  <FAQSection items={d.faqs} label="05 · faq" title="Questions" />
+  <FAQSection items={d.faqs} title="Questions" />
 
   <!-- Other services -->
   <nav class="others" aria-labelledby="others-title">
@@ -166,47 +166,6 @@ const serviceLd = {
     color: var(--color-signal-ink);
   }
 
-  .get-list {
-    list-style: none;
-    margin: clamp(2rem, 4vw, 3rem) 0 0;
-    padding: 0;
-    display: grid;
-    gap: 1rem;
-  }
-  .get-card {
-    display: flex;
-    flex-direction: column;
-    min-height: 13rem;
-    padding: 1.75rem;
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface);
-    transition:
-      transform 500ms cubic-bezier(0.2, 0.7, 0, 1),
-      border-color 300ms,
-      box-shadow 500ms cubic-bezier(0.2, 0.7, 0, 1);
-  }
-  .get-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--color-ink);
-    box-shadow: 0 24px 50px -32px rgb(23 21 15 / 0.45);
-  }
-  .get-num {
-    color: var(--color-signal-ink);
-  }
-  .get-title {
-    margin: auto 0 0.5rem;
-    padding-top: 2rem;
-    font-size: var(--step-2);
-    letter-spacing: -0.02em;
-    line-height: 1.15;
-  }
-  .get-detail {
-    margin: 0;
-    color: var(--color-ink-muted);
-    max-width: 40ch;
-  }
-
   /* Staggered reveal for lists and cards. */
   @media (prefers-reduced-motion: no-preference) {
     :global(.js) [data-reveal][style*='--d'] {
@@ -252,11 +211,6 @@ const serviceLd = {
     color: var(--color-paper);
   }
 
-  @media (width >= 40rem) {
-    .get-list {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
   @media (width >= 56.25rem) {
     .prose {
       grid-column: 3 / span 9;
@@ -269,9 +223,6 @@ const serviceLd = {
     }
     .split-body {
       grid-column: 5 / span 8;
-    }
-    .get-list {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 </style>

@@ -1,0 +1,175 @@
+---
+/**
+ * Hero proof: what we've shipped that is running in production, as a ledger.
+ * Static facts from the content collections (status, our part), never a live
+ * check: we don't publicly monitor client sites. One accent use only: the live dot.
+ */
+import { getProducts, getWork, workHref } from '../../lib/content';
+
+type Row = { key: string; name: string; host: string; kind: string; part: string; href: string; live: boolean };
+
+const work = await getWork('case-study');
+const products = await getProducts();
+const rows: Row[] = [
+  ...work.map((w) => ({
+    key: w.id,
+    name: w.data.title,
+    host: new URL(w.data.url).hostname.replace(/^www\./, ''),
+    kind: `${w.data.category} · client`,
+    part: w.data.scope ?? '',
+    href: workHref(w),
+    live: w.data.status === 'live',
+  })),
+  ...products.map((p) => ({
+    key: p.id,
+    name: p.data.name,
+    host: p.data.url ? new URL(p.data.url).hostname.replace(/^www\./, '') : '',
+    kind: 'Our own product',
+    part: 'Everything',
+    href: `/products/${p.id}`,
+    live: p.data.status === 'live',
+  })),
+];
+---
+
+<figure class="ledger" aria-labelledby="ledger-title">
+  <figcaption id="ledger-title" class="t-mono ledger-head">
+    <span>in production</span>
+    <span>{String(rows.length).padStart(2, '0')} products</span>
+  </figcaption>
+  <ol class="ledger-list">
+    {
+      rows.map((r) => (
+        <li>
+          <a href={r.href} class="ledger-row">
+            <span class="ledger-name">{r.name}</span>
+            <span class="t-mono ledger-status">
+              {r.live ? (
+                <>
+                  <span class="ledger-dot" aria-hidden="true" />
+                  live
+                </>
+              ) : (
+                'offline'
+              )}
+            </span>
+            <span class="t-mono ledger-meta">
+              {r.host} · {r.kind}
+            </span>
+            {r.part && (
+              <span class="t-mono ledger-part">
+                <span class="ledger-key">our part</span> {r.part}
+              </span>
+            )}
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</figure>
+
+<style>
+  .ledger {
+    margin: 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+  }
+  .ledger-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--color-ink);
+    color: var(--color-ink-muted);
+  }
+  .ledger-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .ledger-list li + li {
+    border-top: 1px solid var(--color-rule);
+  }
+  .ledger-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.3rem 1rem;
+    padding: 1.1rem 1.25rem 1.2rem;
+    text-decoration: none;
+    transition: background-color 160ms var(--ease-precise);
+  }
+  .ledger-row:hover {
+    background: var(--color-paper);
+  }
+  .ledger-name {
+    font-size: var(--step-2);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  .ledger-row:hover .ledger-name {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+  }
+  .ledger-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    align-self: center;
+    color: var(--color-live);
+  }
+  .ledger-dot {
+    width: 0.55em;
+    height: 0.55em;
+    border-radius: 50%;
+    background: var(--color-signal);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-signal) 18%, transparent);
+  }
+  .ledger-meta,
+  .ledger-part {
+    grid-column: 1 / -1;
+    color: var(--color-ink-muted);
+  }
+  .ledger-part {
+    color: var(--color-ink);
+  }
+  .ledger-key {
+    color: var(--color-ink-muted);
+    margin-right: 0.4em;
+  }
+
+  /* The live dots settle in one after another: drafts becoming live. */
+  @media (prefers-reduced-motion: no-preference) {
+    .ledger-list li {
+      animation: ledger-in 700ms var(--ease-precise) both;
+      animation-delay: calc(300ms + var(--n, 0) * 120ms);
+    }
+    .ledger-list li:nth-child(2) {
+      --n: 1;
+    }
+    .ledger-list li:nth-child(3) {
+      --n: 2;
+    }
+    .ledger-list li:nth-child(4) {
+      --n: 3;
+    }
+    .ledger-dot {
+      animation: ledger-dot 500ms var(--ease-precise) both;
+      animation-delay: 1100ms;
+    }
+  }
+  @keyframes ledger-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+  @keyframes ledger-dot {
+    from {
+      background: transparent;
+      box-shadow: inset 0 0 0 1.5px var(--color-ink-muted);
+    }
+  }
+</style>

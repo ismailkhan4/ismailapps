@@ -1,14 +1,13 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Hero from '../components/sections/Hero.astro';
-import WorkIndex from '../components/sections/WorkIndex.astro';
-import ServicesRail from '../components/sections/ServicesRail.astro';
-import SelectedWork from '../components/sections/SelectedWork.astro';
-import OwnProduct from '../components/sections/OwnProduct.astro';
-import ReleaseCounter from '../components/sections/ReleaseCounter.astro';
-import StudioNote from '../components/sections/StudioNote.astro';
+import HomeHero from '../components/home/HomeHero.astro';
+import StageRows from '../components/home/StageRows.astro';
+import BuildProcess from '../components/home/BuildProcess.astro';
+import ShippedReel from '../components/home/ShippedReel.astro';
+import OwnProductStage from '../components/home/OwnProductStage.astro';
+import StudioCrew from '../components/home/StudioCrew.astro';
+import GoLive from '../components/home/GoLive.astro';
 import FAQSection from '../components/sections/FAQSection.astro';
-import CTASection from '../components/sections/CTASection.astro';
 
 const faqs = [
   {
@@ -50,13 +49,14 @@ const faqs = [
   title="SaaS and AI product studio"
   description="IsmailApps designs, builds and maintains SaaS and AI products for founders, from a first scope or an AI-built prototype to production, and runs its own."
 >
-  <Hero />
-  <WorkIndex />
-  <ServicesRail />
-  <SelectedWork />
-  <OwnProduct />
-  <ReleaseCounter />
-  <StudioNote />
-  <FAQSection items={faqs} label="06 · faq" />
-  <CTASection location="home-final" />
+  <!-- The page ships as you scroll: draft on paper → built in ink → live in green. -->
+  <HomeHero />
+  <StageRows />
+  <BuildProcess joined />
+  <ShippedReel />
+  <OwnProductStage />
+  <StudioCrew />
+  <FAQSection items={faqs} wide />
+  <GoLive />
 </BaseLayout>
+

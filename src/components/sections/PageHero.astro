@@ -1,8 +1,13 @@
 ---
 /**
- * Hero for inner pages, matching the homepage: breadcrumbs, a kicker, a headline
- * whose words rise from a mask, a lead, a magnetic primary CTA, and an optional
- * aside (e.g. a fact sheet) that rises in after the headline.
+ * Hero for inner pages, in the homepage's language: the drafting-board grid,
+ * mono notes along the top edge, display type set across the full frame, and a
+ * foot row with the promise, the actions and an optional aside.
+ *
+ * The title's last word arrives as a pencil outline (the brand's draft state)
+ * and is filled in to solid ink: every page "ships" as it opens, like the
+ * homepage's headline. Reduced motion shows it solid straight away. The fill is
+ * a pseudo-element with empty alt text, so assistive tech reads the title once.
  */
 import Breadcrumbs from '../ui/Breadcrumbs.astro';
 import Button from '../ui/Button.astro';
@@ -10,9 +15,9 @@ import TextLink from '../ui/TextLink.astro';
 
 interface Props {
   crumbs: { href?: string; label: string }[];
-  /** Small label above the headline. Leave out when it would just repeat the breadcrumb. */
+  /** Small note above the headline. Leave out when it would just repeat the breadcrumb. */
   kicker?: string | undefined;
-  /** Optional orange pill next to the kicker. */
+  /** Optional status pill next to the kicker (e.g. "live · early access"). */
   tag?: string | undefined;
   title: string;
   lead: string;
@@ -21,44 +26,48 @@ interface Props {
   secondary?: { href: string; label: string };
 }
 const { crumbs, kicker, tag, title, lead, cta, secondary } = Astro.props;
-const words = title.split(' ');
 const hasAside = Astro.slots.has('aside');
+
+const words = title.trim().split(/\s+/);
+const last = words.pop() ?? '';
+const head = words.join(' ');
+// Long headlines (service promises, taglines) get a smaller display size.
+const size = title.length > 28 ? 'long' : 'short';
 ---
 
-<section class:list={['page-hero', hasAside && 'has-aside']} aria-labelledby="page-title">
-  <div class="container-site grid-site page-hero-grid">
+<section class:list={['page-hero', 'has-board', hasAside && 'has-aside']} aria-labelledby="page-title">
+  <div class="drafting-board" aria-hidden="true"></div>
+
+  <div class="container-site page-hero-top">
+    <Breadcrumbs items={crumbs} />
+    {
+      (kicker || tag) && (
+        <p class="t-mono page-kicker">
+          {kicker && <span>{kicker}</span>}
+          {tag && (
+            <span class="page-tag">
+              <span class="page-tag-dot" aria-hidden="true" />
+              {tag}
+            </span>
+          )}
+        </p>
+      )
+    }
+  </div>
+
+  <div class="container-site grid-site page-hero-body">
+    <h1 id="page-title" class:list={['page-title', `is-${size}`]}>
+      <span class="page-title-text">{head && <>{head} </>}<span class="draft-word" data-text={last}>{last}</span></span>
+    </h1>
     <div class="page-hero-copy">
-      <Breadcrumbs items={crumbs} />
-      {
-        (kicker || tag) && (
-          <p class="page-kicker">
-            {kicker && <span class="t-label">{kicker}</span>}
-            {tag && <span class="t-mono page-tag">{tag}</span>}
-          </p>
-        )
-      }
-      <h1 id="page-title" class="t-display page-title">
-        {
-          words.map((w, i) => (
-            <>
-              {i > 0 && ' '}
-              <span class="mask-word" style={`--i:${i}`}>
-                <span>{w}</span>
-              </span>
-            </>
-          ))
-        }
-      </h1>
-      <p class="t-lead page-lead">{lead}</p>
+      <p class="page-lead">{lead}</p>
       {
         (cta || secondary) && (
           <div class="page-actions">
             {cta && (
-              <span data-magnetic class="magnetic">
-                <Button href={cta.href} event={cta.event ?? 'cta_click'} location={cta.location} arrow>
-                  {cta.label ?? 'Start a project'}
-                </Button>
-              </span>
+              <Button href={cta.href} event={cta.event ?? 'cta_click'} location={cta.location} arrow class="btn-sweep">
+                {cta.label ?? 'Start a project'}
+              </Button>
             )}
             {secondary && <TextLink href={secondary.href}>{secondary.label}</TextLink>}
           </div>
@@ -77,70 +86,129 @@ const hasAside = Astro.slots.has('aside');
 
 <style>
   .page-hero {
-    padding-block: clamp(2.5rem, 6vw, 5rem) clamp(3.5rem, 7vw, 6rem);
+    padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(3.5rem, 7vw, 6rem);
   }
-  .page-hero-grid {
-    row-gap: 3rem;
-    align-items: end;
-  }
-  .page-hero-copy,
-  .page-hero-aside {
-    grid-column: 1 / -1;
-    min-width: 0;
+
+  .page-hero-top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.75rem 2rem;
   }
   .page-kicker {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.75rem;
-    margin: 2rem 0 0;
-  }
-  .page-kicker + .page-title {
-    margin-top: 1rem;
+    gap: 0.5rem 1rem;
+    margin: 0;
+    color: var(--color-ink-muted);
   }
   .page-tag {
-    padding: 0.2rem 0.7rem;
-    border-radius: var(--radius-pill);
-    background: var(--color-signal-ink);
-    color: var(--color-white);
-    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    padding: 0.15em 0.6em;
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-ink);
   }
+  .page-tag-dot {
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background: var(--color-signal);
+  }
+
+  /* ---------- The headline ---------- */
   .page-title {
-    margin: 2rem 0 0;
-    max-width: 16ch;
+    margin: 0;
+    font-weight: 600;
+    text-wrap: balance;
+  }
+  .page-title.is-short {
+    font-size: clamp(3.25rem, 1rem + 8.2vw, 9.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.055em;
+  }
+  .page-title.is-long {
+    font-size: clamp(2.6rem, 1rem + 5vw, 6.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+  }
+  /* The measure sits on the text, not the frame, so the frame's edges stay put. */
+  .page-title-text {
+    display: block;
+    max-width: 15ch;
+  }
+  .is-long .page-title-text {
+    max-width: 19ch;
+  }
+  /* ---------- Body: headline, then promise · actions; an aside sits alongside ---------- */
+  .page-hero-body {
+    row-gap: clamp(2rem, 4vw, 3.5rem);
+    margin-top: clamp(2rem, 5vw, 4rem);
+  }
+  .page-title,
+  .page-hero-copy,
+  .page-hero-aside {
+    grid-column: 1 / -1;
+    min-width: 0;
   }
   .page-lead {
-    margin: 1.75rem 0 0;
-    max-width: 46ch;
+    margin: 0;
+    max-width: 44ch;
+    font-size: var(--step-1);
+    line-height: 1.45;
   }
   .page-actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 1.25rem 2rem;
-    margin-top: 2.5rem;
-  }
-  .magnetic {
-    display: inline-block;
-    transition: transform 400ms cubic-bezier(0.2, 0.7, 0, 1);
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .page-hero-aside {
-      animation: aside-rise 1100ms cubic-bezier(0.2, 0.7, 0, 1) 500ms backwards;
-    }
-  }
-  @keyframes aside-rise {
-    from {
-      opacity: 0;
-      transform: translateY(2rem);
-    }
+    margin-top: 2.25rem;
   }
   @media (width >= 56.25rem) {
-    .has-aside .page-hero-copy {
+    .page-hero-copy {
       grid-column: 1 / span 7;
+    }
+    .has-aside .page-title {
+      grid-column: 1 / span 8;
     }
     .page-hero-aside {
       grid-column: 9 / span 4;
+      grid-row: 1 / span 2;
+      align-self: end;
+    }
+  }
+
+  /* ---------- Entrance (CSS only; content never waits on JS) ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .page-title {
+      animation: title-rise 1000ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .page-hero-top,
+    .page-hero-copy {
+      animation: rise 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .page-hero-copy {
+      animation-delay: 350ms;
+    }
+    .page-hero-aside {
+      animation: rise 1100ms cubic-bezier(0.2, 0.7, 0, 1) 500ms both;
+    }
+  }
+  @keyframes title-rise {
+    from {
+      opacity: 0;
+      transform: translateY(0.25em);
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
     }
   }
 </style>

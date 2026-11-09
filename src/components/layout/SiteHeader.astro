@@ -10,11 +10,18 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`);
 ---
 
-<header class="site-header">
+<!-- Same header on every page: the build meter tracks how far this page has "shipped",
+     and the bar takes on the surface it passes over (src/scripts/kinetic.ts). -->
+<header class="site-header" data-site-header>
   <div class="container-site header-inner">
     <a href="/" class="header-logo" aria-label="IsmailApps, home">
       <Logo />
     </a>
+
+    <p class="t-mono meter" aria-hidden="true" data-meter>
+      <span class="meter-v" data-meter-v>v0.1</span>
+      <span class="meter-s" data-meter-s>draft</span>
+    </p>
 
     <!-- Desktop navigation (≥900px). The Services menu is a native <details>
          disclosure: it opens on click/Enter/Space, not hover, and works without JS. -->
@@ -105,6 +112,7 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
       </div>
     </details>
   </div>
+  <span class="meter-line" aria-hidden="true" data-meter-line></span>
 </header>
 
 <style>
@@ -114,7 +122,84 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
     top: 0;
     z-index: 50;
     background: var(--color-paper);
-    border-bottom: 1px solid var(--color-rule);
+    color: var(--color-ink);
+    border-bottom: 1px solid transparent;
+    transition:
+      background-color 350ms var(--ease-precise),
+      color 350ms var(--ease-precise),
+      border-color 350ms var(--ease-precise);
+  }
+  .site-header :global(.logo) {
+    color: inherit;
+  }
+  /* Homepage: the header takes on the surface it is passing over (home.ts). */
+  .site-header:global(.on-ink) {
+    background: var(--color-ink);
+    color: var(--color-paper);
+    border-color: var(--color-ink-rule);
+  }
+  .site-header:global(.on-live) {
+    background: var(--color-signal-ink);
+    color: var(--color-white);
+    border-color: color-mix(in srgb, var(--color-white) 30%, transparent);
+  }
+  .site-header:global(.on-ink) :focus-visible,
+  .site-header:global(.on-live) :focus-visible {
+    outline-color: currentColor;
+  }
+  .site-header:global(.on-live) :global(.header-cta) {
+    background: var(--color-ink);
+  }
+
+  /* Build meter: page progress as a release version. */
+  .meter {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 auto 0 0;
+    font-size: 0.75rem;
+  }
+  .meter-v {
+    min-width: 2.6rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .meter-s {
+    padding: 0.1rem 0.45rem;
+    border: 1px dashed currentColor;
+    border-radius: var(--radius-sm);
+    opacity: 0.8;
+  }
+  .meter:global(.is-live) .meter-s {
+    border-style: solid;
+    opacity: 1;
+  }
+  .meter:global(.is-live) .meter-s::before {
+    content: '';
+    display: inline-block;
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-right: 0.35rem;
+    border-radius: 50%;
+    background: var(--color-signal);
+    vertical-align: 0.05em;
+  }
+  .site-header:global(.on-live) .meter:global(.is-live) .meter-s::before {
+    background: var(--color-white);
+  }
+  .meter-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: currentColor;
+    transform-origin: left;
+    transform: scaleX(var(--page, 0));
+  }
+  @media (width >= 40rem) {
+    .meter {
+      display: inline-flex;
+    }
   }
   .header-inner {
     display: flex;
@@ -152,7 +237,7 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
     font-size: 1rem;
     font-weight: 500;
     text-decoration: none;
-    color: var(--color-ink);
+    color: inherit;
     cursor: pointer;
     list-style: none;
     border-radius: var(--radius-sm);
@@ -184,6 +269,7 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
     width: 26rem;
     padding: 0.5rem;
     background: var(--color-surface);
+    color: var(--color-ink);
     border: 1px solid var(--color-rule);
     border-radius: var(--radius-md);
     box-shadow: 0 12px 32px -18px rgb(23 21 15 / 0.35);
@@ -243,7 +329,7 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
     align-items: center;
     min-height: 2.75rem;
     padding: 0 0.9rem;
-    border: 1px solid var(--color-ink);
+    border: 1px solid currentColor;
     border-radius: var(--radius-sm);
     font-family: var(--font-mono);
     font-size: 0.875rem;
@@ -265,6 +351,7 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
     position: fixed;
     inset: var(--header-h) 0 0 0;
     background: var(--color-paper);
+    color: var(--color-ink);
     overflow-y: auto;
     overscroll-behavior: contain;
     padding-block: 1.5rem 2.5rem;
@@ -321,7 +408,10 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
       display: none;
     }
     .header-logo {
-      margin-right: 1rem;
+      margin-right: 1.5rem;
+    }
+    .meter {
+      margin: 0;
     }
   }
 </style>

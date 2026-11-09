@@ -1,20 +1,54 @@
 ---
+/**
+ * The person behind the studio: portrait + a short signed note.
+ * Drop a photo at src/assets/studio/ismail.(jpg|png|webp) and it is used automatically;
+ * until then a visible placeholder renders (and blocks production builds).
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import TextLink from '../ui/TextLink.astro';
+import Placeholder from '../ui/Placeholder.astro';
+import { site } from '../../lib/site';
+
+const photos = import.meta.glob<{ default: ImageMetadata }>('../../assets/studio/ismail.{jpg,jpeg,png,webp}', {
+  eager: true,
+});
+const photo = Object.values(photos)[0]?.default;
 ---
 
 <section class="section" aria-labelledby="studio-title">
   <div class="container-site grid-site studio">
-    <p class="t-label studio-label">05 · studio note</p>
+    <div class="studio-photo">
+      {
+        photo ? (
+          <Image
+            src={photo}
+            alt={`${site.founder.displayName}, who leads IsmailApps`}
+            widths={[360, 720]}
+            sizes="(min-width: 900px) 26vw, 70vw"
+          />
+        ) : (
+          <div class="studio-photo-empty">
+            <Placeholder label="photo of Ismail" />
+          </div>
+        )
+      }
+    </div>
     <div class="studio-body">
       <h2 id="studio-title" class="t-h2 studio-title">A small studio, on purpose.</h2>
-      <p class="studio-text">
-        IsmailApps is led by Ismail, who has spent more than five years building software for clients. He scopes every
-        project and stays accountable from the first call to maintenance.
-        Behind him is a dedicated team (design, backend, mobile, QA, DevOps and AI engineering) who join the projects that need them, so
-        you get the right people for the work without paying for an agency's overhead.
-      </p>
-      <p class="studio-small">
-        We work from Pakistan with clients in Europe and the United States.
+      <div class="studio-text">
+        <p>
+          I've spent more than five years building software for clients. I scope every IsmailApps project myself, and
+          I stay accountable for it from the first call to maintenance.
+        </p>
+        <p>
+          When a project needs more than me, a dedicated team joins: design, backend, mobile, QA, DevOps and AI
+          engineering. You get the right people for the work, without paying for an agency's overhead.
+        </p>
+      </div>
+      <p class="studio-sign">
+        <span class="studio-name">{site.founder.displayName}</span>
+        <span class="t-mono studio-role">studio lead · Lahore, working with Europe and the US</span>
       </p>
       <TextLink href="/about">About the studio</TextLink>
     </div>
@@ -23,36 +57,66 @@ import TextLink from '../ui/TextLink.astro';
 
 <style>
   .studio {
-    row-gap: 1rem;
+    row-gap: 2.5rem;
+    align-items: start;
   }
-  .studio-label,
+  .studio-photo,
   .studio-body {
     grid-column: 1 / -1;
+    min-width: 0;
   }
-  .studio-label {
-    margin: 0;
+  .studio-photo {
+    max-width: 22rem;
+  }
+  .studio-photo :global(img),
+  .studio-photo-empty {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+  }
+  .studio-photo-empty {
+    display: grid;
+    place-items: center;
+    background: var(--color-surface);
+    border: 1px dashed var(--color-ink-muted);
   }
   .studio-title {
     margin: 0 0 1.5rem;
   }
   .studio-text {
-    margin: 0;
-    font-size: var(--step-2);
-    line-height: 1.4;
-    letter-spacing: -0.015em;
-    max-width: 34ch;
+    font-size: var(--step-1);
+    line-height: 1.5;
+    max-width: 44ch;
   }
-  .studio-small {
-    margin: 1.5rem 0 1.75rem;
+  .studio-text p {
+    margin: 0;
+  }
+  .studio-text p + p {
+    margin-top: 1rem;
+  }
+  .studio-sign {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin: 2rem 0 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-rule);
+    max-width: 44ch;
+  }
+  .studio-name {
+    font-weight: 600;
+  }
+  .studio-role {
     color: var(--color-ink-muted);
   }
   @media (width >= 56.25rem) {
-    .studio-label {
-      grid-column: 1 / span 3;
-      padding-top: 0.6rem;
+    .studio-photo {
+      grid-column: 1 / span 4;
     }
     .studio-body {
-      grid-column: 4 / span 8;
+      grid-column: 6 / span 7;
     }
   }
 </style>

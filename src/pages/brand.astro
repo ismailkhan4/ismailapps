@@ -14,17 +14,17 @@ import Hero from '../components/sections/Hero.astro';
 import { contrastRatio } from '../lib/contrast';
 
 const palette = [
-  { token: 'paper', hex: '#F5F2EA', use: 'Page background' },
-  { token: 'surface', hex: '#FBF9F4', use: 'Raised panels, frames' },
-  { token: 'ink', hex: '#17150F', use: 'Text and headings' },
-  { token: 'ink-muted', hex: '#5E584D', use: 'Secondary text, annotations, form borders' },
-  { token: 'rule', hex: '#D9D3C5', use: 'Dividers only (decorative)' },
-  { token: 'signal', hex: '#E2481B', use: 'Large type, dots, keylines — not small text' },
-  { token: 'signal-ink', hex: '#B8360C', use: 'Primary button fill, accent links' },
-  { token: 'live', hex: '#1E7046', use: '“● Live” status only' },
+  { token: 'paper', hex: '#F2F3EF', use: 'Page background' },
+  { token: 'surface', hex: '#FAFAF8', use: 'Raised panels, frames' },
+  { token: 'ink', hex: '#121412', use: 'Text and headings' },
+  { token: 'ink-muted', hex: '#555A54', use: 'Secondary text, annotations, form borders' },
+  { token: 'rule', hex: '#D3D6D0', use: 'Dividers only (decorative)' },
+  { token: 'signal', hex: '#129A4C', use: 'Large type, dots, keylines — not small text' },
+  { token: 'signal-ink', hex: '#0B6B3A', use: 'Primary button fill, accent links' },
+  { token: 'live', hex: '#0B6B3A', use: '“● Live” status text (same as signal-ink)' },
 ].map((c) => ({
   ...c,
-  onPaper: contrastRatio(c.hex, '#F5F2EA'),
+  onPaper: contrastRatio(c.hex, '#F2F3EF'),
   dark: ['ink', 'ink-muted', 'signal', 'signal-ink', 'live'].includes(c.token),
 }));
 
@@ -37,7 +37,7 @@ const rating = (r: number) => (r >= 7 ? 'AAA' : r >= 4.5 ? 'AA' : r >= 3 ? 'AA l
     <p class="t-label">internal · not part of the public site</p>
     <h1 class="t-h1">Brand system</h1>
     <p class="t-lead measure">
-      The approved “Production notes” system: logo, type, colour, tags, buttons and frames. Use this page as the
+      The “Release notes” system (revised 9 Nov 2026: one live-green accent that means shipped): logo, type, colour, tags, buttons and frames. Use this page as the
       reference when building new sections.
     </p>
     <nav aria-label="Sections on this page" class="brand-toc t-mono">
@@ -60,7 +60,7 @@ const rating = (r: number) => (r >= 7 ? 'AAA' : r >= 4.5 ? 'AA' : r >= 3 ? 'AA l
         <p class="t-label">01</p>
         <h2 class="t-h2">Logo: Tittle</h2>
         <p class="measure brand-sub">
-          The dot on the i in “Ismail” is a small square in signal orange: the same status pixel used across the site. The
+          The dot on the i in “Ismail” is a small square in live green: the same status pixel used across the site. The
           compact mark is that i on its own (favicon, avatars).
         </p>
       </header>
@@ -93,7 +93,7 @@ const rating = (r: number) => (r >= 7 ? 'AAA' : r >= 4.5 ? 'AA' : r >= 3 ? 'AA l
       </header>
       <article class="specimen">
         <p class="spec-label t-label">display · 600</p>
-        <p class="t-display spec-display">Built to hold up after the demo.</p>
+        <p class="t-display spec-display">Past the prototype.</p>
         <p class="spec-label t-label">h2 · h3</p>
         <p class="t-h2 spec-h">What we build</p>
         <p class="t-h3 spec-h">Prototype to production</p>
@@ -145,8 +145,8 @@ const rating = (r: number) => (r >= 7 ? 'AAA' : r >= 4.5 ? 'AA' : r >= 3 ? 'AA l
       </ul>
       <p class="brand-note measure">
         The page reads as paper and ink; signal appears once or twice per screen. White on signal-ink is
-        {contrastRatio('#FFFFFF', '#B8360C').toFixed(2)}:1. Form fields use ink-muted borders because rule
-        ({contrastRatio('#D9D3C5', '#F5F2EA').toFixed(2)}:1) is too faint for a control boundary.
+        {contrastRatio('#FFFFFF', '#0B6B3A').toFixed(2)}:1. Form fields use ink-muted borders because rule
+        ({contrastRatio('#D3D6D0', '#F2F3EF').toFixed(2)}:1) is too faint for a control boundary.
       </p>
     </div>
   </section>

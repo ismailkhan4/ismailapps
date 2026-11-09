@@ -44,7 +44,7 @@ const statusLabel = d.status === 'live' ? (d.statusNote ? `Live · ${d.statusNot
   >
     {
       d.mobileCover && (
-        <div slot="aside" class="phone-aside" data-tilt="8">
+        <div slot="aside" class="phone-aside">
           <AnnotatedFrame kind="phone" image={d.mobileCover} alt={`${d.name} on a phone`} />
         </div>
       )
@@ -62,13 +62,13 @@ const statusLabel = d.status === 'live' ? (d.statusNote ? `Live · ${d.statusNot
     d.features.length > 0 && (
       <section class="section" id="features" aria-labelledby="features-title">
         <div class="container-site">
-          <SectionHeading id="features-title" label="how it works" title={`Inside ${d.name}`} />
-          <ol class="features">
+          <SectionHeading id="features-title" title={`Inside ${d.name}`} />
+          <ol class="ruled">
             {d.features.map((f, i) => (
-              <li class="feature" data-reveal style={`--d:${i}`}>
-                <span class="t-mono feature-n">{String(i + 1).padStart(2, '0')}</span>
-                <h3 class="feature-title">{f.title}</h3>
-                <p class="feature-detail">{f.detail}</p>
+              <li data-reveal style={`--d:${i}`}>
+                <span class="ruled-n">{String(i + 1).padStart(2, '0')}</span>
+                <h3 class="ruled-title">{f.title}</h3>
+                <p class="ruled-detail">{f.detail}</p>
               </li>
             ))}
           </ol>
@@ -109,6 +109,8 @@ const statusLabel = d.status === 'live' ? (d.statusNote ? `Live · ${d.statusNot
 
 <style>
   .phone-aside {
+    max-width: 17rem;
+    margin-inline: auto;
     --rx: 0deg;
     --ry: 0deg;
     transform: perspective(1000px) rotate(-3deg) rotateX(var(--rx)) rotateY(var(--ry));
@@ -140,50 +142,14 @@ const statusLabel = d.status === 'live' ? (d.statusNote ? `Live · ${d.statusNot
     letter-spacing: -0.035em;
   }
 
-  .features {
-    display: grid;
-    gap: 1rem;
-    list-style: none;
-    margin: clamp(2rem, 4vw, 3rem) 0 0;
-    padding: 0;
-  }
-  .feature {
-    display: flex;
-    flex-direction: column;
-    min-height: 13rem;
-    padding: 1.75rem;
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface);
-  }
-  .feature:nth-child(2) {
-    background: var(--color-signal-ink);
-    border-color: var(--color-signal-ink);
-    color: var(--color-white);
-  }
-  .feature:nth-child(2) .feature-n,
-  .feature:nth-child(2) .feature-detail {
-    color: var(--color-signal-tint);
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    :global(.js) .feature[data-reveal] {
-      transition-delay: calc(var(--d) * 80ms);
-    }
-  }
-  .feature-n {
-    color: var(--color-signal-ink);
-  }
-  .feature-title {
-    margin: auto 0 0.5rem;
-    padding-top: 2rem;
-    font-size: var(--step-2);
-    letter-spacing: -0.02em;
-    line-height: 1.15;
-  }
-  .feature-detail {
-    margin: 0;
-    color: var(--color-ink-muted);
-  }
+  
+  
+  
+  
+  
+  
+  
+  
 
   .shot {
     padding-bottom: var(--section-space);
@@ -207,6 +173,9 @@ const statusLabel = d.status === 'live' ? (d.statusNote ? `Live · ${d.statusNot
   .ours-title {
     margin: 0.6rem 0 0;
     max-width: 16ch;
+    font-size: var(--step-4);
+    letter-spacing: -0.035em;
+    line-height: 1;
   }
   .ours-body p {
     margin: 0 0 1.5rem;
@@ -215,11 +184,7 @@ const statusLabel = d.status === 'live' ? (d.statusNote ? `Live · ${d.statusNot
     line-height: 1.5;
   }
 
-  @media (width >= 40rem) {
-    .features {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
+  
   @media (width >= 56.25rem) {
     .audience-label {
       grid-column: 1 / span 3;
@@ -228,16 +193,9 @@ const statusLabel = d.status === 'live' ? (d.statusNote ? `Live · ${d.statusNot
     .audience-text {
       grid-column: 4 / span 9;
     }
-    .features {
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-    }
-    .feature {
-      grid-column: span 2;
-    }
-    .feature:nth-child(4),
-    .feature:nth-child(5) {
-      grid-column: span 3;
-    }
+    
+    
+    
     .ours-head {
       grid-column: 1 / span 5;
     }

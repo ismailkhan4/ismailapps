@@ -76,7 +76,7 @@ const description = d.seo?.description ?? d.summary;
       <section class="section" aria-labelledby="problem-title">
         <div class="container-site grid-site split">
           <div class="split-head">
-            <SectionHeading id="problem-title" label="01 · the problem" title="What it had to solve" />
+            <SectionHeading id="problem-title" title="What it had to solve" />
           </div>
           <p class="problem split-body" data-reveal>
             <RichText text={d.problem} />
@@ -91,13 +91,13 @@ const description = d.seo?.description ?? d.summary;
     d.built.length > 0 && (
       <section class="section" aria-labelledby="built-title">
         <div class="container-site">
-          <SectionHeading id="built-title" label="02 · what we built" title="What we built" />
-          <ol class="cards">
+          <SectionHeading id="built-title" title="What we built" />
+          <ol class="ruled">
             {d.built.map((b, i) => (
-              <li class="card" data-reveal style={`--d:${i}`}>
-                <span class="t-mono card-n">{String(i + 1).padStart(2, '0')}</span>
-                <h3 class="card-title">{b.title}</h3>
-                <p class="card-detail">{b.detail}</p>
+              <li data-reveal style={`--d:${i}`}>
+                <span class="ruled-n">{String(i + 1).padStart(2, '0')}</span>
+                <h3 class="ruled-title">{b.title}</h3>
+                <p class="ruled-detail">{b.detail}</p>
               </li>
             ))}
           </ol>
@@ -112,7 +112,7 @@ const description = d.seo?.description ?? d.summary;
       <section class="section" aria-labelledby="how-title">
         <div class="container-site grid-site split">
           <div class="split-head">
-            <SectionHeading id="how-title" label="03 · how we built it" title="Decisions and stack" />
+            <SectionHeading id="how-title" title="Decisions and stack" />
           </div>
           <div class="split-body">
             {d.decisions.length > 0 && (
@@ -153,7 +153,7 @@ const description = d.seo?.description ?? d.summary;
       <section class="section" aria-labelledby="outcome-title">
         <div class="container-site grid-site split">
           <div class="split-head">
-            <SectionHeading id="outcome-title" label="04 · outcome" title="Where it is now" />
+            <SectionHeading id="outcome-title" title="Where it is now" />
           </div>
           <ul class="outcome split-body">
             {d.outcome.map((o, i) => (
@@ -268,43 +268,12 @@ const description = d.seo?.description ?? d.summary;
     max-width: 52ch;
   }
 
-  .cards {
-    display: grid;
-    gap: 1rem;
-    list-style: none;
-    margin: clamp(2rem, 4vw, 3rem) 0 0;
-    padding: 0;
-  }
-  .card {
-    display: flex;
-    flex-direction: column;
-    min-height: 13rem;
-    padding: 1.75rem;
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface);
-    transition:
-      transform 500ms cubic-bezier(0.2, 0.7, 0, 1),
-      border-color 300ms;
-  }
-  .card:hover {
-    transform: translateY(-4px);
-    border-color: var(--color-ink);
-  }
-  .card-n {
-    color: var(--color-signal-ink);
-  }
-  .card-title {
-    margin: auto 0 0.5rem;
-    padding-top: 2rem;
-    font-size: var(--step-2);
-    letter-spacing: -0.02em;
-    line-height: 1.15;
-  }
-  .card-detail {
-    margin: 0;
-    color: var(--color-ink-muted);
-  }
+  
+  
+  
+  
+  
+  
 
   .decisions,
   .outcome {
@@ -420,11 +389,7 @@ const description = d.seo?.description ?? d.summary;
     transform: translateX(0.75rem);
   }
 
-  @media (width >= 40rem) {
-    .cards {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
+  
   @media (width >= 56.25rem) {
     .role-label {
       grid-column: 1 / span 3;
@@ -442,8 +407,6 @@ const description = d.seo?.description ?? d.summary;
     .split-body {
       grid-column: 5 / span 8;
     }
-    .cards {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
+    
   }
 </style>

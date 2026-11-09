@@ -4,16 +4,18 @@ import FAQ from '../ui/FAQ.astro';
 
 interface Props {
   items: { q: string; a: string }[];
-  label: string;
+  label?: string;
   title?: string;
+  /** Use the homepage's wider frame. */
+  wide?: boolean;
 }
-const { items, label, title = 'Questions founders ask' } = Astro.props;
+const { items, title = 'Questions founders ask', wide = false } = Astro.props;
 ---
 
 <section class="section" aria-labelledby="faq-title">
-  <div class="container-site grid-site faq-grid">
+  <div class:list={[wide ? 'container-wide' : 'container-site', 'grid-site faq-grid']}>
     <div class="faq-head">
-      <SectionHeading id="faq-title" label={label} title={title} />
+      <SectionHeading id="faq-title" title={title} />
     </div>
     <div class="faq-list">
       <FAQ items={items} />

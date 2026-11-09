@@ -1,0 +1,212 @@
+---
+/**
+ * Studio identity: one accountable lead, plus a dedicated team that joins when
+ * the work needs it. The disciplines are set as outlined type that fills in,
+ * one after another, when the list enters the viewport: the team assembling.
+ * Wording rules (founder): "dedicated team", never "in-house", never a size.
+ * Portrait: drop src/assets/studio/ismail.(jpg|png|webp); until then a visible placeholder.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Placeholder from '../ui/Placeholder.astro';
+import { site } from '../../lib/site';
+
+const photos = import.meta.glob<{ default: ImageMetadata }>('../../assets/studio/ismail.{jpg,jpeg,png,webp}', {
+  eager: true,
+});
+const photo = Object.values(photos)[0]?.default;
+const crew = ['Product design', 'Backend', 'Mobile', 'QA', 'DevOps', 'AI engineering'];
+---
+
+<section class="studio" aria-labelledby="studio-title">
+  <div class="container-wide studio-grid">
+    <h2 id="studio-title" class="studio-title">
+      A small studio, <span class="studio-title-2">on purpose.</span>
+    </h2>
+
+    <div class="studio-photo">
+      {
+        photo ? (
+          <Image
+            src={photo}
+            alt={`${site.founder.displayName}, who leads IsmailApps`}
+            widths={[360, 720]}
+            sizes="(min-width: 900px) 24vw, 60vw"
+          />
+        ) : (
+          <div class="studio-photo-empty">
+            <Placeholder label="photo of Ismail" />
+          </div>
+        )
+      }
+    </div>
+
+    <div class="studio-text">
+      <p class="studio-big">
+        One person scopes every project and stays accountable for it, from the first call to maintenance.
+      </p>
+      <p>
+        That's {site.founder.displayName}, who has spent more than five years building software for clients. When a
+        project needs more, a dedicated team joins: the right people for the work, without an agency's overhead.
+      </p>
+      <p class="studio-sign t-mono">
+        {site.founder.displayName} · studio lead · Lahore, working with Europe and the US
+      </p>
+      <a href="/about" class="link">About the studio <span class="link-arrow" aria-hidden="true">→</span></a>
+    </div>
+
+    <div class="crew" data-crew>
+      <p class="t-mono crew-label">joins when the project needs it</p>
+      <ul class="crew-list">
+        {
+          crew.map((c, i) => (
+            <li style={`--i:${i}`}>
+              <span class="crew-word" data-text={c}>
+                {c}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .studio {
+    padding-block: var(--section-space);
+  }
+  .studio-grid {
+    display: grid;
+    gap: 2.5rem 3rem;
+  }
+  .studio-title {
+    margin: 0;
+    font-size: clamp(3rem, 9vw, 9.5rem);
+    line-height: 0.88;
+    letter-spacing: -0.055em;
+    position: relative;
+    z-index: 1;
+  }
+  .studio-title-2 {
+    display: block;
+    color: var(--color-ink-muted);
+    font-weight: 450;
+  }
+  .studio-photo {
+    max-width: 20rem;
+  }
+  .studio-photo :global(img),
+  .studio-photo-empty {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+  }
+  .studio-photo-empty {
+    display: grid;
+    place-items: center;
+    background: var(--color-surface);
+    border: 1px dashed var(--color-ink-muted);
+  }
+  .studio-text {
+    max-width: 46ch;
+  }
+  .studio-text p {
+    margin: 0 0 1rem;
+  }
+  .studio-big {
+    font-size: var(--step-2);
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+  .studio-text p:not(.studio-big) {
+    color: var(--color-ink-muted);
+  }
+  .studio-sign {
+    margin-top: 1.5rem !important;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .crew-label {
+    margin: 0 0 1rem;
+    color: var(--color-ink-muted);
+  }
+  .crew-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-ink);
+  }
+  .crew-list li {
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .crew-word {
+    position: relative;
+    display: inline-block;
+    padding-block: 0.12em;
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: max(1px, 0.012em) var(--color-ink-muted);
+  }
+  .crew-word::after {
+    content: attr(data-text);
+    content: attr(data-text) / '';
+    position: absolute;
+    inset: 0;
+    padding-block: inherit;
+    color: var(--color-ink);
+    -webkit-text-stroke: 0;
+    clip-path: inset(-0.2em 0 -0.2em 0);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .crew-word::after {
+      clip-path: inset(-0.2em 100% -0.2em 0);
+      transition: clip-path 900ms cubic-bezier(0.65, 0, 0.35, 1);
+      transition-delay: calc(var(--i) * 140ms);
+    }
+    :global(.js) .crew:global(.is-in) .crew-word::after {
+      clip-path: inset(-0.2em 0 -0.2em 0);
+    }
+  }
+
+  @media (width >= 56.25rem) {
+    .studio-grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: start;
+    }
+    .studio-title {
+      grid-column: 1 / span 9;
+      grid-row: 1;
+    }
+    /* The portrait tucks under the headline's second line: deliberate overlap. */
+    .studio-photo {
+      grid-column: 9 / span 3;
+      grid-row: 1 / span 2;
+      margin-top: clamp(4rem, 8vw, 8rem);
+      max-width: none;
+    }
+    .studio-text {
+      grid-column: 1 / span 6;
+      grid-row: 2;
+      margin-top: 1rem;
+    }
+    .crew {
+      grid-column: 1 / -1;
+      grid-row: 3;
+      margin-top: clamp(1.5rem, 4vw, 3.5rem);
+    }
+    .crew-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      column-gap: 3rem;
+    }
+  }
+</style>

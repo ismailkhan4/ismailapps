@@ -57,6 +57,12 @@ if (form) {
     const radio = form.querySelector<HTMLInputElement>(`input[name="need"][value="${CSS.escape(service)}"]`);
     if (radio) radio.checked = true;
   }
+  // ?stage= is set by the homepage's closing "where is your product today?" choices.
+  const stage = params.get('stage');
+  if (stage) {
+    const radio = form.querySelector<HTMLInputElement>(`input[name="stage"][value="${CSS.escape(stage)}"]`);
+    if (radio) radio.checked = true;
+  }
   const error = params.get('error');
   if (error && bannerText[error]) showBanner(error);
 

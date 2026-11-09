@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/sections/PageHero.astro';
-import OwnProduct from '../../components/sections/OwnProduct.astro';
+import OwnProductStage from '../../components/home/OwnProductStage.astro';
 import SectionHeading from '../../components/ui/SectionHeading.astro';
 import CTASection from '../../components/sections/CTASection.astro';
 
@@ -33,18 +33,18 @@ const reasons = [
     secondary={{ href: '/contact', label: 'Start a project' }}
   />
 
-  <OwnProduct label="01 · hamstalk" />
+  <OwnProductStage standalone />
 
   <section class="section" aria-labelledby="why-title">
     <div class="container-site">
-      <SectionHeading id="why-title" label="02 · why" title="Why a client studio builds its own products" />
-      <ol class="reasons">
+      <SectionHeading id="why-title" title="Why a client studio builds its own products" />
+      <ol class="ruled">
         {
           reasons.map((r, i) => (
-            <li class="reason" data-reveal style={`--d:${i}`}>
-              <span class="t-mono reason-n">{String(i + 1).padStart(2, '0')}</span>
-              <h3 class="reason-title">{r.title}</h3>
-              <p class="reason-detail">{r.detail}</p>
+            <li data-reveal style={`--d:${i}`}>
+              <span class="ruled-n">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class="ruled-title">{r.title}</h3>
+              <p class="ruled-detail">{r.detail}</p>
             </li>
           ))
         }
@@ -56,44 +56,9 @@ const reasons = [
 </BaseLayout>
 
 <style>
-  .reasons {
-    display: grid;
-    gap: 1rem;
-    list-style: none;
-    margin: clamp(2rem, 4vw, 3rem) 0 0;
-    padding: 0;
-  }
-  .reason {
-    display: flex;
-    flex-direction: column;
-    min-height: 15rem;
-    padding: 1.75rem;
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface);
-  }
   @media (prefers-reduced-motion: no-preference) {
-    :global(.js) .reason[data-reveal] {
+    :global(.js) .ruled > li[data-reveal] {
       transition-delay: calc(var(--d) * 90ms);
-    }
-  }
-  .reason-n {
-    color: var(--color-signal-ink);
-  }
-  .reason-title {
-    margin: auto 0 0.5rem;
-    padding-top: 2rem;
-    font-size: var(--step-2);
-    letter-spacing: -0.02em;
-    line-height: 1.15;
-  }
-  .reason-detail {
-    margin: 0;
-    color: var(--color-ink-muted);
-  }
-  @media (width >= 56.25rem) {
-    .reasons {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 </style>

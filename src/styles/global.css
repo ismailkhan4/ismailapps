@@ -1,30 +1,38 @@
 @import 'tailwindcss';
 
 /*
- * IsmailApps — "Production notes" design tokens.
+ * IsmailApps — "Release notes" design tokens.
  * The palette is closed: the default Tailwind colours are removed so that
- * off-brand colours cannot creep in. Contrast ratios (WCAG 2.x) on paper:
- *   ink 16.3:1 · ink-muted 6.3:1 · signal-ink 5.26:1 · live 5.42:1
- *   signal 3.63:1 → large text (≥24px, or ≥18.66px bold) and graphics only
- *   white on signal-ink 5.88:1 · rule 1.33:1 → decorative lines only
+ * off-brand colours cannot creep in.
+ *
+ * Colour has one meaning: the single accent (signal, "live green") marks what is
+ * shipped and running in production. Drafts and prototypes are pencil grey with
+ * dashed outlines. Never use the accent for decoration.
+ * (Replaced cream + rust on 2026-11-09: that pairing is the widely documented
+ * default look of AI-generated sites. See docs/CREATIVE-DIRECTION-REPORT.md.)
+ *
+ * Contrast ratios (WCAG 2.x) on paper:
+ *   ink 16.6:1 · ink-muted 6.3:1 · signal-ink 5.9:1 · live 5.9:1
+ *   signal 3.3:1 → large text (≥24px, or ≥18.66px bold) and graphics only
+ *   white on signal-ink 6.6:1 · rule 1.3:1 → decorative lines only
  * Form controls use ink-muted borders (≥3:1, WCAG 1.4.11), never `rule`.
  */
 @theme {
   --color-*: initial;
-  --color-paper: #f5f2ea;
-  --color-surface: #fbf9f4;
-  --color-ink: #17150f;
-  --color-ink-muted: #5e584d;
-  --color-rule: #d9d3c5;
-  --color-signal: #e2481b;
-  --color-signal-ink: #b8360c;
-  --color-live: #1e7046;
+  --color-paper: #f2f3ef;
+  --color-surface: #fafaf8;
+  --color-ink: #121412;
+  --color-ink-muted: #555a54;
+  --color-rule: #d3d6d0;
+  --color-signal: #129a4c; /* live green: dots, keylines, large type */
+  --color-signal-ink: #0b6b3a; /* live green for text and button fills */
+  --color-live: #0b6b3a;
   --color-white: #ffffff;
-  /* Dark and accent sections (added for the livelier layout) */
-  --color-ink-raised: #221f18; /* panels on ink */
-  --color-ink-rule: #3a3529; /* lines on ink (decorative) */
-  --color-ink-soft: #a9a293; /* secondary text on ink: 7.2:1 */
-  --color-signal-tint: #fbe3d9; /* secondary text on signal-ink: 4.8:1 */
+  /* Dark sections */
+  --color-ink-raised: #1c1f1c; /* panels on ink */
+  --color-ink-rule: #333833; /* lines on ink (decorative) */
+  --color-ink-soft: #a3a8a1; /* secondary text on ink: 7.6:1 */
+  --color-signal-tint: #d6f0df; /* secondary text on signal-ink: 5.5:1 */
 
   --font-*: initial;
   --font-sans: 'Schibsted Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
@@ -49,7 +57,7 @@
 @layer base {
   :root {
     /* Layout */
-    --site-max: 75rem; /* ~1200px content width */
+    --site-max: 104rem; /* one frame for every page, set by the homepage (incl. gutters) */
     --gutter: clamp(1.25rem, 4vw, 2.5rem);
     --section-space: clamp(4.5rem, 10vw, 8.5rem);
     --measure: 68ch;
@@ -128,11 +136,133 @@
 }
 
 @layer components {
-  .container-site {
+  /* Every page shares the homepage's frame, so edges line up from page to page.
+     (.container-wide is the same frame; both names stay for readability.) */
+  .container-site,
+  .container-wide {
     width: 100%;
-    max-width: calc(var(--site-max) + var(--gutter) * 2);
+    max-width: var(--site-max);
     margin-inline: auto;
     padding-inline: var(--gutter);
+  }
+
+  /* Drafting board: a faint 12-column grid that a page's headline is built on.
+     Place inside a positioned, isolated section. */
+  .drafting-board {
+    position: absolute;
+    inset: 0 max(0px, calc((100% - var(--site-max)) / 2));
+    z-index: -1;
+    pointer-events: none;
+    --col: calc((100% - var(--gutter) * 2) / 12);
+    background-image: repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-ink) 7%, transparent) 0 1px,
+      transparent 1px var(--col)
+    );
+    background-position: var(--gutter) 0;
+    background-size: calc(100% - var(--gutter) * 2 + 1px) 100%;
+    background-repeat: no-repeat;
+    mask-image: linear-gradient(to bottom, transparent, #000 15%, #000 70%, transparent);
+  }
+
+  /* A section that carries the drafting board behind its headline. */
+  .has-board {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+  }
+
+  /* Draft word: arrives as a pencil outline and is filled in to solid ink, the
+     homepage's "it ships" motif for page headlines. Markup:
+     <span class="draft-word" data-text="shipped.">shipped.</span>
+     The fill has empty alt text, so assistive tech reads the word once. */
+  .draft-word {
+    position: relative;
+    display: inline-block;
+    color: transparent;
+    -webkit-text-stroke: max(1px, 0.012em) var(--color-ink-muted);
+  }
+  .draft-word::after {
+    content: attr(data-text);
+    content: attr(data-text) / '';
+    position: absolute;
+    inset: 0;
+    color: var(--color-ink);
+    -webkit-text-stroke: 0;
+    clip-path: inset(-0.2em -0.1em -0.3em -0.1em);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .draft-word::after {
+      animation: draft-fill 1100ms cubic-bezier(0.65, 0, 0.35, 1) 650ms both;
+    }
+    /* The build caret runs ahead of the ink: a 2px painted stripe, never layout. */
+    .draft-word::before {
+      content: '';
+      position: absolute;
+      inset: -0.05em 0;
+      background: linear-gradient(var(--color-ink), var(--color-ink)) no-repeat 0 0 / 2px 100%;
+      opacity: 0;
+      animation: draft-caret 1100ms cubic-bezier(0.65, 0, 0.35, 1) 650ms;
+    }
+  }
+
+  /* Ruled rows: the homepage's list language (stage rows, crew, build steps).
+     Markup: <ol class="ruled"><li><span class="ruled-n">01</span><h3 class="ruled-title">…</h3>
+     <p class="ruled-detail">…</p></li></ol>. Big type, hairlines, weight grows on hover. */
+  .ruled {
+    list-style: none;
+    margin: clamp(2rem, 4vw, 3rem) 0 0;
+    padding: 0;
+    border-top: 1px solid var(--color-ink);
+  }
+  .ruled > li {
+    display: grid;
+    gap: 0.6rem 2rem;
+    padding-block: clamp(1.25rem, 2.6vw, 2.1rem);
+    border-bottom: 1px solid var(--color-rule);
+    transition: background-color 400ms var(--ease-precise);
+  }
+  .ruled > li:hover {
+    background: var(--color-surface);
+  }
+  .ruled-n {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+  }
+  .ruled-title {
+    margin: 0;
+    font-size: clamp(1.75rem, 1.15rem + 2.5vw, 3.5rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    text-wrap: balance;
+    transition: font-weight 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ruled > li:hover .ruled-title {
+    font-weight: 750;
+  }
+  .ruled-detail {
+    margin: 0;
+    color: var(--color-ink-muted);
+    max-width: 42ch;
+  }
+  @media (width >= 56.25rem) {
+    .ruled > li {
+      grid-template-columns: 7rem minmax(0, 1fr) minmax(16rem, 24rem);
+      align-items: center;
+    }
+    .ruled-n {
+      align-self: start;
+      padding-top: 0.6rem;
+    }
+    /* Inside a narrow split column: number + title, detail underneath. */
+    .ruled-compact > li {
+      grid-template-columns: 4rem minmax(0, 1fr);
+    }
+    .ruled-compact .ruled-detail {
+      grid-column: 2;
+    }
   }
 
   /* 12-column grid on desktop, 4 on mobile, 8 on tablet. */
@@ -183,6 +313,11 @@
   .t-h3 {
     font-size: var(--step-2);
     line-height: 1.2;
+  }
+  /* Two-tone headlines: the lead clause in ink, the explanation quieter. */
+  .t-quiet {
+    color: var(--color-ink-muted);
+    font-weight: 450;
   }
   .t-lead {
     font-size: var(--step-1);
@@ -290,6 +425,29 @@
     background: var(--color-ink);
     color: var(--color-paper);
   }
+  /* Ink sweeps in from the left on hover, behind the label. */
+  .btn-sweep {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: 3.5rem;
+    padding-inline: 1.75rem;
+  }
+  .btn-sweep::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--color-ink);
+    transform: translateX(-101%);
+    transition: transform 460ms cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  .btn-primary.btn-sweep:hover {
+    background: var(--color-signal-ink);
+  }
+  .btn-sweep:hover::before {
+    transform: none;
+  }
   .btn.is-focus {
     outline: 2px solid var(--color-ink);
     outline-offset: 3px;
@@ -391,6 +549,25 @@
   }
 }
 
+@keyframes draft-fill {
+  from {
+    clip-path: inset(-0.2em 100% -0.3em -0.1em);
+  }
+}
+@keyframes draft-caret {
+  from {
+    background-position: 0 0;
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  to {
+    background-position: 100% 0;
+    opacity: 0;
+  }
+}
+
 @keyframes link-underline {
   0% {
     background-size: 100% 1px;
@@ -469,28 +646,5 @@
   from {
     opacity: 0;
     transform: translateY(16px);
-  }
-}
-
-/* Mask reveal: words slide up from behind a baseline. */
-.mask-word {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: top;
-  padding-bottom: 0.08em;
-  margin-bottom: -0.08em;
-}
-.mask-word > span {
-  display: inline-block;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .mask-word > span {
-    animation: mask-up 900ms cubic-bezier(0.2, 0.7, 0, 1) both;
-    animation-delay: calc(120ms + var(--i, 0) * 45ms);
-  }
-}
-@keyframes mask-up {
-  from {
-    transform: translateY(105%);
   }
 }

@@ -9,7 +9,9 @@ const next = [
   { title: 'A short call', detail: 'If it looks like a fit, we talk it through and you can book a time that suits you.' },
   { title: 'Scope and a fixed quote', detail: 'Most projects start with a scoping sprint, then a fixed price before the build.' },
 ];
-const words = 'Tell us where your product is today.'.split(' ');
+const heading = 'Tell us where your product is today.';
+const headHead = heading.split(' ').slice(0, -1).join(' ');
+const headLast = heading.split(' ').at(-1) ?? '';
 ---
 
 <BaseLayout
@@ -21,20 +23,12 @@ const words = 'Tell us where your product is today.'.split(' ');
     <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   </Fragment>
 
-  <section class="contact" aria-labelledby="contact-title">
+  <section class="contact has-board" aria-labelledby="contact-title">
+    <div class="drafting-board" aria-hidden="true"></div>
     <div class="container-site">
       <Breadcrumbs items={[{ href: '/', label: 'Home' }, { label: 'Start a project' }]} />
       <h1 id="contact-title" class="t-display contact-title">
-        {
-          words.map((w, i) => (
-            <>
-              {i > 0 && ' '}
-              <span class="mask-word" style={`--i:${i}`}>
-                <span>{w}</span>
-              </span>
-            </>
-          ))
-        }
+        {headHead} <span class="draft-word" data-text={headLast}>{headLast}</span>
       </h1>
       <p class="t-lead contact-lead">
         A few questions, about five minutes. Idea, prototype or live product: we'll tell you honestly what it needs

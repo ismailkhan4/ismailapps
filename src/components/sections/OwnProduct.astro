@@ -1,30 +1,27 @@
 ---
 import TextLink from '../ui/TextLink.astro';
-import AnnotatedFrame from '../ui/AnnotatedFrame.astro';
+import ProductFrames from './ProductFrames.astro';
 import { getProducts } from '../../lib/content';
 
-interface Props {
-  label?: string;
-}
-const { label = '03 · our own product' } = Astro.props;
 const [product] = await getProducts();
 ---
 
 {
   product && (
-    <section class="own" aria-labelledby="own-title">
+    <section class="section own" aria-labelledby="own-title">
       <div class="container-site grid-site own-grid">
         <div class="own-copy">
-          <p class="own-kicker t-mono">{label}</p>
-          <h2 id="own-title" class="own-title">
+          <h2 id="own-title" class="t-h1 own-title">
             We run software too.
           </h2>
-          <p class="own-tags t-mono">
-            <span class="own-pill">
-              <span class="own-dot" aria-hidden="true" />
-              {product.data.statusNote ? `Live · ${product.data.statusNote}` : 'Live'}
-            </span>
-            <span class="own-pill">An IsmailApps product</span>
+          <p class="own-tags">
+            {product.data.status === 'live' && (
+              <span class="tag tag-live">
+                <span class="tag-dot" aria-hidden="true" />
+                {product.data.statusNote ? `Live · ${product.data.statusNote}` : 'Live'}
+              </span>
+            )}
+            <span class="tag tag-quiet">An IsmailApps product</span>
           </p>
           <p class="own-lead">
             <strong>{product.data.name}</strong> is ours: {product.data.summary.charAt(0).toLowerCase()}
@@ -34,30 +31,24 @@ const [product] = await getProducts();
             Building and running our own product keeps our decisions honest: what to cut, what to ship first, and what
             breaks once real people depend on it. We bring the same judgement to client work.
           </p>
-          <ul class="own-facts t-mono">
-            {product.data.facts.map((f) => (
-              <li>{f}</li>
-            ))}
-          </ul>
+          {product.data.facts.length > 0 && (
+            <ul class="own-facts t-mono">
+              {product.data.facts.map((f) => (
+                <li>{f}</li>
+              ))}
+            </ul>
+          )}
           <div class="own-links">
             <TextLink href={`/products/${product.id}`}>About {product.data.name}</TextLink>
             {product.data.url && (
-              <TextLink href={product.data.url} external event="outbound_hamstalk" location="home">
-                Visit {new URL(product.data.url).hostname}
+              <TextLink href={product.data.url} external event="outbound_hamstalk" location="own-product">
+                Visit {new URL(product.data.url).hostname.replace(/^www\./, '')}
               </TextLink>
             )}
           </div>
         </div>
         <div class="own-visual">
-          <div class="own-shot">
-            <AnnotatedFrame
-              address={product.data.url ? new URL(product.data.url).hostname : undefined}
-              image={product.data.cover}
-              alt={`The ${product.data.name} website`}
-              placeholder={product.data.cover ? undefined : product.data.name}
-            />
-            <p class="t-mono own-hint">hover to scroll the page</p>
-          </div>
+          <ProductFrames product={product} />
         </div>
       </div>
     </section>
@@ -65,18 +56,6 @@ const [product] = await getProducts();
 }
 
 <style>
-  /* Signal-ink band: white text 5.9:1, tint text 4.8:1. */
-  .own {
-    margin-inline: clamp(0.5rem, 1.2vw, 1rem);
-    border-radius: var(--radius-xl);
-    background: var(--color-signal-ink);
-    color: var(--color-white);
-    padding-block: var(--section-space);
-    overflow: hidden;
-  }
-  .own :focus-visible {
-    outline-color: var(--color-white);
-  }
   .own-grid {
     row-gap: 3.5rem;
     align-items: center;
@@ -84,37 +63,16 @@ const [product] = await getProducts();
   .own-copy,
   .own-visual {
     grid-column: 1 / -1;
-  }
-  .own-kicker {
-    margin: 0;
-    color: var(--color-signal-tint);
+    min-width: 0;
   }
   .own-title {
-    margin: 0.75rem 0 1.25rem;
-    font-size: var(--step-5);
-    line-height: 1;
-    letter-spacing: -0.035em;
+    margin: 0 0 1.25rem;
   }
   .own-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     margin: 0 0 1.75rem;
-    font-size: var(--step--1);
-  }
-  .own-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5em;
-    padding: 0.35em 0.8em;
-    border: 1px solid var(--color-signal-tint);
-    border-radius: var(--radius-pill);
-  }
-  .own-dot {
-    width: 0.5em;
-    height: 0.5em;
-    border-radius: 50%;
-    background: var(--color-white);
   }
   .own-lead {
     margin: 0;
@@ -124,7 +82,7 @@ const [product] = await getProducts();
   }
   .own-why {
     margin: 1.25rem 0 0;
-    color: var(--color-signal-tint);
+    color: var(--color-ink-muted);
     max-width: 52ch;
   }
   .own-facts {
@@ -134,8 +92,8 @@ const [product] = await getProducts();
     list-style: none;
     margin: 1.75rem 0 0;
     padding: 1.25rem 0 0;
-    border-top: 1px dashed var(--color-signal-tint);
-    color: var(--color-signal-tint);
+    border-top: 1px dashed var(--color-rule);
+    color: var(--color-ink-muted);
   }
   .own-links {
     display: flex;
@@ -143,27 +101,9 @@ const [product] = await getProducts();
     gap: 1rem 2rem;
     margin-top: 2rem;
   }
-  .own-visual {
-    position: relative;
-  }
-  .own-shot :global(.frame-body) {
-    border-color: transparent;
-    box-shadow: 0 30px 60px -25px rgb(0 0 0 / 0.55);
-  }
-  .own-hint {
-    margin: 0.75rem 0 0;
-    font-size: 0.75rem;
-    color: var(--color-signal-tint);
-  }
-  @media (hover: none) {
-    .own-hint {
-      display: none;
-    }
-  }
-
   @media (width >= 56.25rem) {
     .own-copy {
-      grid-column: 1 / span 6;
+      grid-column: 1 / span 5;
     }
     .own-visual {
       grid-column: 7 / span 6;

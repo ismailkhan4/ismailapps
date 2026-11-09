@@ -75,8 +75,9 @@ const rows: Row[] = [
 </section>
 
 <style>
+  /* No bottom padding: the next section's own top space is the gap (avoids a doubled gap). */
   .index {
-    padding-block: var(--section-space);
+    padding-block: var(--section-space) 0;
   }
   .index-head {
     display: flex;

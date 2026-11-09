@@ -27,7 +27,6 @@ const defaultSteps: Step[] = [
 ];
 
 const {
-  label = '04 · how we work',
   title = 'From first call to v1.0',
   steps: input = defaultSteps,
   ownership = true,
@@ -45,7 +44,6 @@ const steps = input.map((s, i) => ({
   <div class="release-inner" data-pin-inner>
     <div class="container-site grid-site release-grid">
       <div class="release-left">
-        <p class="t-label">{label}</p>
         <h2 id="how-title" class="t-h2 release-title">{title}</h2>
         <p class="release-counter" aria-hidden="true" data-release-counter>{steps[0]?.v}</p>
         <div class="release-progress" aria-hidden="true"><span></span></div>
@@ -186,18 +184,28 @@ const steps = input.map((s, i) => ({
     transform-origin: left;
     transform: scaleX(var(--p, 0));
   }
+  /* Steps dim by colour, never opacity: inactive text stays ink-soft on ink (7.6:1). */
   .release:global(.is-pinned) .release-step {
-    opacity: 0.35;
-    transition:
-      opacity 400ms var(--ease-precise),
-      transform 500ms cubic-bezier(0.2, 0.7, 0, 1);
+    transition: transform 500ms cubic-bezier(0.2, 0.7, 0, 1);
   }
-  .release:global(.is-pinned) .release-step:global(.is-done) {
-    opacity: 0.6;
+  .release:global(.is-pinned) .release-step .release-step-title,
+  .release:global(.is-pinned) .release-step .release-step-detail {
+    color: var(--color-ink-soft);
+    transition: color 400ms var(--ease-precise);
   }
   .release:global(.is-pinned) .release-step:global(.is-current) {
-    opacity: 1;
     transform: translateX(-0.5rem);
+  }
+  .release:global(.is-pinned) .release-step:global(.is-current) .release-step-title {
+    color: var(--color-paper);
+  }
+  .release:global(.is-pinned) .release-step:global(.is-current) .release-step-detail {
+    color: var(--color-paper);
+  }
+  /* The accent arrives only once the release is live (v1.0 and after). */
+  .release:global(.is-pinned):global(.is-live) .release-counter {
+    color: var(--color-signal);
+    transition: color 500ms var(--ease-precise);
   }
   .release:global(.is-pinned) .release-step:global(.is-current) .release-v {
     color: var(--color-ink);

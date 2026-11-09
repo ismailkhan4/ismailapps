@@ -2,9 +2,8 @@
 import VersionTag from '../ui/VersionTag.astro';
 import Button from '../ui/Button.astro';
 import TextLink from '../ui/TextLink.astro';
-import HeroProduct from './HeroProduct.astro';
+import ProductionLedger from './ProductionLedger.astro';
 
-const before = 'SaaS and AI products, built to'.split(' ');
 const notes = [
   { n: '01', text: 'Scoped first, then a fixed quote' },
   { n: '02', text: 'A staging link early in the build' },
@@ -16,44 +15,21 @@ const notes = [
   <div class="container-site grid-site hero-grid">
     <div class="hero-copy">
       <VersionTag />
-      <h1 id="hero-title" class="t-display hero-title">
-        {
-          before.map((w, i) => (
-            <>
-              <span class="mask-word" style={`--i:${i}`}>
-                <span>{w}</span>
-              </span>{' '}
-            </>
-          ))
-        }
-        <span class="mask-word" style={`--i:${before.length}`}><span>hold</span></span>{' '}<span
-          class="mask-word"
-          style={`--i:${before.length + 1}`}><span>up</span></span
-        >{' '}
-        {
-          ['after', 'the', 'demo.'].map((w, i) => (
-            <>
-              {i > 0 && ' '}
-              <span class="mask-word" style={`--i:${before.length + 2 + i}`}>
-                <span>{w}</span>
-              </span>
-            </>
-          ))
-        }
+      <h1 id="hero-title" class="hero-title">
+        Past the prototype. <span class="t-quiet">SaaS and AI products that hold up with real users.</span>
       </h1>
       <p class="t-lead hero-sub">
-        IsmailApps is a software product studio. We design, build and maintain SaaS and AI products for founders, and we
-        run our own.
+        IsmailApps is a software product studio. We take products from an idea, or from what you built with AI
+        tools, no-code or a freelancer, to software that holds up with real data and real payments. And we run our
+        own.
       </p>
       <div class="hero-actions">
-        <span data-magnetic class="magnetic">
-          <Button href="/contact" event="cta_click" location="hero" arrow>Start a project</Button>
-        </span>
+        <Button href="/contact" event="cta_click" location="hero" arrow>Start a project</Button>
         <TextLink href="/work">See our work</TextLink>
       </div>
     </div>
     <div class="hero-visual">
-      <HeroProduct />
+      <ProductionLedger />
     </div>
   </div>
 
@@ -73,10 +49,11 @@ const notes = [
 
 <style>
   .hero {
-    padding-block: clamp(2.5rem, 6vw, 5rem) clamp(3rem, 6vw, 4.5rem);
+    /* No bottom padding: the next section's top space is the gap. */
+    padding-block: clamp(2.5rem, 6vw, 5rem) 0;
   }
   .hero-grid {
-    row-gap: 4rem;
+    row-gap: 3rem;
     align-items: center;
   }
   .hero-copy,
@@ -86,11 +63,17 @@ const notes = [
   }
   .hero-title {
     margin: 1.75rem 0 0;
-    max-width: 14ch;
+    font-size: var(--step-5);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    max-width: 15ch;
+  }
+  .hero-title .t-quiet {
+    letter-spacing: -0.03em;
   }
   .hero-sub {
     margin: 1.75rem 0 0;
-    max-width: 40ch;
+    max-width: 46ch;
   }
   .hero-actions {
     display: flex;
@@ -98,10 +81,6 @@ const notes = [
     align-items: center;
     gap: 1.25rem 2rem;
     margin-top: 2.5rem;
-  }
-  .magnetic {
-    display: inline-block;
-    transition: transform 400ms cubic-bezier(0.2, 0.7, 0, 1);
   }
   .hero-notes {
     display: grid;
@@ -120,7 +99,13 @@ const notes = [
     font-weight: 500;
   }
   .hero-note-n {
-    color: var(--color-signal-ink);
+    color: var(--color-ink-muted);
+  }
+  /* Tablet: the ledger sits under the copy at a readable width, not stretched. */
+  @media (width >= 40rem) and (width < 56.25rem) {
+    .hero-visual {
+      grid-column: 1 / span 6;
+    }
   }
   @media (width >= 56.25rem) {
     .hero-copy {
@@ -128,7 +113,6 @@ const notes = [
     }
     .hero-visual {
       grid-column: 8 / span 5;
-      padding-top: 2rem;
     }
     .hero-notes {
       grid-template-columns: repeat(3, 1fr);

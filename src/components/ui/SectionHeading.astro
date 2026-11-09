@@ -1,26 +1,33 @@
 ---
-/** Mono label + section title (+ optional intro slot). The title id labels the section. */
+/**
+ * Section title (+ optional intro slot). The title id labels the section.
+ * Decorative kickers were removed (2026-11-09): mono is for versions, status, URLs and facts.
+ */
 interface Props {
   id: string;
-  label: string;
+  /** @deprecated Ignored; kept so older call sites still type-check. */
+  label?: string;
   title: string;
   level?: 'h1' | 'h2';
 }
-const { id, label, title, level = 'h2' } = Astro.props;
+const { id, title, level = 'h2' } = Astro.props;
 const Heading = level;
 ---
 
 <header class="section-heading">
-  <p class="t-label">{label}</p>
   <Heading id={id} class={level === 'h1' ? 't-h1' : 't-h2'}>{title}</Heading>
   {Astro.slots.has('default') && <div class="t-lead section-intro"><slot /></div>}
 </header>
 
 <style>
+  /* Same scale as the homepage's section titles. */
   .section-heading :global(h1),
   .section-heading :global(h2) {
-    margin: 0.6rem 0 0;
-    max-width: 20ch;
+    margin: 0;
+    max-width: 16ch;
+    font-size: var(--step-4);
+    letter-spacing: -0.035em;
+    line-height: 1;
   }
   .section-intro {
     margin-top: 1.25rem;

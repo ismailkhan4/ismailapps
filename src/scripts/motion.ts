@@ -25,35 +25,8 @@ if (reveals.length) {
 }
 
 if (!reduce) {
-  // 2. Magnetic buttons: lean gently toward the cursor.
   if (canHover) {
-    document.querySelectorAll<HTMLElement>('[data-magnetic]').forEach((el) => {
-      el.addEventListener('pointermove', (e) => {
-        const r = el.getBoundingClientRect();
-        const x = (e.clientX - r.left - r.width / 2) * 0.25;
-        const y = (e.clientY - r.top - r.height / 2) * 0.35;
-        el.style.transform = `translate(${x}px, ${y}px)`;
-      });
-      el.addEventListener('pointerleave', () => (el.style.transform = ''));
-    });
-
-    // 3. Tilt: a sheet of paper turning slightly toward the cursor.
-    document.querySelectorAll<HTMLElement>('[data-tilt]').forEach((el) => {
-      const max = Number(el.dataset.tilt) || 6;
-      el.addEventListener('pointermove', (e) => {
-        const r = el.getBoundingClientRect();
-        const px = (e.clientX - r.left) / r.width - 0.5;
-        const py = (e.clientY - r.top) / r.height - 0.5;
-        el.style.setProperty('--rx', `${(-py * max).toFixed(2)}deg`);
-        el.style.setProperty('--ry', `${(px * max).toFixed(2)}deg`);
-      });
-      el.addEventListener('pointerleave', () => {
-        el.style.setProperty('--rx', '0deg');
-        el.style.setProperty('--ry', '0deg');
-      });
-    });
-
-    // 4. Work index: a screenshot preview that trails the cursor.
+    // 2. Work index: a screenshot preview that trails the cursor.
     const index = document.querySelector<HTMLElement>('[data-preview-list]');
     const preview = document.querySelector<HTMLElement>('[data-preview]');
     if (index && preview) {
@@ -86,28 +59,11 @@ if (!reduce) {
     }
   }
 
-  // 5. Pinned scroll sections: expose progress (0–1) as --p and call per-section hooks.
+  // 3. Pinned scroll sections: expose progress (0–1) as --p and call per-section hooks.
   type Pin = { el: HTMLElement; inner: HTMLElement; setup: () => void; update: (p: number) => void };
   const pins: Pin[] = [];
 
-  // 5a. Services rail: vertical scroll moves the cards sideways.
-  document.querySelectorAll<HTMLElement>('[data-pin="rail"]').forEach((el) => {
-    const inner = el.querySelector<HTMLElement>('[data-pin-inner]');
-    const track = el.querySelector<HTMLElement>('[data-rail-track]');
-    if (!inner || !track) return;
-    let distance = 0;
-    pins.push({
-      el,
-      inner,
-      setup: () => {
-        distance = Math.max(0, track.scrollWidth - track.clientWidth);
-        el.style.height = `${window.innerHeight + distance}px`;
-      },
-      update: (p) => (track.style.transform = `translate3d(${-p * distance}px, 0, 0)`),
-    });
-  });
-
-  // 5b. Release counter: the version number ticks up as the steps go by.
+  // 3a. Release counter: the version number ticks up as the steps go by.
   document.querySelectorAll<HTMLElement>('[data-pin="release"]').forEach((el) => {
     const inner = el.querySelector<HTMLElement>('[data-pin-inner]');
     const counter = el.querySelector<HTMLElement>('[data-release-counter]');
@@ -128,6 +84,7 @@ if (!reduce) {
         counter.classList.remove('tick');
         void counter.offsetWidth;
         counter.textContent = steps[i]?.dataset.releaseStep ?? '';
+        el.classList.toggle('is-live', (steps[i]?.dataset.releaseStep ?? '').startsWith('v1'));
         counter.classList.add('tick');
       },
     });
