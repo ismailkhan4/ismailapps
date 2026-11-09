@@ -1,6 +1,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "ismailapps-website",
+	// Must match the Worker's name in the Cloudflare dashboard (Workers Builds deploys to it).
+	"name": "ismailapps",
 	"compatibility_date": "2026-11-01",
 	"compatibility_flags": [
 		"nodejs_compat"
