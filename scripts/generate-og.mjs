@@ -22,6 +22,29 @@ async function* walk(dir) {
   }
 }
 
+// Games pages get the pond room: a real frame from Koimere's renderer under the title.
+const pondFrame = `data:image/png;base64,${(await readFile('src/assets/games/koimere-cover.png')).toString('base64')}`;
+const pondCard = ({ title, path }) => `<!doctype html><html><head><style>
+@font-face{font-family:S;src:url(${fonts.sans}) format('woff2');font-weight:400 900}
+@font-face{font-family:M;src:url(${fonts.mono}) format('woff2')}
+*{box-sizing:border-box;margin:0}
+body{width:1200px;height:630px;background:#0C2321 url(${pondFrame}) center/cover;color:#E7EFE9;font-family:S;position:relative;overflow:hidden}
+.scrim{position:absolute;inset:0;background:linear-gradient(to top,rgba(12,35,33,.95) 0%,rgba(12,35,33,.7) 45%,rgba(12,35,33,.25) 100%)}
+.wrap{position:absolute;inset:60px 66px;display:flex;flex-direction:column;justify-content:space-between}
+.top,.bottom{display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:40px;font-weight:680;letter-spacing:-.035em}
+.path{font-family:M;font-size:20px;color:#A9BDB4}
+h1{font-size:${title.length > 40 ? 72 : 96}px;line-height:.98;letter-spacing:-.045em;font-weight:620;max-width:980px}
+h1 b{color:#F07A4A;font-weight:inherit}
+.chip{font-family:M;font-size:20px;padding:10px 18px;border:1.5px solid #2B5249;border-radius:999px;background:rgba(12,35,33,.7);display:flex;gap:12px;align-items:center}
+.ring{width:12px;height:12px;border-radius:50%;border:2px solid #8DB879}
+.kick{font-family:M;font-size:20px;color:#A9BDB4}
+</style></head><body><div class="scrim"></div><div class="wrap">
+<div class="top"><div class="logo">IsmailApps</div><div class="path">ismailapps.com${esc(path)}</div></div>
+<h1>${esc(title)}<b>.</b></h1>
+<div class="bottom"><div class="chip"><span class="ring"></span> Koimere · in development</div><div class="kick">Games by IsmailApps</div></div>
+</div></body></html>`;
+
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
 const card = ({ title, path }) => `<!doctype html><html><head><style>
@@ -54,14 +77,15 @@ for await (const file of walk(DIST)) {
   const title = raw.replace(/ · IsmailApps$/, '').replace(/&amp;/g, '&').replace(/&#39;/g, "'");
   const path = rel === '' ? '/' : `/${rel}`;
   const key = rel === '' ? 'home' : rel.replace(/\//g, '-');
-  pages.push({ key, path, title: key === 'home' ? pages[0].title : title });
+  const display = key === 'games' ? 'Calm games, built properly' : key === 'games-koimere' ? 'Koimere, a koi pond puzzle game' : title;
+  pages.push({ key, path, title: key === 'home' ? pages[0].title : display });
 }
 
 await mkdir('public/og', { recursive: true });
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 for (const p of pages) {
-  await page.setContent(card(p), { waitUntil: 'load' });
+  await page.setContent((p.path.startsWith('/games') ? pondCard : card)(p), { waitUntil: 'load' });
   await page.evaluate(async () => {
     await document.fonts.ready;
     if (![...document.fonts].some((f) => f.status === 'loaded')) throw new Error('fonts did not load');

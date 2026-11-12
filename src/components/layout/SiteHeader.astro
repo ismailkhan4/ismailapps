@@ -4,6 +4,11 @@ import Button from '../ui/Button.astro';
 import { primaryNav, site } from '../../lib/site';
 import { getServices } from '../../lib/content';
 
+interface Props {
+  /** Initial surface, so the bar is right before the scroll driver runs. */
+  theme?: 'pond' | undefined;
+}
+const { theme } = Astro.props;
 const services = await getServices();
 
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
@@ -12,7 +17,7 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
 
 <!-- Same header on every page: the build meter tracks how far this page has "shipped",
      and the bar takes on the surface it passes over (src/scripts/kinetic.ts). -->
-<header class="site-header" data-site-header>
+<header class:list={['site-header', theme && `on-${theme}`, theme === 'pond' && 'on-water']} data-site-header data-start-theme={theme}>
   <div class="container-site header-inner">
     <a href="/" class="header-logo" aria-label="IsmailApps, home">
       <Logo />
@@ -102,6 +107,7 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
               </ul>
             </li>
             <li><a href="/products" class="mobile-link">Products</a></li>
+            <li><a href="/games" class="mobile-link">Games</a></li>
             <li><a href="/about" class="mobile-link">About</a></li>
           </ul>
           <div class="mobile-foot">
@@ -143,8 +149,41 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
     color: var(--color-white);
     border-color: color-mix(in srgb, var(--color-white) 30%, transparent);
   }
+  /* Games: over the pond room the bar becomes water too; the studio CTA stays. */
+  .site-header:global(.on-pond) {
+    background-color: var(--color-pond-deep);
+    color: var(--color-foam);
+    border-color: transparent; /* the water starts right under the bar: no rule */
+  }
+  /* Over the live water the bar dissolves into it: a soft fade that keeps the links
+     legible, no solid edge. Past the hero it settles back to solid pond. */
+  .site-header:global(.on-pond.on-water) {
+    background-color: transparent;
+    background-image: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-pond-deep) 78%, transparent) 0%,
+      color-mix(in srgb, var(--color-pond-deep) 40%, transparent) 60%,
+      transparent 100%
+    );
+    /* Paint under the 1px transparent border too, without repeating, or a stripe shows. */
+    background-origin: border-box;
+    background-repeat: no-repeat;
+  }
+  .site-header:global(.on-pond) :global(.header-cta) {
+    background: var(--color-foam);
+    color: var(--color-pond-deep);
+  }
+  .site-header:global(.on-pond) :global(.header-cta:hover) {
+    background: var(--color-lily);
+  }
+  /* The build meter is the studio's page-as-release device; a game page isn't a release. */
+  .site-header:global(.on-pond) .meter,
+  .site-header:global(.on-pond) .meter-line {
+    visibility: hidden;
+  }
   .site-header:global(.on-ink) :focus-visible,
-  .site-header:global(.on-live) :focus-visible {
+  .site-header:global(.on-live) :focus-visible,
+  .site-header:global(.on-pond) :focus-visible {
     outline-color: currentColor;
   }
   .site-header:global(.on-live) :global(.header-cta) {

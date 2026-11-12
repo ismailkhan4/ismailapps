@@ -6,6 +6,7 @@ import BuildProcess from '../components/home/BuildProcess.astro';
 import ShippedReel from '../components/home/ShippedReel.astro';
 import OwnProductStage from '../components/home/OwnProductStage.astro';
 import StudioCrew from '../components/home/StudioCrew.astro';
+import PlaySide from '../components/home/PlaySide.astro';
 import GoLive from '../components/home/GoLive.astro';
 import FAQSection from '../components/sections/FAQSection.astro';
 
@@ -49,12 +50,14 @@ const faqs = [
   title="SaaS and AI product studio"
   description="IsmailApps designs, builds and maintains SaaS and AI products for founders, from a first scope or an AI-built prototype to production, and runs its own."
 >
-  <!-- The page ships as you scroll: draft on paper → built in ink → live in green. -->
+  <!-- The page ships as you scroll: draft on paper → built in ink → live in green.
+       The pond panel is the one detour: the studio's play side, after the proof. -->
   <HomeHero />
   <StageRows />
   <BuildProcess joined />
   <ShippedReel />
   <OwnProductStage />
+  <PlaySide />
   <StudioCrew />
   <FAQSection items={faqs} wide />
   <GoLive />

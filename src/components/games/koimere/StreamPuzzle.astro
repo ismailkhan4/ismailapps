@@ -3,7 +3,7 @@
  * The stream puzzle with three koi orders. Solving a stream gathers the food the water reached,
  * and the food fills the orders.
  */
-import { foods, orders } from '../../../games/millbrook/content';
+import { foods, orders } from '../../../games/koimere/content';
 type Wants = (typeof orders)[number]['wants'];
 const nameOf = (f: string, n: number) => (n === 1 ? foods[f as keyof typeof foods].one : foods[f as keyof typeof foods].many);
 const wantText = (w: Wants) => Object.entries(w).map(([f, n]) => `${n} ${nameOf(f, n!)}`).join(' and ');
@@ -61,10 +61,10 @@ const total = (w: Wants) => Object.values(w).reduce((a, b) => a + (b ?? 0), 0);
 </section>
 
 <script>
-  import { foods, orders, type Food } from '../../../games/millbrook/content';
-  import { generate, gathered, sides, solved, wet, type Level } from '../../../games/millbrook/stream';
-  import { drawKoi } from '../../../games/millbrook/portrait';
-  import { VARIETY_INFO, type Variety } from '../../../games/millbrook/koi';
+  import { foods, orders, type Food } from '../../../games/koimere/content';
+  import { generate, gathered, sides, solved, wet, type Level } from '../../../games/koimere/stream';
+  import { drawKoi } from '../../../games/koimere/portrait';
+  import { VARIETY_INFO, type Variety } from '../../../games/koimere/koi';
 
   const root = document.querySelector<HTMLElement>('.stream')!;
   const tilesEl = root.querySelector<HTMLElement>('[data-tiles]')!;

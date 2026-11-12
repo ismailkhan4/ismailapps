@@ -1,4 +1,4 @@
-/** Millbrook page content. Orders and numbers are examples from the design, not final balance. */
+/** Koimere page content. Orders and numbers are examples from the design, not final balance. */
 import type { Variety } from './koi';
 
 export type Food = 'flea' | 'shrimp' | 'seed';

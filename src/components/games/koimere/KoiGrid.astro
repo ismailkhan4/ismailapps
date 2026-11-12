@@ -1,6 +1,6 @@
 ---
 /** The six starting varieties, painted on the page by the game's own koi painter. */
-import { guide } from '../../../games/millbrook/content';
+import { guide } from '../../../games/koimere/content';
 ---
 
 <section class="section koi" aria-labelledby="koi-title">
@@ -24,8 +24,8 @@ import { guide } from '../../../games/millbrook/content';
 </section>
 
 <script>
-  import { drawKoi } from '../../../games/millbrook/portrait';
-  import type { Variety } from '../../../games/millbrook/koi';
+  import { drawKoi } from '../../../games/koimere/portrait';
+  import type { Variety } from '../../../games/koimere/koi';
   const canvases = [...document.querySelectorAll<HTMLCanvasElement>('.koi-grid canvas')];
   const next = () => {
     const c = canvases.shift();

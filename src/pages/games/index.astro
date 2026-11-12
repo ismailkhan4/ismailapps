@@ -1,130 +1,450 @@
 ---
-import { Image } from 'astro:assets';
+/**
+ * /games: the studio's play side, in "the pond room".
+ * The studio frame (header, type, spacing, components) stays; the surface becomes the
+ * game's own water. The hero is not a picture of the game: it is Koimere's renderer,
+ * running. Everything stated here comes from src/lib/games.ts and the game's content file.
+ */
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PageHero from '../../components/sections/PageHero.astro';
-import Tag from '../../components/ui/Tag.astro';
+import Breadcrumbs from '../../components/ui/Breadcrumbs.astro';
+import Button from '../../components/ui/Button.astro';
+import LivePond from '../../components/games/koimere/LivePond.astro';
+import GameStatus from '../../components/games/GameStatus.astro';
 import { games } from '../../lib/games';
+import { guide } from '../../games/koimere/content';
+import { provider } from '../../lib/seo';
+import { site } from '../../lib/site';
+
+const koimere = games.find((g) => g.slug === 'koimere')!;
+const statusLabel = (s: string) => (s === 'live' ? 'Live' : 'In development');
+
+const rules = [
+  { n: 'No', title: 'lives, energy bars or timers', detail: 'You play for as long as you like. Nothing refills, nothing runs out, nothing nags you back.' },
+  { n: 'No', title: 'loot boxes', detail: 'What you get is what the game says you get. Nothing is left to a paid roll of the dice.' },
+  { n: 'Your', title: 'pond waits for you', detail: 'Skip a week and everything is just as you left it. A calm game shouldn’t punish you for having a life.' },
+  { n: 'Real', title: 'frames, never mock-ups', detail: 'Everything on these pages is drawn by the game’s own code, in your browser, right now.' },
+];
+
+const itemList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Games by IsmailApps',
+  itemListElement: games.map((g, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    url: new URL(`/games/${g.slug}`, site.url).href,
+    item: {
+      '@type': 'VideoGame',
+      name: g.name,
+      description: g.summary,
+      gamePlatform: g.platforms,
+      publisher: provider,
+      url: new URL(`/games/${g.slug}`, site.url).href,
+    },
+  })),
+};
 ---
 
-<BaseLayout title="Games" description="Games made by IsmailApps. Millbrook, a koi pond puzzle game, is in development.">
-  <PageHero
-    crumbs={[{ href: '/', label: 'Home' }, { label: 'Games' }]}
-    title="Games we make"
-    lead="Small, calm games we design, build and run ourselves. The first one is in development, and you can play parts of it right in your browser."
-  />
+<BaseLayout
+  title="Games"
+  description="IsmailApps makes calm games alongside its client software. Koimere, a koi pond puzzle game, is in development, and parts of it run right in your browser."
+  headerTheme="pond"
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(itemList)} />
+  </Fragment>
 
-  <section class="games-list" aria-label="All games">
-    <div class="container-site">
-      <ul class="games-grid">
+  <div class="pond-room" data-theme="pond">
+    <LivePond variant="hero" labelledby="games-title">
+      <div class="hero-crumbs"><Breadcrumbs items={[{ href: '/', label: 'Home' }, { label: 'Games' }]} /></div>
+      <h1 id="games-title" class="games-title">
+        Calm games,<br />built properly.
+      </h1>
+      <div class="hero-foot">
+        <p class="hero-lead">
+          Alongside client software, we design and build games of our own. The first, {koimere.name}, is in
+          development. The water behind this text is the game itself, running in your browser.
+        </p>
+        <div class="hero-actions">
+          <Button href={`/games/${koimere.slug}`} arrow event="cta_click" location="games-hero">Explore {koimere.name}</Button>
+          <a href={`/games/${koimere.slug}#play`} class="link">Play the stream puzzle <span class="link-arrow" aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </LivePond>
+
+    <!-- The game: one feature, because there is one game. Status first, stated plainly. -->
+    <section class="section feature" aria-labelledby="feature-title">
+      <div class="container-site feature-grid">
+        <div class="feature-head">
+          <p class="t-mono feature-kicker">
+            <span class:list={['pond-chip', koimere.status === 'live' && 'is-live']}>{statusLabel(koimere.status)}</span>
+            <span>{koimere.platforms.join(' · ')}</span>
+          </p>
+          <h2 id="feature-title" class="feature-name">
+            <a href={`/games/${koimere.slug}`}>{koimere.name}<span class="koi-dot" aria-hidden="true">.</span></a>
+          </h2>
+        </div>
+        <div class="feature-body">
+          <p class="feature-tagline">{koimere.tagline}.</p>
+          <p class="t-lead feature-summary">{koimere.summary}</p>
+          <ul class="feature-demos" aria-label={`Parts of ${koimere.name} you can try now`}>
+            <li><a href={`/games/${koimere.slug}#play`}><span class="t-mono">01</span> The stream puzzle <span aria-hidden="true">→</span></a></li>
+            <li><a href={`/games/${koimere.slug}#dredge-title`}><span class="t-mono">02</span> Dredging the old pond <span aria-hidden="true">→</span></a></li>
+            <li><a href={`/games/${koimere.slug}#koi-title`}><span class="t-mono">03</span> The six koi varieties <span aria-hidden="true">→</span></a></li>
+            <li><a href={`/games/${koimere.slug}#waitlist`}><span class="t-mono">04</span> The launch waitlist <span aria-hidden="true">→</span></a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Painted by the game's own koi painter: each fish's pattern is grown fresh on load. -->
+      <ul class="shoal" aria-label="The six koi varieties in Koimere" tabindex="0">
         {
-          games.map((g, i) => (
-            <li class:list={['game', i === 0 && 'is-first']}>
-              <a href={`/games/${g.slug}`} class="game-link">
-                <div class="game-cover">
-                  <Image src={g.cover} alt={g.coverAlt} widths={[640, 960, 1440]} sizes="(min-width: 900px) 70vw, 100vw" loading={i === 0 ? 'eager' : 'lazy'} />
-                </div>
-                <div class="game-body">
-                  <div class="game-head">
-                    <h2 class="game-name">{g.name}</h2>
-                    <Tag tone={g.status === 'live' ? 'live' : 'dev'}>{g.status === 'live' ? 'Live' : 'In development'}</Tag>
-                  </div>
-                  <p class="game-tagline">{g.tagline}</p>
-                  <p class="game-summary">{g.summary}</p>
-                  <p class="t-mono game-platforms">{g.platforms.join(', ')}</p>
-                </div>
-              </a>
+          guide.map((g, i) => (
+            <li style={`--i:${i}`}>
+              <canvas width="420" height="140" data-variety={g.variety} data-seed={g.seed} aria-hidden="true" />
+              <span class="t-mono shoal-name">{g.label}</span>
             </li>
           ))
         }
       </ul>
+    </section>
+
+    <!-- House rules: how we design games. Set big; this is the page's reading moment. -->
+    <section class="section rules" aria-labelledby="rules-title">
+      <div class="container-site">
+        <h2 id="rules-title" class="t-mono rules-label">How we make games</h2>
+        <ol class="rules-list">
+          {
+            rules.map((r) => (
+              <li>
+                <p class="rules-line">
+                  <span class="rules-n">{r.n}</span> {r.title}.
+                </p>
+                <p class="rules-detail">{r.detail}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <GameStatus
+      id="games-status-title"
+      title={`Where ${koimere.name} is`}
+      lead="An honest build log. Solid means it runs today; open means it is designed but not built yet."
+      compact
+      more={{ href: `/games/${koimere.slug}#status-title`, label: 'Read the full log' }}
+    />
+  </div>
+
+  <!-- Back on paper: the same people, the studio side. -->
+  <section class="section bridge" aria-labelledby="bridge-title">
+    <div class="container-site bridge-grid">
+      <h2 id="bridge-title" class="t-h2 bridge-title">
+        The same people build software for founders.
+      </h2>
+      <div class="bridge-body">
+        <p class="t-lead">
+          IsmailApps is a software product studio. A game asks for smooth motion on an ordinary phone, touch that
+          feels right and state that survives a week away. We bring that same care to SaaS and AI products.
+        </p>
+        <div class="bridge-actions">
+          <Button href="/work" variant="secondary" arrow event="cta_click" location="games-bridge-work">See client work</Button>
+          <a href="/contact" class="link">Start a project <span class="link-arrow" aria-hidden="true">→</span></a>
+        </div>
+      </div>
     </div>
   </section>
 </BaseLayout>
 
+<script>
+  import { drawKoi } from '../../games/koimere/portrait';
+  import type { Variety } from '../../games/koimere/koi';
+
+  // Paint the shoal only when it is about to be seen: one fish per frame, never blocking.
+  const shoal = document.querySelector<HTMLElement>('.shoal');
+  if (shoal) {
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e?.isIntersecting) return;
+        io.disconnect();
+        const canvases = [...shoal.querySelectorAll<HTMLCanvasElement>('canvas')];
+        const next = () => {
+          const c = canvases.shift();
+          if (!c) return;
+          drawKoi(c, c.dataset.variety as Variety, Number(c.dataset.seed) + Math.floor(Math.random() * 1000), 0.08);
+          c.classList.add('is-painted');
+          requestAnimationFrame(next);
+        };
+        requestAnimationFrame(next);
+      },
+      { rootMargin: '200px' },
+    );
+    io.observe(shoal);
+  }
+</script>
+
 <style>
-  .games-list {
-    padding-bottom: var(--section-space);
+  /* ---------- Hero overlay ---------- */
+  .hero-crumbs {
+    margin-bottom: clamp(1rem, 2.5vw, 1.75rem);
   }
-  .games-grid {
-    list-style: none;
+  .games-title {
     margin: 0;
-    padding: 0;
+    max-width: 12ch;
+    font-size: clamp(3rem, 1rem + 7.4vw, 8.75rem);
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    font-weight: 600;
+    text-wrap: balance;
+  }
+  .hero-foot {
     display: grid;
-    gap: clamp(1.5rem, 3vw, 2.5rem);
+    gap: 1.5rem;
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
   }
-  .game-link {
+  .hero-lead {
+    margin: 0;
+    max-width: 44ch;
+    font-size: var(--step-1);
+    line-height: 1.45;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.75rem;
+  }
+  @media (width >= 56.25rem) {
+    .hero-foot {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 3rem;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .games-title {
+      animation: surface 1100ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .hero-foot,
+    .hero-crumbs {
+      animation: surface 900ms cubic-bezier(0.16, 1, 0.3, 1) 250ms both;
+    }
+  }
+  /* Rises out of the water: a blur that clears, not a slide. */
+  @keyframes surface {
+    from {
+      opacity: 0;
+      filter: blur(8px);
+      transform: translateY(0.4em);
+    }
+  }
+
+  /* ---------- Feature ---------- */
+  .feature-grid {
     display: grid;
-    gap: 1.25rem;
-    text-decoration: none;
-    color: inherit;
+    gap: 2rem;
   }
-  .game-cover {
-    overflow: hidden;
-    border-radius: var(--radius-xl);
-    aspect-ratio: 16 / 10;
-    background: #0f2e2b;
-  }
-  .game-cover :global(img) {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 700ms var(--ease-precise);
-  }
-  .game-link:hover .game-cover :global(img) {
-    transform: scale(1.02);
-  }
-  .game-link:focus-visible {
-    outline-offset: 6px;
-    border-radius: var(--radius-xl);
-  }
-  .game-head {
+  .feature-kicker {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem 1rem;
-  }
-  .game-name {
     margin: 0;
-    font-size: var(--step-4);
-    letter-spacing: -0.035em;
-    line-height: 1;
+    color: var(--color-ink-muted);
   }
-  .game-link:hover .game-name {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 6px;
+  .feature-name {
+    margin: 1rem 0 0;
+    font-size: clamp(4rem, 1rem + 11vw, 12rem);
+    line-height: 0.85;
+    letter-spacing: -0.06em;
+    font-weight: 650;
   }
-  .game-tagline {
+  .feature-name a {
+    text-decoration: none;
+    color: inherit;
+    transition: font-weight 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .feature-name a:hover {
+    font-weight: 800;
+  }
+  .koi-dot {
+    color: var(--color-koi);
+  }
+  .feature-body {
+    display: grid;
+    align-content: end;
+    gap: 1rem;
+  }
+  .feature-body p {
     margin: 0;
-    font-size: var(--step-1);
+  }
+  .feature-tagline {
+    font-size: var(--step-2);
     font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
   }
-  .game-summary {
-    margin: 0;
-    max-width: 48ch;
-    color: var(--color-ink-muted);
+  .feature-summary {
+    max-width: 40ch;
   }
-  .game-platforms {
-    margin: 0;
+  .feature-demos {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    border-top: 1px solid var(--color-ink);
+  }
+  .feature-demos a {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+    align-items: baseline;
+    min-height: 3rem;
+    padding-block: 0.8rem;
+    border-bottom: 1px solid var(--color-rule);
+    font-weight: 600;
+    text-decoration: none;
+    color: inherit;
+    transition:
+      padding 300ms var(--ease-precise),
+      color 300ms var(--ease-precise);
+  }
+  .feature-demos a .t-mono {
     color: var(--color-ink-muted);
+    font-weight: 400;
+  }
+  .feature-demos a:hover {
+    padding-left: 0.5rem;
+    color: var(--color-lily);
   }
   @media (width >= 56.25rem) {
-    .is-first .game-link {
-      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    .feature-grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
       align-items: end;
-      gap: 2.5rem;
-    }
-    .game-body {
-      display: grid;
-      gap: 0.75rem;
-      padding-bottom: 0.5rem;
+      gap: 4rem;
     }
   }
-  @media (width < 56.25rem) {
-    .game-body {
-      display: grid;
-      gap: 0.6rem;
+
+  /* The shoal: six painted koi, drifting at slightly different speeds. */
+  .shoal {
+    list-style: none;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(13rem, 1fr);
+    gap: 1rem;
+    margin: clamp(3rem, 6vw, 5rem) 0 0;
+    padding: 0 var(--gutter) 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .shoal li {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.25rem 0.75rem 0.75rem;
+    border-radius: var(--radius-lg);
+    background: var(--color-pond);
+  }
+  .shoal canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    opacity: 0;
+  }
+  .shoal canvas:global(.is-painted) {
+    opacity: 1;
+  }
+  .shoal-name {
+    color: var(--color-ink-muted);
+    padding-inline: 0.25rem;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .shoal canvas {
+      transition: opacity 700ms var(--ease-precise);
+    }
+    .shoal canvas:global(.is-painted) {
+      animation: drift calc(5.5s + var(--i) * 0.7s) ease-in-out calc(var(--i) * -1.3s) infinite alternate;
+    }
+  }
+  @keyframes drift {
+    from {
+      transform: translateX(-3%) rotate(-1.2deg);
+    }
+    to {
+      transform: translateX(3%) rotate(1.2deg);
+    }
+  }
+
+  /* ---------- House rules ---------- */
+  .rules-label {
+    margin: 0;
+    color: var(--color-ink-muted);
+    font-weight: 500;
+  }
+  .rules-list {
+    list-style: none;
+    margin: clamp(1.5rem, 3vw, 2.5rem) 0 0;
+    padding: 0;
+  }
+  .rules-list li {
+    display: grid;
+    gap: 0.5rem 3rem;
+    padding-block: clamp(1.25rem, 2.5vw, 2rem);
+    border-top: 1px solid var(--color-rule);
+  }
+  .rules-list p {
+    margin: 0;
+  }
+  .rules-line {
+    font-size: clamp(1.9rem, 1rem + 3.4vw, 4.25rem);
+    font-weight: 450;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    text-wrap: balance;
+  }
+  .rules-n {
+    font-weight: 700;
+    color: var(--color-koi);
+  }
+  .rules-detail {
+    color: var(--color-ink-muted);
+    max-width: 38ch;
+  }
+  @media (width >= 56.25rem) {
+    .rules-list li {
+      grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
+      align-items: end;
+    }
+  }
+
+  /* ---------- Bridge back to the studio ---------- */
+  .bridge {
+    border-top: 0;
+  }
+  .bridge-grid {
+    display: grid;
+    gap: 1.5rem 4rem;
+  }
+  .bridge-title {
+    margin: 0;
+    max-width: 18ch;
+  }
+  .bridge-body {
+    display: grid;
+    gap: 1.75rem;
+    align-content: start;
+  }
+  .bridge-body p {
+    margin: 0;
+    max-width: 46ch;
+  }
+  .bridge-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.75rem;
+  }
+  @media (width >= 56.25rem) {
+    .bridge-grid {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
     }
   }
 </style>

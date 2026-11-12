@@ -1,12 +1,48 @@
 ---
-/** The game's live pond in a frame, with feeding and time of day. Drawn by the game's own WebGL renderer. */
+/**
+ * The game's live pond, drawn by Koimere's own WebGL renderer, with feeding and time of day.
+ *
+ * variant="frame": a rounded frame inside the page grid.
+ * variant="hero":  full-bleed stage at the top of a games page. The slot is laid over the
+ *                  water (bottom-left, on a scrim) and must contain the page's h1; pass its id
+ *                  as `labelledby`. Only links and buttons in the overlay take pointer events,
+ *                  so the rest of the water stays tappable.
+ * A real frame from the game sits underneath as a poster: it is the first paint (and the LCP),
+ * and what people see if the browser has no WebGL2.
+ */
+import { Image } from 'astro:assets';
+import cover from '../../../assets/games/koimere-cover.png';
+
+interface Props {
+  variant?: 'frame' | 'hero';
+  labelledby?: string;
+}
+const { variant = 'frame', labelledby } = Astro.props;
+const hero = variant === 'hero';
 ---
 
-<section class="pond-section" aria-label="The live pond">
-  <div class="container-site">
-    <div class="pond-frame">
+<section
+  class:list={['pond-section', `is-${variant}`]}
+  aria-label={labelledby ? undefined : 'The live pond'}
+  aria-labelledby={labelledby}
+>
+  <div class:list={['pond-stage', !hero && 'container-site']}>
+    <div class="pond-frame" data-water={hero ? '' : undefined}>
+      <Image
+        src={cover}
+        alt=""
+        class="pond-poster"
+        widths={[640, 1024, 1600, 2200]}
+        sizes={hero ? '100vw' : '(min-width: 104rem) 100rem, 100vw'}
+        loading="eager"
+        fetchpriority="high"
+      />
       <canvas data-pond aria-label="A live koi pond. Tap the water to make ripples, or tap a koi to meet it."></canvas>
-      <p class="pond-fallback" data-fallback hidden>This browser can't draw the live pond (it needs WebGL2). The rest of the page works.</p>
+      {hero && (
+        <div class="pond-overlay">
+          <div class="container-site pond-overlay-inner"><slot /></div>
+        </div>
+      )}
       <div class="koi-card" data-card hidden aria-live="polite">
         <button class="koi-card-x" type="button" data-close aria-label="Close">×</button>
         <p class="koi-card-name" data-c-name></p>
@@ -15,8 +51,14 @@
         <p class="t-mono koi-card-facts" data-c-facts></p>
       </div>
     </div>
+  </div>
+  <div class="container-site">
+    <p class="pond-fallback" data-fallback hidden>This browser can't run the live pond (it needs WebGL2), so you're seeing a still frame from the game.</p>
     <div class="pond-bar" data-bar>
-      <p class="pond-hint" data-hint>This is the game running live. Tap the water, or tap a koi to meet it.</p>
+      <p class="pond-hint" data-hint>
+        <span class="pond-live-dot" aria-hidden="true"></span>
+        <span data-hint-text>This is the game running live. Tap the water, or tap a koi to meet it.</span>
+      </p>
       <div class="pond-controls">
         <button class="btn btn-secondary pond-feed" type="button" data-feed aria-pressed="false">Feed the koi</button>
         <div class="pond-time" role="group" aria-label="Time of day in the pond">
@@ -32,8 +74,8 @@
 </section>
 
 <script>
-  import { createPond } from '../../../games/millbrook/engine';
-  import { VARIETY_INFO, type Koi } from '../../../games/millbrook/koi';
+  import { createPond } from '../../../games/koimere/engine';
+  import { VARIETY_INFO, type Koi } from '../../../games/koimere/koi';
 
   const root = document.querySelector<HTMLElement>('.pond-section')!;
   const canvas = root.querySelector<HTMLCanvasElement>('[data-pond]')!;
@@ -63,13 +105,14 @@
     $('fallback').hidden = false;
     $('bar').hidden = true;
   } else {
+    root.classList.add('is-running');
     const feed = $('feed');
     feed.addEventListener('click', () => {
       const on = feed.getAttribute('aria-pressed') !== 'true';
       feed.setAttribute('aria-pressed', String(on));
       feed.textContent = on ? 'Stop feeding' : 'Feed the koi';
       pond.setFeed(on);
-      $('hint').textContent = on ? 'Tap the water to scatter food. The bold koi come first.' : 'This is the game running live. Tap the water, or tap a koi to meet it.';
+      $('hint-text').textContent = on ? 'Tap the water to scatter food. The bold koi come first.' : 'This is the game running live. Tap the water, or tap a koi to meet it.';
     });
     $('close').addEventListener('click', () => { card.hidden = true; });
     const chips = [...root.querySelectorAll<HTMLButtonElement>('[data-hour]')];
@@ -90,7 +133,14 @@
     aspect-ratio: 16 / 9;
     overflow: hidden;
     border-radius: var(--radius-xl);
-    background: #0f2e2b;
+    background: var(--color-pond);
+  }
+  .pond-poster {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
   .pond-frame canvas {
     position: absolute;
@@ -101,24 +151,69 @@
     cursor: pointer;
     touch-action: manipulation;
   }
-  .pond-fallback {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    margin: 0;
-    padding: 2rem;
-    text-align: center;
-    color: var(--color-white);
+  /* The poster stays until the renderer is running, then the water fades up over it. */
+  .pond-section:not(.is-running) canvas {
+    opacity: 0;
   }
+  @media (prefers-reduced-motion: no-preference) {
+    .pond-frame canvas {
+      transition: opacity 600ms var(--ease-precise);
+    }
+  }
+
+  /* ---------- Hero: full-bleed water with the page title on it ---------- */
+  .is-hero {
+    padding-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+  .is-hero .pond-bar {
+    margin-top: 0.75rem;
+  }
+  .is-hero .pond-frame {
+    aspect-ratio: auto;
+    /* Edge to edge, and up under the (see-through) header: the water fills the window
+       from the very top; the text stays on the site grid. 4.25rem = header height. */
+    /* Water + the controls bar below it fit in one screen (the bar is ~5.5rem). */
+    height: clamp(32rem, 100svh - 5.5rem, 60rem);
+    margin-top: -4.25rem;
+    border-radius: 0;
+  }
+  .pond-overlay {
+    position: absolute;
+    inset: auto 0 0;
+    /* Lifted off the bottom edge so the text sits in the water, clear of the controls. */
+    padding-block: clamp(6rem, 18vh, 12rem) clamp(3rem, 9vh, 6rem);
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--color-pond-deep) 92%, transparent) 0%,
+      color-mix(in srgb, var(--color-pond-deep) 70%, transparent) 45%,
+      transparent 100%
+    );
+    color: var(--color-foam);
+    pointer-events: none;
+  }
+  .pond-overlay :global(a),
+  .pond-overlay :global(button) {
+    pointer-events: auto;
+  }
+
+  .pond-fallback {
+    margin: 1rem 0 0;
+    color: var(--color-ink-muted);
+  }
+  :global(.pond-room) .pond-fallback {
+    color: var(--color-foam-soft);
+  }
+
   .koi-card {
     position: absolute;
     top: 1rem;
     right: 1rem;
+    z-index: 2;
     width: min(18rem, calc(100% - 2rem));
     padding: 1rem 1.1rem;
     border-radius: var(--radius-lg);
-    background: var(--color-surface);
+    background: var(--color-foam);
+    color: var(--color-pond-deep);
     box-shadow: 0 20px 40px -20px rgb(0 0 0 / 0.6);
   }
   .koi-card p {
@@ -132,7 +227,7 @@
   }
   .koi-card-var {
     font-weight: 600;
-    color: var(--color-ink-muted);
+    color: #3d5a52;
   }
   .koi-card-note {
     margin-top: 0.5rem !important;
@@ -141,22 +236,26 @@
   }
   .koi-card-facts {
     margin-top: 0.6rem !important;
-    color: var(--color-ink-muted);
+    color: #3d5a52;
   }
   .koi-card-x {
     position: absolute;
     top: 0.35rem;
     right: 0.5rem;
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2.75rem;
+    height: 2.75rem;
     border: 0;
     background: none;
     font: inherit;
     font-size: 1.5rem;
     line-height: 1;
-    color: var(--color-ink-muted);
+    color: #3d5a52;
     cursor: pointer;
   }
+  .koi-card-x:focus-visible {
+    outline-color: var(--color-pond-deep);
+  }
+
   .pond-bar {
     display: flex;
     flex-wrap: wrap;
@@ -166,8 +265,22 @@
     margin-top: 1rem;
   }
   .pond-hint {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.6rem;
     margin: 0;
     color: var(--color-ink-muted);
+  }
+  :global(.pond-room) .pond-hint {
+    color: var(--color-foam-soft);
+  }
+  .pond-live-dot {
+    flex: none;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--color-koi);
+    transform: translateY(-0.05em);
   }
   .pond-controls {
     display: flex;
@@ -175,15 +288,25 @@
     align-items: center;
     gap: 0.75rem;
   }
+  .pond-feed {
+    min-height: 2.75rem;
+  }
   .pond-feed[aria-pressed='true'] {
     background: var(--color-ink);
     color: var(--color-paper);
+  }
+  :global(.pond-room) .pond-feed[aria-pressed='true'] {
+    background: var(--color-foam);
+    color: var(--color-pond-deep);
   }
   .pond-time {
     display: inline-flex;
     padding: 3px;
     border: 1px solid var(--color-ink-muted);
     border-radius: var(--radius-pill);
+  }
+  :global(.pond-room) .pond-time {
+    border-color: var(--color-foam-soft);
   }
   .pond-time button {
     min-height: 2.75rem;
@@ -194,19 +317,26 @@
     font: inherit;
     font-size: 0.9375rem;
     font-weight: 500;
-    color: var(--color-ink);
+    color: inherit;
     cursor: pointer;
   }
   .pond-time button[aria-pressed='true'] {
     background: var(--color-ink);
     color: var(--color-paper);
   }
+  :global(.pond-room) .pond-time button[aria-pressed='true'] {
+    background: var(--color-foam);
+    color: var(--color-pond-deep);
+  }
   @media (width < 40rem) {
     .pond-frame {
       aspect-ratio: 4 / 5;
     }
+    .is-hero .pond-frame {
+      height: clamp(34rem, 100svh - 8rem, 46rem);
+    }
     .pond-time button {
-      padding: 0 0.7rem;
+      padding: 0 0.65rem;
     }
   }
 </style>

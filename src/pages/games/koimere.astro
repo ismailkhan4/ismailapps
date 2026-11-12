@@ -1,0 +1,211 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/ui/Breadcrumbs.astro';
+import Button from '../../components/ui/Button.astro';
+import GameStatus from '../../components/games/GameStatus.astro';
+import LivePond from '../../components/games/koimere/LivePond.astro';
+import StreamPuzzle from '../../components/games/koimere/StreamPuzzle.astro';
+import Dredge from '../../components/games/koimere/Dredge.astro';
+import KoiGrid from '../../components/games/koimere/KoiGrid.astro';
+import GameWaitlist from '../../components/games/GameWaitlist.astro';
+import { games } from '../../lib/games';
+import { provider } from '../../lib/seo';
+
+const game = games.find((g) => g.slug === 'koimere')!;
+const steps = [
+  { title: 'Turn the stream', detail: 'Rotate channel tiles until the spring water reaches every one. Food on a tile only counts if the water gets to it.' },
+  { title: 'Feed the koi who ask', detail: 'Koi swim up with orders. Fill them with the food you gathered and earn coins and experience.' },
+  { title: 'Dig out the pond', detail: 'Spend coins to dredge the next stretch of the old mill pond. It brings new koi, new food and room to decorate.' },
+];
+const gameLd = {
+  '@context': 'https://schema.org',
+  '@type': 'VideoGame',
+  name: game.name,
+  description: game.summary,
+  genre: ['Puzzle', 'Casual'],
+  gamePlatform: game.platforms,
+  publisher: provider,
+};
+---
+
+<BaseLayout
+  title={`${game.name}, a koi pond puzzle game`}
+  description={`${game.name}: ${game.summary} In development at IsmailApps.`}
+  headerTheme="pond"
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(gameLd)} />
+    <link rel="preconnect" href="https://challenges.cloudflare.com" />
+    <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  </Fragment>
+
+  <div class="pond-room" data-theme="pond">
+    <LivePond variant="hero" labelledby="game-title">
+      <div class="hero-top">
+        <Breadcrumbs items={[{ href: '/', label: 'Home' }, { href: '/games', label: 'Games' }, { label: game.name }]} />
+        <p class="t-mono hero-status">
+          <span class="pond-chip">In development</span>
+          <span>{game.platforms.join(' · ')}</span>
+        </p>
+      </div>
+      <h1 id="game-title" class="game-title">{game.name}<span class="koi-dot" aria-hidden="true">.</span></h1>
+      <div class="hero-foot">
+        <p class="hero-lead"><strong>{game.tagline}.</strong> {game.summary}</p>
+        <div class="hero-actions">
+          <Button href="#waitlist" arrow event="cta_click" location="game-hero:koimere">Join the waitlist</Button>
+          <a href="#play" class="link">Try the puzzle <span class="link-arrow" aria-hidden="true">↓</span></a>
+        </div>
+      </div>
+    </LivePond>
+
+    <section class="section loop" aria-labelledby="loop-title">
+      <div class="container-site">
+        <h2 id="loop-title" class="t-mono loop-label">How it plays</h2>
+        <ol class="loop-steps">
+          {
+            steps.map((s, i) => (
+              <li>
+                <span class="loop-n" aria-hidden="true">{i + 1}</span>
+                <h3 class="loop-title">{s.title}</h3>
+                <p class="loop-detail">{s.detail}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <div class="foam-panel"><StreamPuzzle /></div>
+    <Dredge />
+    <KoiGrid />
+    <GameStatus />
+    <div class="foam-panel"><GameWaitlist game={game.slug} name={game.name} /></div>
+
+    <nav class="container-site game-back" aria-label="More from IsmailApps">
+      <a href="/games" class="link"><span class="link-arrow" aria-hidden="true">←</span> All games</a>
+      <a href="/" class="link">The studio: software for founders <span class="link-arrow" aria-hidden="true">→</span></a>
+    </nav>
+  </div>
+</BaseLayout>
+
+<style>
+  .hero-top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem 2rem;
+  }
+  .hero-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin: 0;
+  }
+  .game-title {
+    margin: clamp(0.75rem, 2vw, 1.5rem) 0 0;
+    font-size: clamp(4.25rem, 1rem + 13vw, 15rem);
+    line-height: 0.82;
+    letter-spacing: -0.06em;
+    font-weight: 650;
+  }
+  .koi-dot {
+    color: var(--color-koi);
+  }
+  .hero-foot {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: clamp(1.25rem, 3vw, 2.25rem);
+  }
+  .hero-lead {
+    margin: 0;
+    max-width: 46ch;
+    font-size: var(--step-1);
+    line-height: 1.45;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.75rem;
+  }
+  @media (width >= 56.25rem) {
+    .hero-foot {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 3rem;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .game-title {
+      animation: surface 1100ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .hero-foot,
+    .hero-top {
+      animation: surface 900ms cubic-bezier(0.16, 1, 0.3, 1) 250ms both;
+    }
+  }
+  @keyframes surface {
+    from {
+      opacity: 0;
+      filter: blur(8px);
+      transform: translateY(0.4em);
+    }
+  }
+
+  /* How it plays: three beats side by side, numbered in koi. */
+  .loop-label {
+    margin: 0;
+    color: var(--color-ink-muted);
+    font-weight: 500;
+  }
+  .loop-steps {
+    list-style: none;
+    display: grid;
+    gap: 2.5rem 2rem;
+    margin: clamp(1.5rem, 3vw, 2.5rem) 0 0;
+    padding: 0;
+  }
+  .loop-steps li {
+    display: grid;
+    align-content: start;
+    gap: 0.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-ink);
+  }
+  .loop-n {
+    font-size: clamp(3.5rem, 2rem + 4vw, 6rem);
+    font-weight: 300;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    color: var(--color-koi);
+  }
+  .loop-title {
+    margin: 0;
+    font-size: var(--step-3);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+  .loop-detail {
+    margin: 0;
+    max-width: 34ch;
+    color: var(--color-ink-muted);
+  }
+  @media (width >= 56.25rem) {
+    .loop-steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .foam-panel {
+    margin-block: clamp(1rem, 3vw, 2rem);
+  }
+  .game-back {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding-block: clamp(2.5rem, 5vw, 4rem);
+  }
+</style>

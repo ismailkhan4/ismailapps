@@ -14,9 +14,11 @@ interface Props {
   description: string;
   /** Keep out of search indexes (internal review pages, thanks page). */
   noindex?: boolean;
+  /** Surface the header starts on before the scroll driver runs (games pages: 'pond'). */
+  headerTheme?: 'pond';
 }
 
-const { title, description, noindex = false } = Astro.props;
+const { title, description, noindex = false, headerTheme } = Astro.props;
 const path = Astro.url.pathname.replace(/\.html$/, '').replace(/(^|\/)index$/, '').replace(/\/$/, '') || '/';
 const canonical = new URL(path, site.url);
 const fullTitle = title === site.name ? title : `${title} · ${site.name}`;
@@ -48,7 +50,7 @@ const organization = {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
-    <meta name="theme-color" content="#F2F3EF" />
+    <meta name="theme-color" content={headerTheme === 'pond' ? '#0C2321' : '#F2F3EF'} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
     <meta property="og:type" content="website" />
@@ -83,7 +85,7 @@ const organization = {
   </head>
   <body>
     <a href="#main" class="sr-only-focusable skip-link">Skip to content</a>
-    <SiteHeader />
+    <SiteHeader theme={headerTheme} />
     <main id="main" tabindex="-1">
       <slot />
     </main>

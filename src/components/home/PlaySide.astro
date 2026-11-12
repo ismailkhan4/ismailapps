@@ -1,0 +1,93 @@
+---
+/**
+ * The homepage's door to /games: a small "pond room" panel after our own products.
+ * Deliberately brief and set after the client work, so the studio reads as a studio first;
+ * the game is evidence of craft and curiosity, not the pitch. Static image only (no WebGL
+ * on the homepage): the live pond waits on /games.
+ */
+import { Image } from 'astro:assets';
+import { games } from '../../lib/games';
+
+const game = games[0]!;
+---
+
+<section class="play pond-room" data-theme="pond" aria-labelledby="play-title">
+  <div class="container-site play-grid">
+    <div class="play-copy">
+      <p class="t-mono play-kicker">Our play side</p>
+      <h2 id="play-title" class="play-title">We make calm games too.</h2>
+      <p class="play-lead">
+        {game.name}, a koi pond puzzle game, is in development. Parts of it already run in your browser: the same
+        attention to motion, touch and detail we put into client products.
+      </p>
+      <a href="/games" class="link play-link">Visit the pond <span class="link-arrow" aria-hidden="true">→</span></a>
+    </div>
+    <a href={`/games/${game.slug}`} class="play-shot" aria-label={`${game.name}: ${game.tagline}, in development`}>
+      <Image src={game.cover} alt={game.coverAlt} widths={[480, 800, 1200]} sizes="(min-width: 56.25rem) 45vw, 100vw" loading="lazy" />
+      <span class="t-mono pond-chip play-chip">{game.name} · in development</span>
+    </a>
+  </div>
+</section>
+
+<style>
+  .play {
+    margin: clamp(1rem, 3vw, 2rem) clamp(0.5rem, 1.2vw, 1rem) 0;
+    padding-block: clamp(3rem, 7vw, 6rem);
+    border-radius: var(--radius-xl);
+    overflow: clip;
+  }
+  .play-grid {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  .play-copy p {
+    margin: 0;
+  }
+  .play-kicker {
+    color: var(--color-ink-muted);
+  }
+  .play-title {
+    margin: 1rem 0 0;
+    font-size: var(--step-4);
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+  }
+  .play-lead {
+    margin-top: 1.25rem !important;
+    max-width: 40ch;
+    color: var(--color-ink-muted);
+  }
+  .play-link {
+    margin-top: 1.75rem;
+  }
+  .play-shot {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--color-pond);
+  }
+  .play-shot :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .play-shot:hover :global(img) {
+    transform: scale(1.04);
+  }
+  .play-chip {
+    position: absolute;
+    left: 1rem;
+    bottom: 1rem;
+  }
+  @media (width >= 56.25rem) {
+    .play-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: 4rem;
+    }
+  }
+</style>

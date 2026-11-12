@@ -4,10 +4,12 @@
  * mono notes along the top edge, display type set across the full frame, and a
  * foot row with the promise, the actions and an optional aside.
  *
- * The title's last word arrives as a pencil outline (the brand's draft state)
- * and is filled in to solid ink: every page "ships" as it opens, like the
- * homepage's headline. Reduced motion shows it solid straight away. The fill is
- * a pseudo-element with empty alt text, so assistive tech reads the title once.
+ * With `draft`, the title's last word arrives as a pencil outline (the brand's
+ * draft state) and is filled in to solid ink. Use it only where the word names a
+ * real state ("shipped", "today"): outline = not built, solid = built, green = live.
+ * Everywhere else the title is set solid, so the device keeps its meaning.
+ * Reduced motion shows it solid straight away. The fill is a pseudo-element with
+ * empty alt text, so assistive tech reads the title once.
  */
 import Breadcrumbs from '../ui/Breadcrumbs.astro';
 import Button from '../ui/Button.astro';
@@ -24,8 +26,10 @@ interface Props {
   /** Primary button. `event` defaults to cta_click; external links get ↗ and open normally. */
   cta?: { href: string; location: string; label?: string; event?: string } | undefined;
   secondary?: { href: string; label: string };
+  /** Draw the last word as an outline that fills in (state words only). */
+  draft?: boolean;
 }
-const { crumbs, kicker, tag, title, lead, cta, secondary } = Astro.props;
+const { crumbs, kicker, tag, title, lead, cta, secondary, draft = false } = Astro.props;
 const hasAside = Astro.slots.has('aside');
 
 const words = title.trim().split(/\s+/);
@@ -57,7 +61,9 @@ const size = title.length > 28 ? 'long' : 'short';
 
   <div class="container-site grid-site page-hero-body">
     <h1 id="page-title" class:list={['page-title', `is-${size}`]}>
-      <span class="page-title-text">{head && <>{head} </>}<span class="draft-word" data-text={last}>{last}</span></span>
+      <span class="page-title-text">
+        {head && <>{head} </>}{draft ? <span class="draft-word" data-text={last}>{last}</span> : last}
+      </span>
     </h1>
     <div class="page-hero-copy">
       <p class="page-lead">{lead}</p>
