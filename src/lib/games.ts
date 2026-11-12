@@ -1,5 +1,5 @@
 import type { ImageMetadata } from 'astro';
-import millbrookCover from '../assets/games/millbrook-cover.png';
+import koimereCover from '../assets/games/koimere-cover.png';
 
 /**
  * Our games, for /games and each game's page. Status is honest: "in-development" until a store page exists.
@@ -18,14 +18,14 @@ export interface Game {
 
 export const games: Game[] = [
   {
-    slug: 'millbrook',
-    name: 'Millbrook',
+    slug: 'koimere',
+    name: 'Koimere',
     tagline: 'A koi pond puzzle game',
     summary: 'Turn the stream, feed the koi who ask, and dig the old mill pond out of the sand, one stretch at a time.',
     status: 'in-development',
     platforms: ['iPhone', 'Android', 'Web'],
-    cover: millbrookCover,
-    coverAlt: 'Koi swimming between lily pads in Millbrook, seen from above',
+    cover: koimereCover,
+    coverAlt: 'Koi swimming between lily pads in Koimere, seen from above',
   },
 ];
 

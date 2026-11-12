@@ -347,7 +347,8 @@ if (crews.length) {
 /* ------------------------------------------------------------------ */
 const header = document.querySelector<HTMLElement>('[data-site-header]');
 if (header) {
-  const themed = [...document.querySelectorAll<HTMLElement>('[data-theme]')];
+  const water = document.querySelector<HTMLElement>('[data-water]');
+  const themed = [...document.querySelectorAll<HTMLElement>('[data-theme]:not(.cf-turnstile)')];
   const meter = header.querySelector<HTMLElement>('[data-meter]');
   const mv = header.querySelector<HTMLElement>('[data-meter-v]');
   const ms = header.querySelector<HTMLElement>('[data-meter-s]');
@@ -360,8 +361,14 @@ if (header) {
         const r = el.getBoundingClientRect();
         if (r.top <= probe && r.bottom >= probe) theme = el.dataset.theme ?? '';
       }
+      // Above the first themed region (the page's own top), keep the page's starting surface.
+      const first = themed[0];
+      if (!theme && first && first.getBoundingClientRect().top > probe) theme = header.dataset.startTheme ?? '';
       header.classList.toggle('on-ink', theme === 'ink');
       header.classList.toggle('on-live', theme === 'live');
+      header.classList.toggle('on-pond', theme === 'pond');
+      // Games hero: see-through only at rest at the very top; solid as soon as you scroll.
+      header.classList.toggle('on-water', !!water && scrollY < 4);
 
       const max = document.documentElement.scrollHeight - vh();
       const page = max > 0 ? clamp(scrollY / max) : 0;

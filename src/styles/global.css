@@ -33,6 +33,17 @@
   --color-ink-rule: #333833; /* lines on ink (decorative) */
   --color-ink-soft: #a3a8a1; /* secondary text on ink: 7.6:1 */
   --color-signal-tint: #d6f0df; /* secondary text on signal-ink: 5.5:1 */
+  /* Games only ("the pond room"): the game's own world inside the studio frame.
+     Never used on studio pages. Ratios on pond-deep / pond:
+     foam 14.0 / 11.2 · foam-soft 8.3 / 6.7 · lily 7.3 / 5.8 · koi 5.9 / 4.8 */
+  --color-pond-deep: #0c2321;
+  --color-pond: #123631;
+  --color-pond-raised: #1a443d;
+  --color-pond-rule: #2b5249; /* decorative lines on pond */
+  --color-foam: #e7efe9;
+  --color-foam-soft: #a9bdb4;
+  --color-lily: #8db879;
+  --color-koi: #f07a4a;
 
   --font-*: initial;
   --font-sans: 'Schibsted Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
@@ -614,6 +625,91 @@
   }
   .panel-ink .tag-key {
     color: var(--color-ink-soft);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* The pond room: the games sub-brand's surface                        */
+/* ------------------------------------------------------------------ */
+@layer components {
+  /* Same frame, type, spacing and components as the studio; only the water changes.
+     The room re-points the studio's colour roles at the game's palette, so every shared
+     component (breadcrumbs, buttons, forms, rows) adapts without per-component overrides.
+     Pair with data-theme="pond" so the header follows. */
+  .pond-room {
+    --color-paper: var(--color-pond-deep);
+    --color-surface: var(--color-pond-raised);
+    --color-ink: var(--color-foam);
+    --color-ink-muted: var(--color-foam-soft);
+    --color-rule: var(--color-pond-rule);
+    --color-signal: var(--color-lily);
+    --color-signal-ink: var(--color-lily);
+    --color-live: var(--color-lily);
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+  .pond-room ::selection {
+    background: var(--color-foam);
+    color: var(--color-pond-deep);
+  }
+  .pond-room .btn-primary {
+    background: var(--color-foam);
+    color: var(--color-pond-deep);
+  }
+  .pond-room .btn-primary:hover {
+    background: var(--color-lily);
+  }
+  /* A light pad floating in the pond: studio paper roles again, for the interactive pieces
+     (puzzle, waitlist form) that were designed and contrast-checked on paper. */
+  .foam-panel {
+    --color-paper: #f2f3ef;
+    --color-surface: #fafaf8;
+    --color-ink: #121412;
+    --color-ink-muted: #555a54;
+    --color-rule: #d3d6d0;
+    --color-signal: #129a4c;
+    --color-signal-ink: #0b6b3a;
+    --color-live: #0b6b3a;
+    margin-inline: clamp(0.5rem, 1.2vw, 1rem);
+    border-radius: var(--radius-xl);
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+  .foam-panel .btn-primary {
+    background: var(--color-signal-ink);
+    color: var(--color-white);
+  }
+  .foam-panel .btn-primary:hover {
+    background: var(--color-ink);
+  }
+  .foam-panel ::selection {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  /* Status chip in the game's own colours: lily ring = in development, koi dot = live. */
+  .pond-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.3em 0.75em;
+    border: 1px solid var(--color-pond-rule);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    line-height: 1.35;
+    color: var(--color-foam);
+    background: color-mix(in srgb, var(--color-pond-deep) 70%, transparent);
+  }
+  .pond-chip::before {
+    content: '';
+    width: 0.55em;
+    height: 0.55em;
+    border-radius: 50%;
+    border: 1.5px solid var(--color-lily);
+  }
+  .pond-chip.is-live::before {
+    border: 0;
+    background: var(--color-koi);
   }
 }
 

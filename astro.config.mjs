@@ -13,6 +13,8 @@ export default defineConfig({
   build: { format: 'file' },
   // No sessions: stops the adapter from provisioning a KV namespace we don't use.
   session: false,
+  // The game was called Millbrook until 12 Nov 2026.
+  redirects: { '/games/millbrook': '/games/koimere' },
   adapter: cloudflare({
     // Optimise images at build time for prerendered pages; no runtime Images binding needed.
     imageService: 'compile',
