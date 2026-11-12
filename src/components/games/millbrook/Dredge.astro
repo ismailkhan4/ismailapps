@@ -1,0 +1,144 @@
+---
+/** The dredging effect: a stretch of pond under sand, opened with one button. */
+---
+
+<section class="section dredge" aria-labelledby="dredge-title">
+  <div class="container-site dredge-grid">
+    <div class="dredge-copy">
+      <h2 id="dredge-title" class="t-h2">Dig out the old pond</h2>
+      <p class="t-lead">The mill pond silted up years ago. In the game it's one long, winding pond you drag along, and each stretch under the sand opens as you level up.</p>
+      <p class="dredge-note" data-caption aria-live="polite">Press dredge and watch the water come back.</p>
+    </div>
+    <div class="dredge-view">
+      <canvas data-sand aria-label="A stretch of pond covered in sand, with a small pool of open water."></canvas>
+      <p class="dredge-fallback" data-fallback hidden>The dredging effect needs WebGL2, which this browser doesn't offer.</p>
+      <button class="btn btn-primary dredge-btn" type="button" data-dredge>Dredge this stretch</button>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { createPond, type Pond } from '../../../games/millbrook/engine';
+  import type { Variety } from '../../../games/millbrook/koi';
+
+  const root = document.querySelector<HTMLElement>('.dredge')!;
+  const view = root.querySelector<HTMLElement>('.dredge-view')!;
+  const btn = root.querySelector<HTMLButtonElement>('[data-dredge]')!;
+  const caption = root.querySelector<HTMLElement>('[data-caption]')!;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const arrivals: Variety[] = ['kohaku', 'ogon', 'sanke'];
+  let pond: Pond | null = null;
+  let state: 'buried' | 'busy' | 'open' = 'buried';
+
+  const build = () => {
+    const old = view.querySelector('canvas')!;
+    const canvas = old.cloneNode() as HTMLCanvasElement; // a fresh canvas gets a fresh drawing context
+    old.replaceWith(canvas);
+    pond?.destroy();
+    pond = createPond(canvas, {
+      fish: ['chagoi'],
+      sand: true,
+      sandOpen: [0.18, 0.28],
+      pads: [[0.62, 0.3, 0.9], [0.8, 0.72, 1.1], [0.35, 0.78, 0.7]],
+      maxDpr: 1.5,
+      reducedMotion: reduced,
+    });
+    if (!pond) {
+      canvas.hidden = true;
+      btn.hidden = true;
+      root.querySelector<HTMLElement>('[data-fallback]')!.hidden = false;
+    }
+  };
+  build();
+
+  btn.addEventListener('click', async () => {
+    if (!pond || state === 'busy') return;
+    if (state === 'open') {
+      build();
+      state = 'buried';
+      btn.textContent = 'Dredge this stretch';
+      caption.textContent = 'Press dredge and watch the water come back.';
+      return;
+    }
+    state = 'busy';
+    btn.disabled = true;
+    btn.textContent = 'Dredging';
+    caption.textContent = 'The water is coming back.';
+    await pond.dredge(reduced ? 900 : 3600);
+    const p = pond, w = p.world;
+    arrivals.forEach((v, i) => setTimeout(() => {
+      const fromLeft = i % 2 === 0;
+      p.addKoi(v, { x: fromLeft ? -30 : w.w + 30, y: w.h * (0.3 + 0.2 * i), heading: fromLeft ? 0.2 : Math.PI - 0.2 });
+    }, i * 700));
+    setTimeout(() => {
+      state = 'open';
+      btn.disabled = false;
+      btn.textContent = 'Bury it again';
+      caption.textContent = 'Three koi found their way in. New stretches also bring new food, new varieties and room to decorate.';
+    }, 2200);
+  });
+</script>
+
+<style>
+  .dredge-grid {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: center;
+  }
+  .dredge-copy {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .dredge-copy h2,
+  .dredge-copy p {
+    margin: 0;
+  }
+  .t-lead {
+    max-width: 40ch;
+  }
+  .dredge-note {
+    min-height: 3em;
+    max-width: 40ch;
+    font-weight: 500;
+  }
+  .dredge-view {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    background: #8d7b5c;
+  }
+  .dredge-view canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .dredge-btn {
+    position: absolute;
+    left: 50%;
+    bottom: 1.25rem;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+  .dredge-fallback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 1.5rem;
+    text-align: center;
+  }
+  @media (width >= 56.25rem) {
+    .dredge-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+  }
+  @media (width < 40rem) {
+    .dredge-view {
+      aspect-ratio: 4 / 5;
+    }
+  }
+</style>

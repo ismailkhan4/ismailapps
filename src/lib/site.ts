@@ -35,5 +35,6 @@ export const primaryNav = [
   { href: '/work', label: 'Work' },
   { href: '/services', label: 'Services', hasMenu: true },
   { href: '/products', label: 'Products' },
+  { href: '/games', label: 'Games' },
   { href: '/about', label: 'About' },
 ] as const;
