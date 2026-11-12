@@ -1,0 +1,414 @@
+---
+/**
+ * The stream puzzle with three koi orders. Solving a stream gathers the food the water reached,
+ * and the food fills the orders.
+ */
+import { foods, orders } from '../../../games/millbrook/content';
+type Wants = (typeof orders)[number]['wants'];
+const nameOf = (f: string, n: number) => (n === 1 ? foods[f as keyof typeof foods].one : foods[f as keyof typeof foods].many);
+const wantText = (w: Wants) => Object.entries(w).map(([f, n]) => `${n} ${nameOf(f, n!)}`).join(' and ');
+const total = (w: Wants) => Object.values(w).reduce((a, b) => a + (b ?? 0), 0);
+---
+
+<section class="section stream" id="play" aria-labelledby="stream-title">
+  <div class="container-site stream-grid">
+    <div class="stream-copy">
+      <h2 id="stream-title" class="t-h2">Turn the stream, feed the koi</h2>
+      <p class="t-lead">Koi ask for food. Turn the channels until the spring's water reaches every tile. Food only counts if the water gets to it.</p>
+      <ol class="orders" aria-label="Orders">
+        {
+          orders.map((o) => (
+            <li class="order" data-order={o.id} style={`--need:${total(o.wants)}`}>
+              <canvas width="300" height="96" data-variety={o.variety} data-seed={o.seed} aria-hidden="true" />
+              <div>
+                <p class="order-who"><strong>{o.name}</strong> <span data-kind /></p>
+                <p class="order-wants">Wants {wantText(o.wants)}</p>
+                <ul class="sr-only">
+                  {Object.entries(o.wants).map(([f, n]) => (
+                    <li data-food={f} data-need={n}>
+                      {nameOf(f, 2)}: <span data-count>0 of {n}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <p class="t-mono order-state">
+                <span data-progress>0 of {total(o.wants)}</span>
+                <span class="order-coins">+{o.coins} coins</span>
+              </p>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="stream-note">Example orders. The full game has more tiles, more kinds of food and no timers.</p>
+    </div>
+
+    <div class="board">
+      <div class="board-head">
+        <p class="board-title">Stream <span data-level>1</span></p>
+        <p class="t-mono board-tally"><span data-taps>0</span> turns, <span data-coins>0</span> coins</p>
+      </div>
+      <div class="tiles" data-tiles role="group" aria-label="Stream puzzle. Each tile is a button that turns it a quarter turn."></div>
+      <p class="board-status" data-status aria-live="polite">Tap a tile to turn it. The spring is in the top-left corner.</p>
+      <div class="board-foot">
+        <button class="btn btn-primary" type="button" data-next>New stream</button>
+        <p class="board-pantry" data-pantry>Pantry is empty</p>
+      </div>
+    </div>
+  </div>
+  <svg width="0" height="0" class="defs" aria-hidden="true">
+    <filter id="ink"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" /><feDisplacementMap in="SourceGraphic" scale="1.4" /></filter>
+  </svg>
+</section>
+
+<script>
+  import { foods, orders, type Food } from '../../../games/millbrook/content';
+  import { generate, gathered, sides, solved, wet, type Level } from '../../../games/millbrook/stream';
+  import { drawKoi } from '../../../games/millbrook/portrait';
+  import { VARIETY_INFO, type Variety } from '../../../games/millbrook/koi';
+
+  const root = document.querySelector<HTMLElement>('.stream')!;
+  const tilesEl = root.querySelector<HTMLElement>('[data-tiles]')!;
+  const $ = (k: string) => root.querySelector<HTMLElement>(`[data-${k}]`)!;
+  const COLS = 5, ROWS = 5;
+  const ALL: Food[] = ['flea', 'shrimp', 'seed'];
+
+  root.querySelectorAll<HTMLCanvasElement>('.order canvas').forEach((c) => {
+    const v = c.dataset.variety as Variety;
+    drawKoi(c, v, Number(c.dataset.seed), 0.08);
+    c.closest('.order')!.querySelector('[data-kind]')!.textContent = VARIETY_INFO[v].label;
+  });
+
+  const pantry: Record<Food, number> = { flea: 0, shrimp: 0, seed: 0 };
+  const got: Record<string, Partial<Record<Food, number>>> = Object.fromEntries(orders.map((o) => [o.id, {}]));
+  const done = new Set<string>();
+  let coins = 0, taps = 0, levelNo = 1, level: Level, finished = false;
+
+  const outstanding = (): Food[] => {
+    const need: Food[] = [];
+    for (const o of orders) {
+      if (done.has(o.id)) continue;
+      for (const [f, n] of Object.entries(o.wants) as Array<[Food, number]>) for (let i = 0; i < n - (got[o.id]![f] ?? 0); i++) need.push(f);
+    }
+    for (const f of ALL) for (let i = 0; i < pantry[f]; i++) { const k = need.indexOf(f); if (k >= 0) need.splice(k, 1); }
+    return need;
+  };
+  const bag = (): Food[] => {
+    const need = outstanding(), out: Food[] = [];
+    while (out.length < 4 && need.length) out.push(need.splice(Math.floor(Math.random() * need.length), 1)[0]!);
+    while (out.length < 3) out.push(ALL[Math.floor(Math.random() * 3)]!);
+    return out;
+  };
+  const words = (list: Food[]) => {
+    const c: Partial<Record<Food, number>> = {};
+    list.forEach((f) => (c[f] = (c[f] ?? 0) + 1));
+    const parts = (Object.entries(c) as Array<[Food, number]>).map(([f, n]) => `${n} ${n === 1 ? foods[f].one : foods[f].many}`);
+    return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts.at(-1)}` : parts[0] ?? 'nothing';
+  };
+
+  const SHORT: Record<Food, string> = { flea: 'flea', shrimp: 'shrimp', seed: 'seed' };
+  const ARM: Record<number, string> = { 0: 'M50 50 V-2', 1: 'M50 50 H102', 2: 'M50 50 V102', 3: 'M50 50 H-2' };
+  const svgFor = (i: number) => {
+    const t = level.tiles[i]!;
+    const arms = [0, 1, 2, 3].filter((d) => t.mask & (1 << d)).map((d) => ARM[d]).join(' ');
+    const r = t.kind === 'spring' ? 23 : t.kind === 'pool' ? 28 : 17;
+    const ring = t.kind === 'pipe' ? '' : `<circle class="ring" cx="50" cy="50" r="${r - 10}"/>`;
+    return `<svg viewBox="0 0 100 100" aria-hidden="true"><g class="rot" style="transform: rotate(${t.turns * 90}deg)" filter="url(#ink)">
+      <path class="bank" d="${arms}"/><circle class="bankc" cx="50" cy="50" r="${r}"/>
+      <path class="water" d="${arms}"/><circle class="waterc" cx="50" cy="50" r="${r - 4.5}"/><path class="flow" d="${arms}"/>${ring}</g></svg>`;
+  };
+  const label = (i: number, isWet: boolean) => {
+    const t = level.tiles[i]!, r = Math.floor(i / COLS) + 1, c = (i % COLS) + 1;
+    const kind = t.kind === 'spring' ? 'the spring' : t.kind === 'pool' ? 'the pool' : 'channel';
+    return `Row ${r}, column ${c}: ${kind}${t.food ? `, ${foods[t.food].one}` : ''}. ${isWet ? 'Water is flowing.' : 'Dry.'} Press to turn.`;
+  };
+
+  const paint = () => {
+    const w = wet(level);
+    tilesEl.querySelectorAll<HTMLButtonElement>('button').forEach((b, i) => {
+      b.classList.toggle('wet', w.has(i));
+      b.querySelector<SVGGElement>('.rot')!.style.transform = `rotate(${level.tiles[i]!.turns * 90}deg)`;
+      b.setAttribute('aria-label', label(i, w.has(i)));
+    });
+    $('taps').textContent = String(taps);
+    $('coins').textContent = String(coins);
+    if (!solved(level)) {
+      const g = gathered(level);
+      $('status').textContent = `Water reaches ${w.size} of ${level.tiles.length} tiles${g.length ? `, and ${words(g)}` : ''}.`;
+    }
+  };
+
+  const build = () => {
+    level = generate(COLS, ROWS, (Math.random() * 1e9) | 0, bag());
+    taps = 0;
+    tilesEl.innerHTML = '';
+    tilesEl.classList.remove('solved');
+    level.tiles.forEach((t, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `tile ${t.kind}`;
+      b.innerHTML = svgFor(i) + (t.food ? `<span class="food">${SHORT[t.food]}</span>` : '');
+      b.addEventListener('click', () => turn(i));
+      tilesEl.appendChild(b);
+    });
+    $('level').textContent = String(levelNo);
+    paint();
+  };
+
+  const deliver = () => {
+    for (const o of orders) {
+      const el = root.querySelector<HTMLElement>(`[data-order="${o.id}"]`)!;
+      const g = got[o.id]!;
+      if (!done.has(o.id)) {
+        for (const [f, n] of Object.entries(o.wants) as Array<[Food, number]>) {
+          const take = Math.min(n - (g[f] ?? 0), pantry[f]);
+          if (take > 0) { g[f] = (g[f] ?? 0) + take; pantry[f] -= take; }
+        }
+      }
+      let have = 0, need = 0;
+      el.querySelectorAll<HTMLElement>('[data-food]').forEach((li) => {
+        const f = li.dataset.food as Food, n = Number(li.dataset.need);
+        have += Math.min(n, g[f] ?? 0); need += n;
+        li.querySelector('[data-count]')!.textContent = `${Math.min(n, g[f] ?? 0)} of ${n}`;
+      });
+      el.style.setProperty('--have', String(have));
+      el.querySelector('[data-progress]')!.textContent = `${have} of ${need}`;
+      if (!done.has(o.id) && have >= need) { done.add(o.id); coins += o.coins; el.classList.add('done'); }
+    }
+    const left = ALL.flatMap((f) => Array<Food>(pantry[f]).fill(f));
+    $('pantry').textContent = left.length ? `In the pantry: ${words(left)}` : 'Pantry is empty';
+  };
+
+  const turn = (i: number) => {
+    if (finished || tilesEl.classList.contains('solved')) return;
+    level.tiles[i]!.turns += 1; taps++;
+    paint();
+    if (!solved(level)) return;
+    const g = gathered(level);
+    g.forEach((f) => pantry[f]++);
+    tilesEl.classList.add('solved');
+    const before = new Set(done);
+    deliver();
+    $('coins').textContent = String(coins);
+    const fedNow = orders.filter((o) => done.has(o.id) && !before.has(o.id)).map((o) => o.name);
+    let msg = `Solved in ${taps} turns. You gathered ${words(g)}.`;
+    if (fedNow.length) msg += ` ${fedNow.join(' and ')} ${fedNow.length > 1 ? 'are' : 'is'} fed.`;
+    if (done.size === orders.length) { msg += ' All three are fed. In the game, new orders keep coming, and coins pay to dredge the next stretch.'; finished = true; }
+    $('status').textContent = msg;
+    $('next').textContent = 'Next stream';
+  };
+
+  $('next').addEventListener('click', () => {
+    if (tilesEl.classList.contains('solved')) levelNo++;
+    finished = false;
+    $('next').textContent = 'New stream';
+    build();
+  });
+
+  build();
+  // Test hook: lets the browser checks inspect and play the current stream.
+  (window as unknown as { __stream?: unknown }).__stream = { get level() { return level; }, sides, solved, turn };
+</script>
+
+<style>
+  .stream-grid {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: start;
+  }
+  .stream-copy {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .stream-copy h2,
+  .stream-copy p {
+    margin: 0;
+  }
+  .t-lead {
+    max-width: 40ch;
+  }
+  .orders {
+    list-style: none;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    border-top: 1px solid var(--color-ink);
+  }
+  .order {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: center;
+    padding-block: 0.9rem;
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .order canvas {
+    width: 100%;
+    height: auto;
+  }
+  .order p {
+    margin: 0;
+  }
+  .order-who span {
+    margin-left: 0.3rem;
+    color: var(--color-ink-muted);
+    font-size: 0.9375rem;
+  }
+  .order-wants {
+    color: var(--color-ink-muted);
+    font-size: 0.9375rem;
+    line-height: 1.4;
+  }
+  .order-state {
+    display: grid;
+    justify-items: end;
+    color: var(--color-ink-muted);
+  }
+  .order:global(.done) .order-state {
+    color: var(--color-live);
+  }
+  .order:global(.done) .order-coins::before {
+    content: '● ';
+  }
+  .stream-note {
+    font-size: 0.9375rem;
+    color: var(--color-ink-muted);
+  }
+
+  .board {
+    display: grid;
+    gap: 1rem;
+    padding: clamp(1rem, 2.5vw, 1.5rem);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-xl);
+    background: var(--color-surface);
+  }
+  .board p {
+    margin: 0;
+  }
+  .board-head,
+  .board-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1rem;
+  }
+  .board-title {
+    font-weight: 600;
+    font-size: var(--step-1);
+  }
+  .board-tally,
+  .board-pantry {
+    color: var(--color-ink-muted);
+  }
+  .board-status {
+    min-height: 3.2em;
+  }
+  .tiles {
+    --bank: #1d3a34;
+    --dry: #cfd8cf;
+    --wet: #3f9a89;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
+  .tiles :global(.tile) {
+    position: relative;
+    aspect-ratio: 1;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: var(--color-paper);
+    cursor: pointer;
+  }
+  .tiles :global(.tile:active) {
+    transform: scale(0.97);
+  }
+  .tiles :global(.tile svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .tiles :global(.rot) {
+    transform-origin: 50px 50px;
+    transition: transform 240ms cubic-bezier(0.3, 1.35, 0.5, 1);
+  }
+  .tiles :global(.bank) {
+    stroke: var(--bank);
+    stroke-width: 34;
+    fill: none;
+  }
+  .tiles :global(.bankc) {
+    fill: var(--bank);
+  }
+  .tiles :global(.water) {
+    stroke: var(--dry);
+    stroke-width: 26;
+    fill: none;
+    transition: stroke 350ms;
+  }
+  .tiles :global(.waterc) {
+    fill: var(--dry);
+    transition: fill 350ms;
+  }
+  .tiles :global(.ring) {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.6);
+    stroke-width: 3;
+  }
+  .tiles :global(.flow) {
+    stroke: transparent;
+    stroke-width: 5;
+    fill: none;
+    stroke-dasharray: 6 14;
+  }
+  .tiles :global(.wet .water) {
+    stroke: var(--wet);
+  }
+  .tiles :global(.wet .waterc) {
+    fill: var(--wet);
+  }
+  .tiles :global(.wet .flow) {
+    stroke: rgb(255 255 255 / 0.5);
+    animation: flow 1.1s linear infinite;
+  }
+  .tiles :global(.food) {
+    position: absolute;
+    left: 4px;
+    bottom: 4px;
+    padding: 2px 6px;
+    border-radius: var(--radius-pill);
+    background: var(--color-white);
+    color: var(--color-ink);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.2;
+    pointer-events: none;
+    box-shadow: 0 0 0 1px var(--color-rule);
+  }
+  .tiles :global(.wet .food) {
+    background: var(--color-ink);
+    color: var(--color-paper);
+    box-shadow: none;
+  }
+  .tiles :global(.tile:focus-visible) {
+    outline: 2px solid var(--color-ink);
+    outline-offset: -2px;
+    z-index: 1;
+  }
+  .tiles:global(.solved) :global(.tile) {
+    cursor: default;
+  }
+  @keyframes flow {
+    to {
+      stroke-dashoffset: -40;
+    }
+  }
+  .defs {
+    position: absolute;
+  }
+  @media (width >= 56.25rem) {
+    .stream-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    }
+  }
+</style>

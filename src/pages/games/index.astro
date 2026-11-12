@@ -1,0 +1,130 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/sections/PageHero.astro';
+import Tag from '../../components/ui/Tag.astro';
+import { games } from '../../lib/games';
+---
+
+<BaseLayout title="Games" description="Games made by IsmailApps. Millbrook, a koi pond puzzle game, is in development.">
+  <PageHero
+    crumbs={[{ href: '/', label: 'Home' }, { label: 'Games' }]}
+    title="Games we make"
+    lead="Small, calm games we design, build and run ourselves. The first one is in development, and you can play parts of it right in your browser."
+  />
+
+  <section class="games-list" aria-label="All games">
+    <div class="container-site">
+      <ul class="games-grid">
+        {
+          games.map((g, i) => (
+            <li class:list={['game', i === 0 && 'is-first']}>
+              <a href={`/games/${g.slug}`} class="game-link">
+                <div class="game-cover">
+                  <Image src={g.cover} alt={g.coverAlt} widths={[640, 960, 1440]} sizes="(min-width: 900px) 70vw, 100vw" loading={i === 0 ? 'eager' : 'lazy'} />
+                </div>
+                <div class="game-body">
+                  <div class="game-head">
+                    <h2 class="game-name">{g.name}</h2>
+                    <Tag tone={g.status === 'live' ? 'live' : 'dev'}>{g.status === 'live' ? 'Live' : 'In development'}</Tag>
+                  </div>
+                  <p class="game-tagline">{g.tagline}</p>
+                  <p class="game-summary">{g.summary}</p>
+                  <p class="t-mono game-platforms">{g.platforms.join(', ')}</p>
+                </div>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .games-list {
+    padding-bottom: var(--section-space);
+  }
+  .games-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+  .game-link {
+    display: grid;
+    gap: 1.25rem;
+    text-decoration: none;
+    color: inherit;
+  }
+  .game-cover {
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    aspect-ratio: 16 / 10;
+    background: #0f2e2b;
+  }
+  .game-cover :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 700ms var(--ease-precise);
+  }
+  .game-link:hover .game-cover :global(img) {
+    transform: scale(1.02);
+  }
+  .game-link:focus-visible {
+    outline-offset: 6px;
+    border-radius: var(--radius-xl);
+  }
+  .game-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+  }
+  .game-name {
+    margin: 0;
+    font-size: var(--step-4);
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+  .game-link:hover .game-name {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+  }
+  .game-tagline {
+    margin: 0;
+    font-size: var(--step-1);
+    font-weight: 600;
+  }
+  .game-summary {
+    margin: 0;
+    max-width: 48ch;
+    color: var(--color-ink-muted);
+  }
+  .game-platforms {
+    margin: 0;
+    color: var(--color-ink-muted);
+  }
+  @media (width >= 56.25rem) {
+    .is-first .game-link {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      align-items: end;
+      gap: 2.5rem;
+    }
+    .game-body {
+      display: grid;
+      gap: 0.75rem;
+      padding-bottom: 0.5rem;
+    }
+  }
+  @media (width < 56.25rem) {
+    .game-body {
+      display: grid;
+      gap: 0.6rem;
+    }
+  }
+</style>

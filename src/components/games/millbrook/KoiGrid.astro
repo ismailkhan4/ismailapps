@@ -1,0 +1,83 @@
+---
+/** The six starting varieties, painted on the page by the game's own koi painter. */
+import { guide } from '../../../games/millbrook/content';
+---
+
+<section class="section koi" aria-labelledby="koi-title">
+  <div class="container-site">
+    <h2 id="koi-title" class="t-h2">Every koi is one of a kind</h2>
+    <p class="t-lead koi-lead">Six real varieties to start. Each fish follows its variety's rules, and its pattern is grown fresh, so no two ever match.</p>
+    <ul class="koi-grid">
+      {
+        guide.map((g) => (
+          <li>
+            <div class="koi-water">
+              <canvas width="560" height="180" data-variety={g.variety} data-seed={g.seed} aria-hidden="true" />
+            </div>
+            <h3 class="koi-name">{g.label}</h3>
+            <p class="koi-note">{g.note}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<script>
+  import { drawKoi } from '../../../games/millbrook/portrait';
+  import type { Variety } from '../../../games/millbrook/koi';
+  const canvases = [...document.querySelectorAll<HTMLCanvasElement>('.koi-grid canvas')];
+  const next = () => {
+    const c = canvases.shift();
+    if (!c) return;
+    drawKoi(c, c.dataset.variety as Variety, Number(c.dataset.seed) + Math.floor(Math.random() * 1000), 0.07);
+    requestAnimationFrame(next);
+  };
+  requestAnimationFrame(next);
+</script>
+
+<style>
+  .koi h2 {
+    margin: 0;
+  }
+  .koi-lead {
+    margin: 1.25rem 0 0;
+    max-width: 48ch;
+  }
+  .koi-grid {
+    list-style: none;
+    margin: clamp(2rem, 4vw, 3rem) 0 0;
+    padding: 0;
+    display: grid;
+    gap: 2rem 1.5rem;
+  }
+  .koi-water {
+    padding: 1.5rem 1rem;
+    border-radius: var(--radius-lg);
+    background: #1d4a43;
+  }
+  .koi-water canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .koi-name {
+    margin: 1rem 0 0.25rem;
+    font-size: var(--step-2);
+  }
+  .koi-note {
+    margin: 0;
+    max-width: 36ch;
+    color: var(--color-ink-muted);
+  }
+  @media (width >= 40rem) {
+    .koi-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (width >= 75rem) {
+    .koi-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

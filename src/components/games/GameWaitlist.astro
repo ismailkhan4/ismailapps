@@ -1,0 +1,238 @@
+---
+/** Launch waitlist for one game. Posts to /api/waitlist. */
+import { WAITLIST_HONEYPOT } from '../../lib/waitlist';
+import { waitlistPlatforms } from '../../lib/games';
+import { site } from '../../lib/site';
+
+interface Props { game: string; name: string }
+const { game, name } = Astro.props;
+// Cloudflare's published always-pass test key for local work. Production builds are
+// blocked by the placeholder guard until PUBLIC_TURNSTILE_SITE_KEY is set.
+const TEST_SITE_KEY = '1x00000000000000000000AA';
+const siteKey = (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined) || TEST_SITE_KEY;
+const usingTestKey = siteKey === TEST_SITE_KEY;
+---
+
+<section class="section waitlist" id="waitlist" aria-labelledby="waitlist-title">
+  <div class="container-site waitlist-grid">
+    <div class="waitlist-copy">
+      <h2 id="waitlist-title" class="t-h2">Get one email when {name} launches</h2>
+      <p class="t-lead">Nothing else: no newsletter. Ask us to delete it any time.</p>
+    </div>
+    <form method="post" action="/api/waitlist" data-waitlist novalidate>
+      <input type="hidden" name="game" value={game} />
+      <div class="field">
+        <label for="wl-email">Email</label>
+        <input id="wl-email" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com" />
+        <p class="field-error" data-error-for="email" hidden></p>
+      </div>
+      <fieldset class="field">
+        <legend>Where do you want to play?</legend>
+        <div class="choices">
+          {
+            waitlistPlatforms.map((p, i) => (
+              <label class="choice">
+                <input type="radio" name="platform" value={p.value} checked={i === waitlistPlatforms.length - 1} />
+                <span>{p.label}</span>
+              </label>
+            ))
+          }
+        </div>
+        <p class="field-error" data-error-for="platform" hidden></p>
+      </fieldset>
+      <div class="field">
+        <label class="check"><input type="checkbox" name="age" value="yes" required /> I'm 16 or older, or a parent or guardian signing up for my child.</label>
+        <p class="field-error" data-error-for="age" hidden></p>
+      </div>
+      <div class="hp" aria-hidden="true"><label>Website <input name={WAITLIST_HONEYPOT} tabindex="-1" autocomplete="off" /></label></div>
+      <div class="cf-turnstile" data-sitekey={siteKey} data-theme="light" data-size="flexible" data-appearance="interaction-only"></div>
+      {usingTestKey && <span hidden data-placeholder="Turnstile site key (PUBLIC_TURNSTILE_SITE_KEY)" />}
+      <button class="btn btn-primary" type="submit" data-submit>Join the waitlist</button>
+      <p class="fine">We only use your email for the launch message. See the <a href="/privacy#waitlists">privacy policy</a>.</p>
+      <p class="banner" data-banner role="status" hidden></p>
+    </form>
+  </div>
+</section>
+
+<script define:vars={{ email: site.email }}>
+  const form = document.querySelector('[data-waitlist]');
+  if (form) {
+    const banner = form.querySelector('[data-banner]');
+    const submit = form.querySelector('[data-submit]');
+    const text = {
+      joined: "You're on the waitlist. We'll email you once, when the game launches.",
+      verification: "We couldn't confirm you're human. Wait a moment and try again.",
+      invalid: 'Some details need another look.',
+      delivery: `We couldn't save that. Try again later, or email ${email}.`,
+      network: "We couldn't reach the server. Check your connection and try again.",
+    };
+    const show = (key, ok = false) => {
+      banner.textContent = text[key] ?? text.delivery;
+      banner.classList.toggle('ok', ok);
+      banner.hidden = false;
+    };
+    const setErr = (name, msg) => {
+      const el = form.querySelector(`[data-error-for="${name}"]`);
+      if (el) { el.textContent = msg ?? ''; el.hidden = !msg; }
+    };
+    const status = new URLSearchParams(location.search).get('waitlist');
+    if (status) show(status, status === 'joined');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      ['email', 'platform', 'age'].forEach((n) => setErr(n, null));
+      const mail = form.querySelector('#wl-email');
+      const age = form.querySelector('[name="age"]');
+      let bad = false;
+      if (!mail.validity.valid || !mail.value.trim()) { setErr('email', 'Enter a valid email address.'); bad = true; }
+      if (!age.checked) { setErr('age', 'Confirm you are 16 or older, or a parent or guardian.'); bad = true; }
+      if (bad) return;
+      submit.disabled = true;
+      try {
+        const res = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
+        const data = await res.json().catch(() => ({}));
+        if (data.ok) { show('joined', true); form.reset(); }
+        else { Object.entries(data.errors ?? {}).forEach(([k, v]) => setErr(k, v)); show(data.error ?? 'delivery'); }
+      } catch {
+        show('network');
+      } finally {
+        submit.disabled = false;
+        window.turnstile?.reset();
+      }
+    });
+  }
+</script>
+
+<style>
+  .waitlist-grid {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4.5rem);
+  }
+  .waitlist-copy h2,
+  .waitlist-copy p {
+    margin: 0;
+  }
+  .waitlist-copy .t-lead {
+    margin-top: 1rem;
+    max-width: 36ch;
+  }
+  form {
+    position: relative;
+    display: grid;
+    gap: 1.25rem;
+    max-width: 34rem;
+  }
+  .field {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+  label,
+  legend {
+    padding: 0;
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+  input[type='email'] {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--color-ink-muted);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font: inherit;
+    font-size: 1rem;
+  }
+  input[type='email']:focus-visible {
+    outline: none;
+    border-color: var(--color-ink);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-signal) 30%, transparent);
+  }
+  .choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .choice {
+    position: relative;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .choice input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .choice span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.55rem 1.1rem;
+    border: 1px solid var(--color-ink-muted);
+    border-radius: var(--radius-pill);
+  }
+  .choice:hover span {
+    border-color: var(--color-ink);
+  }
+  .choice input:checked + span {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .choice input:focus-visible + span {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+  .check {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    font-weight: 400;
+  }
+  .check input {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.15rem;
+    flex: none;
+    accent-color: var(--color-ink);
+  }
+  .field-error {
+    margin: 0;
+    color: var(--color-signal-ink);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .hp {
+    position: absolute;
+    left: -9999px;
+  }
+  .btn {
+    justify-self: start;
+  }
+  .fine {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+  }
+  .banner {
+    margin: 0;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    font-weight: 600;
+  }
+  .banner:global(.ok) {
+    border-color: var(--color-live);
+    color: var(--color-live);
+  }
+  @media (width >= 56.25rem) {
+    .waitlist-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    }
+  }
+</style>
