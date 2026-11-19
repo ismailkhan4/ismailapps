@@ -10,7 +10,8 @@ import placeholderGuard from './integrations/placeholder-guard.mjs';
 export default defineConfig({
   site: 'https://ismailapps.com',
   trailingSlash: 'never',
-  build: { format: 'file' },
+  // Inline all CSS (~21 KiB on the homepage): removes five render-blocking requests.
+  build: { format: 'file', inlineStylesheets: 'always' },
   // No sessions: stops the adapter from provisioning a KV namespace we don't use.
   session: false,
   // The game was called Millbrook until 12 Nov 2026.
