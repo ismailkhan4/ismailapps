@@ -85,7 +85,10 @@ if (hero && lensLine) {
     title.style.setProperty('--shift-1', `${(-s * 7).toFixed(2)}vw`);
     title.style.setProperty('--shift-2', `${(s * 5).toFixed(2)}vw`);
 
-    if (reduce) return;
+    // Weight proximity only follows a real cursor. On touch the lens just drifts:
+    // rewriting font-weight on every letter each frame forces layout, which cost
+    // ~1.5 s of main-thread style/layout on a throttled phone (PageSpeed, Nov 2026).
+    if (reduce || !fine) return;
     const lx = box.left + x;
     const ly = box.top + y;
     const reach = Math.max(r * 2.1, box.fs * 1.6);
