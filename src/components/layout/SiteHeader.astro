@@ -6,7 +6,7 @@ import { getServices } from '../../lib/content';
 
 interface Props {
   /** Initial surface, so the bar is right before the scroll driver runs. */
-  theme?: 'pond' | undefined;
+  theme?: 'pond' | 'lamp' | undefined;
 }
 const { theme } = Astro.props;
 const services = await getServices();
@@ -169,6 +169,23 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
     background-origin: border-box;
     background-repeat: no-repeat;
   }
+  /* Lamplight: the bar is the game's night sky; the studio CTA becomes its one amber button. */
+  .site-header:global(.on-lamp) {
+    background-color: var(--color-night);
+    color: var(--color-cream);
+    border-color: var(--color-night-rule);
+  }
+  .site-header:global(.on-lamp) :global(.header-cta) {
+    background: var(--color-amber);
+    color: var(--color-amber-ink);
+  }
+  .site-header:global(.on-lamp) :global(.header-cta:hover) {
+    background: var(--color-cream);
+  }
+  .site-header:global(.on-lamp) .meter,
+  .site-header:global(.on-lamp) .meter-line {
+    visibility: hidden;
+  }
   .site-header:global(.on-pond) :global(.header-cta) {
     background: var(--color-foam);
     color: var(--color-pond-deep);
@@ -183,7 +200,8 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
   }
   .site-header:global(.on-ink) :focus-visible,
   .site-header:global(.on-live) :focus-visible,
-  .site-header:global(.on-pond) :focus-visible {
+  .site-header:global(.on-pond) :focus-visible,
+  .site-header:global(.on-lamp) :focus-visible {
     outline-color: currentColor;
   }
   .site-header:global(.on-live) :global(.header-cta) {

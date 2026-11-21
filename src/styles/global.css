@@ -44,6 +44,16 @@
   --color-foam-soft: #a9bdb4;
   --color-lily: #8db879;
   --color-koi: #f07a4a;
+  /* Lamplight only ("the night room"), from the game's own palette (Pure Black Amber).
+     Ratios on night / night-raised: cream 17.1 / 15.0 · cream-soft 9.2 / 8.1 · amber 10.8 / 9.5 ·
+     amber-ink on amber 9.2 */
+  --color-night: #0b0a09;
+  --color-night-raised: #1b1a18;
+  --color-night-rule: #2e2b27; /* decorative lines on night */
+  --color-cream: #f2eee6;
+  --color-cream-soft: #b5b0a6;
+  --color-amber: #ffb02e;
+  --color-amber-ink: #2b1a05;
 
   --font-*: initial;
   --font-sans: 'Schibsted Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
@@ -710,6 +720,63 @@
   .pond-chip.is-live::before {
     border: 0;
     background: var(--color-koi);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* The night room: Lamplight's surface (same idea as the pond room)    */
+/* ------------------------------------------------------------------ */
+@layer components {
+  /* Pair with data-theme="lamp" so the header follows. Amber is only for light: links,
+     the one main button, lit things. */
+  .lamp-room {
+    --color-paper: var(--color-night);
+    --color-surface: var(--color-night-raised);
+    --color-ink: var(--color-cream);
+    --color-ink-muted: var(--color-cream-soft);
+    --color-rule: var(--color-night-rule);
+    --color-signal: var(--color-amber);
+    --color-signal-ink: var(--color-amber);
+    --color-live: var(--color-amber);
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+  .lamp-room ::selection {
+    background: var(--color-amber);
+    color: var(--color-amber-ink);
+  }
+  .lamp-room .btn-primary {
+    background: var(--color-amber);
+    color: var(--color-amber-ink);
+  }
+  .lamp-room .btn-primary:hover {
+    background: var(--color-cream);
+  }
+  /* Status chip: an amber ring = in testing / development, a lit amber dot = live. */
+  .lamp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.3em 0.75em;
+    border: 1px solid var(--color-night-rule);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    line-height: 1.35;
+    color: var(--color-cream);
+    background: color-mix(in srgb, var(--color-night) 70%, transparent);
+  }
+  .lamp-chip::before {
+    content: '';
+    width: 0.55em;
+    height: 0.55em;
+    border-radius: 50%;
+    border: 1.5px solid var(--color-amber);
+  }
+  .lamp-chip.is-live::before {
+    border: 0;
+    background: var(--color-amber);
+    box-shadow: 0 0 0.6em var(--color-amber);
   }
 }
 

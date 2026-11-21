@@ -1,0 +1,590 @@
+---
+/**
+ * /games/lamplight: the game's page, in "the night room" (Lamplight's own palette inside the studio frame).
+ * Every picture is real: the five chapter scenes are the game's own Blender renders, the puzzle is a
+ * screenshot of the current build. Facts (chapters, streets, hearts, videos) match the closed-test build;
+ * update them when the build changes.
+ */
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/ui/Breadcrumbs.astro';
+import Button from '../../components/ui/Button.astro';
+import { games, statusLabel } from '../../lib/games';
+import { provider } from '../../lib/seo';
+import { site } from '../../lib/site';
+import puzzle from '../../assets/games/lamplight/puzzle.jpg';
+import c01 from '../../assets/games/lamplight/scene-c01.jpg';
+import c02 from '../../assets/games/lamplight/scene-c02.jpg';
+import c03 from '../../assets/games/lamplight/scene-c03.jpg';
+import c04 from '../../assets/games/lamplight/scene-c04.jpg';
+import c05 from '../../assets/games/lamplight/scene-c05.jpg';
+
+const game = games.find((g) => g.slug === 'lamplight')!;
+
+const steps = [
+  { title: 'Turn the tiles', detail: 'Tap a tile to turn it. Each turn uses one move, and every street has only so many.' },
+  { title: 'Light every lamp', detail: 'Connect the power station to every lamp, with no loose wires left. Then the whole street lights up.' },
+  { title: 'Bring the city back', detail: 'Each street you light brings someone home. Finish a place and its landmark comes alive.' },
+];
+
+const places = [
+  { n: '01', name: 'Old Harbour', landmark: 'The clock tower starts again', img: c01 },
+  { n: '02', name: 'Lighthouse Point', landmark: 'The beam turns once more', img: c02 },
+  { n: '03', name: 'Theatre Square', landmark: 'The marquee lights chase', img: c03 },
+  { n: '04', name: 'Library Hill', landmark: 'Candlelight fills the reading room', img: c04 },
+  { n: '05', name: 'Moonlit Gardens', landmark: 'Fireflies gather at the pavilion', img: c05 },
+];
+
+const facts = [
+  { value: '5', label: 'places to light' },
+  { value: '63', label: 'streets' },
+  { value: '1', label: 'new daily puzzle' },
+  { value: 'All', label: 'ages' },
+];
+
+const fair = [
+  { title: 'Nothing for sale', detail: 'Coins are earned by playing. There is nothing to buy with real money.' },
+  { title: 'Videos only when you tap', detail: 'A video ad plays only if you choose "Watch Video" for a reward. Never during a puzzle.' },
+  { title: 'Hearts come back on their own', detail: 'Out of hearts? One returns every 20 minutes, even with the game closed. Your first try on a new street is always free.' },
+  { title: 'A missed day costs nothing', detail: 'Your day streak waits for you. It never resets because life got busy.' },
+];
+
+const testerMail = `mailto:${site.email}?subject=${encodeURIComponent('Lamplight tester')}&body=${encodeURIComponent(
+  'Hi, I would like to test Lamplight on Android.\n\nThe Google account email I use on my phone:\n',
+)}`;
+
+const gameLd = {
+  '@context': 'https://schema.org',
+  '@type': 'VideoGame',
+  name: game.name,
+  description: game.summary,
+  genre: ['Puzzle', 'Casual'],
+  gamePlatform: game.platforms,
+  operatingSystem: 'Android',
+  applicationCategory: 'Game',
+  contentRating: 'All ages',
+  publisher: provider,
+};
+---
+
+<BaseLayout
+  title={`${game.name}, a light-up tile puzzle`}
+  description={`${game.name}: ${game.summary} A calm puzzle game for Android by IsmailApps, now in closed testing.`}
+  headerTheme="lamp"
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(gameLd)} />
+  </Fragment>
+
+  <div class="lamp-room" data-theme="lamp">
+    <!-- Hero: the name, lit; the real puzzle beside it. -->
+    <section class="hero" aria-labelledby="game-title">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="container-site hero-grid">
+        <div class="hero-text">
+          <div class="hero-top">
+            <Breadcrumbs items={[{ href: '/', label: 'Home' }, { href: '/games', label: 'Games' }, { label: game.name }]} />
+          </div>
+          <p class="t-mono hero-status">
+            <span class:list={['lamp-chip', game.status === 'live' && 'is-live']}>{statusLabel(game.status)}</span>
+            <span>{game.platforms.join(' · ')}</span>
+          </p>
+          <h1 id="game-title" class="game-title">
+            Lamplight<span class="lamp-dot" aria-hidden="true">.</span>
+          </h1>
+          <p class="hero-lead"><strong>{game.tagline}.</strong> {game.summary}</p>
+          <div class="hero-actions">
+            <Button href="#test" arrow event="cta_click" location="game-hero:lamplight">Help us test</Button>
+            <a href="#city" class="link">See the city <span class="link-arrow" aria-hidden="true">↓</span></a>
+          </div>
+        </div>
+        <figure class="phone">
+          <Image
+            src={puzzle}
+            alt="A Lamplight puzzle: a grid of stone tiles with cables and lanterns. The power station and one lamp glow amber, the rest are still dark."
+            widths={[360, 540, 720]}
+            sizes="(min-width: 56.25rem) 22rem, 70vw"
+            loading="eager"
+            class="phone-img"
+          />
+          <figcaption class="t-mono phone-cap">Rose Arch, Moonlit Gardens: a screenshot of the game</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section loop" aria-labelledby="loop-title">
+      <div class="container-site">
+        <h2 id="loop-title" class="t-mono section-label">How it plays</h2>
+        <ol class="loop-steps">
+          {
+            steps.map((s, i) => (
+              <li>
+                <span class="loop-n" aria-hidden="true">{i + 1}</span>
+                <h3 class="loop-title">{s.title}</h3>
+                <p class="loop-detail">{s.detail}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <!-- The city: the five places, as the game renders them once they are lit. -->
+    <section class="section city" id="city" aria-labelledby="city-title">
+      <div class="container-site city-head">
+        <h2 id="city-title" class="t-h2">One night, every light in the city went out.</h2>
+        <p class="t-lead">
+          You are the new lamplighter. Light the streets of each place and find out what happened at 9:14. Five places are
+          ready, and more of the city is on the way.
+        </p>
+      </div>
+      <ul class="places" aria-label="The five places in Lamplight" tabindex="0">
+        {
+          places.map((p) => (
+            <li class="place">
+              <Image
+                src={p.img}
+                alt={`${p.name} at night, every street lamp and window lit`}
+                widths={[320, 480, 640]}
+                sizes="(min-width: 56.25rem) 18rem, 62vw"
+                loading="lazy"
+                class="place-img"
+              />
+              <div class="place-text">
+                <span class="t-mono place-n">{p.n}</span>
+                <h3 class="place-name">{p.name}</h3>
+                <p class="place-landmark">{p.landmark}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="container-site t-mono city-note">Scenes rendered from the game's own 3D models.</p>
+    </section>
+
+    <section class="section facts-band" aria-label="Lamplight in numbers">
+      <dl class="container-site facts">
+        {
+          facts.map((f) => (
+            <div class="fact">
+              <dt class="t-mono fact-label">{f.label}</dt>
+              <dd class="fact-value">{f.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <section class="section fair" aria-labelledby="fair-title">
+      <div class="container-site fair-grid">
+        <h2 id="fair-title" class="t-h2 fair-title">Free, and fair about it.</h2>
+        <ul class="fair-list">
+          {
+            fair.map((f) => (
+              <li>
+                <h3 class="fair-item">{f.title}</h3>
+                <p class="fair-detail">{f.detail}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <!-- Closed testing: Google Play needs testers' Google account emails. -->
+    <section class="section test" id="test" aria-labelledby="test-title">
+      <div class="container-site test-card">
+        <div>
+          <p class="t-mono section-label">Closed testing on Android</p>
+          <h2 id="test-title" class="t-h2 test-title">Play it before everyone else.</h2>
+        </div>
+        <div class="test-body">
+          <p>
+            Lamplight is in closed testing on Google Play. To join, email us the Google account you use on your Android
+            phone. We add you to the test and send you the link to install it. It's free, and you can leave the test any
+            time.
+          </p>
+          <div class="hero-actions">
+            <Button href={testerMail} arrow event="cta_click" location="game-test:lamplight">Email us to join</Button>
+            <span class="t-mono test-mail">{site.email}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="container-site game-back" aria-label="Lamplight and more from IsmailApps">
+      <a href="/games" class="link"><span class="link-arrow" aria-hidden="true">←</span> All games</a>
+      <span class="legal-links">
+        {game.links?.privacy && <a href={game.links.privacy} class="link">Privacy policy</a>}
+        {game.links?.terms && <a href={game.links.terms} class="link">Terms and conditions</a>}
+      </span>
+    </nav>
+  </div>
+</BaseLayout>
+
+<style>
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(2rem, 5vw, 4rem) clamp(3rem, 7vw, 6rem);
+  }
+  /* A street lamp's pool of light behind the phone. */
+  .hero-glow {
+    position: absolute;
+    inset: -20% -10% auto auto;
+    width: min(70rem, 120vw);
+    aspect-ratio: 1;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--color-amber) 22%, transparent), transparent 70%);
+    pointer-events: none;
+  }
+  .hero-grid {
+    position: relative;
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 4rem);
+    align-items: center;
+  }
+  .hero-text {
+    display: grid;
+    gap: 1.25rem;
+    align-content: center;
+  }
+  .hero-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin: 0;
+    color: var(--color-ink-muted);
+  }
+  .game-title {
+    margin: 0;
+    font-size: clamp(3.75rem, 1rem + 10vw, 11rem);
+    line-height: 0.85;
+    letter-spacing: -0.06em;
+    font-weight: 650;
+  }
+  /* The full stop is a lit lamp, like the dot of the i in the game's logo. */
+  .lamp-dot {
+    color: var(--color-amber);
+    text-shadow: 0 0 0.35em color-mix(in srgb, var(--color-amber) 70%, transparent);
+  }
+  .hero-lead {
+    margin: 0;
+    max-width: 40ch;
+    font-size: var(--step-1);
+    line-height: 1.45;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.75rem;
+  }
+  .phone {
+    margin: 0 auto;
+    width: min(22rem, 78vw);
+  }
+  .phone-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 0.55rem solid var(--color-night-raised);
+    border-radius: 2.25rem;
+    box-shadow:
+      0 0 0 1px var(--color-night-rule),
+      0 2rem 5rem -1.5rem color-mix(in srgb, var(--color-amber) 30%, transparent);
+  }
+  .phone-cap {
+    margin-top: 0.9rem;
+    text-align: center;
+    color: var(--color-ink-muted);
+  }
+  @media (width >= 56.25rem) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: 4rem;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .game-title {
+      animation: light-up 1400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .lamp-dot {
+      animation: flicker 2.4s ease-out 700ms both;
+    }
+    .phone {
+      animation: rise 1000ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
+    }
+  }
+  /* The name comes out of the dark, the way a street lights up in the game. */
+  @keyframes light-up {
+    from {
+      opacity: 0;
+      filter: blur(8px);
+      transform: translateY(0.4em);
+    }
+  }
+  @keyframes flicker {
+    0%, 8% { opacity: 0.15; }
+    10% { opacity: 1; }
+    13% { opacity: 0.35; }
+    16%, 100% { opacity: 1; }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(1.5rem);
+    }
+  }
+
+  .section-label {
+    margin: 0;
+    color: var(--color-ink-muted);
+    font-weight: 500;
+  }
+
+  /* ---------- How it plays ---------- */
+  .loop-steps {
+    list-style: none;
+    display: grid;
+    gap: 2.5rem 2rem;
+    margin: clamp(1.5rem, 3vw, 2.5rem) 0 0;
+    padding: 0;
+  }
+  .loop-steps li {
+    display: grid;
+    align-content: start;
+    gap: 0.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-ink);
+  }
+  .loop-n {
+    font-size: clamp(3.5rem, 2rem + 4vw, 6rem);
+    font-weight: 300;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    color: var(--color-amber);
+  }
+  .loop-title {
+    margin: 0;
+    font-size: var(--step-3);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+  .loop-detail {
+    margin: 0;
+    max-width: 34ch;
+    color: var(--color-ink-muted);
+  }
+  @media (width >= 56.25rem) {
+    .loop-steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* ---------- The city ---------- */
+  .city-head {
+    display: grid;
+    gap: 1rem 4rem;
+  }
+  .city-head h2,
+  .city-head p {
+    margin: 0;
+    max-width: 22ch;
+  }
+  .city-head p {
+    max-width: 44ch;
+    color: var(--color-ink-muted);
+  }
+  @media (width >= 56.25rem) {
+    .city-head {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      align-items: end;
+    }
+  }
+  .places {
+    list-style: none;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(15rem, 18rem);
+    gap: 1rem;
+    margin: clamp(2rem, 4vw, 3rem) 0 0;
+    padding: 0 var(--gutter) 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+  }
+  .place {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--color-night-raised);
+    scroll-snap-align: start;
+  }
+  .place-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1080 / 2040;
+    object-fit: cover;
+  }
+  .place-text {
+    position: absolute;
+    inset: auto 0 0;
+    display: grid;
+    gap: 0.25rem;
+    padding: 3rem 1rem 1rem;
+    background: linear-gradient(to top, color-mix(in srgb, var(--color-night) 92%, transparent) 40%, transparent);
+  }
+  .place-n {
+    color: var(--color-amber);
+  }
+  .place-name {
+    margin: 0;
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .place-landmark {
+    margin: 0;
+    color: var(--color-ink-muted);
+    font-size: var(--step--1);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .place-img {
+      transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .place:hover .place-img {
+      transform: scale(1.04);
+    }
+  }
+  .city-note {
+    margin-top: 1rem;
+    color: var(--color-ink-muted);
+  }
+
+  /* ---------- Numbers ---------- */
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 1.5rem;
+    margin: 0;
+  }
+  .fact {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.35rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-rule);
+  }
+  .fact-value {
+    margin: 0;
+    font-size: clamp(3rem, 1.5rem + 5vw, 6rem);
+    font-weight: 600;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+  .fact-label {
+    color: var(--color-ink-muted);
+  }
+  @media (width >= 56.25rem) {
+    .facts {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* ---------- Fair play ---------- */
+  .fair-grid {
+    display: grid;
+    gap: 2rem 4rem;
+  }
+  .fair-title {
+    margin: 0;
+    max-width: 12ch;
+  }
+  .fair-list {
+    list-style: none;
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .fair-list li {
+    display: grid;
+    gap: 0.4rem;
+    padding-block: 1.25rem;
+    border-top: 1px solid var(--color-rule);
+  }
+  .fair-item {
+    margin: 0;
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  .fair-item::before {
+    content: '';
+    display: inline-block;
+    width: 0.45em;
+    height: 0.45em;
+    margin-right: 0.6em;
+    vertical-align: 0.15em;
+    border-radius: 50%;
+    background: var(--color-amber);
+    box-shadow: 0 0 0.6em var(--color-amber);
+  }
+  .fair-detail {
+    margin: 0;
+    max-width: 48ch;
+    color: var(--color-ink-muted);
+  }
+  @media (width >= 56.25rem) {
+    .fair-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+  }
+
+  /* ---------- Closed testing ---------- */
+  .test-card {
+    display: grid;
+    gap: 1.5rem 4rem;
+    padding-block: clamp(2rem, 4vw, 3rem);
+    border-top: 1px solid var(--color-amber);
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .test-title {
+    margin: 0.75rem 0 0;
+    max-width: 14ch;
+  }
+  .test-body {
+    display: grid;
+    gap: 1.5rem;
+    align-content: end;
+  }
+  .test-body p {
+    margin: 0;
+    max-width: 48ch;
+  }
+  .test-mail {
+    color: var(--color-ink-muted);
+    overflow-wrap: anywhere;
+  }
+  @media (width >= 56.25rem) {
+    .test-card {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+  }
+
+  .game-back {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding-block: clamp(2.5rem, 5vw, 4rem);
+  }
+  .legal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+  }
+</style>

@@ -14,8 +14,8 @@ interface Props {
   description: string;
   /** Keep out of search indexes (internal review pages, thanks page). */
   noindex?: boolean;
-  /** Surface the header starts on before the scroll driver runs (games pages: 'pond'). */
-  headerTheme?: 'pond';
+  /** Surface the header starts on before the scroll driver runs (Koimere pages: 'pond', Lamplight pages: 'lamp'). */
+  headerTheme?: 'pond' | 'lamp';
 }
 
 const { title, description, noindex = false, headerTheme } = Astro.props;
@@ -50,7 +50,7 @@ const organization = {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
-    <meta name="theme-color" content={headerTheme === 'pond' ? '#0C2321' : '#F2F3EF'} />
+    <meta name="theme-color" content={headerTheme === 'pond' ? '#0C2321' : headerTheme === 'lamp' ? '#0B0A09' : '#F2F3EF'} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
     <meta property="og:type" content="website" />

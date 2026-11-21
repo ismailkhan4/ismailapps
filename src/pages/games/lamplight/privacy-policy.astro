@@ -1,0 +1,144 @@
+---
+/**
+ * Lamplight's privacy policy (the Android game). Linked from Google Play and from the game's Settings.
+ * Facts come from the build: progress is saved only on the device; the game itself makes no network
+ * requests; the only third party is the Google Mobile Ads SDK, which shows optional rewarded videos
+ * requested as child-directed (no advertising ID, no personalised ads, content rating G).
+ * If the build changes (analytics, purchases, accounts, another SDK), this page must change first.
+ */
+import LegalLayout from '../../../layouts/LegalLayout.astro';
+import { site } from '../../../lib/site';
+
+const toc = [
+  { id: 'who', label: 'Who we are' },
+  { id: 'summary', label: 'In short' },
+  { id: 'device', label: 'Saved on your device' },
+  { id: 'ads', label: 'Optional video ads' },
+  { id: 'children', label: 'Children' },
+  { id: 'permissions', label: 'Permissions' },
+  { id: 'delete', label: 'Deleting your data' },
+  { id: 'rights', label: 'Your rights' },
+  { id: 'changes', label: 'Changes' },
+];
+---
+
+<LegalLayout
+  title="Lamplight privacy policy"
+  description="How the Lamplight puzzle game for Android handles data: progress stays on your phone, no accounts, no analytics, and optional child-safe video ads from Google AdMob."
+  updated="21 November 2026"
+  toc={toc}
+  crumbs={[
+    { href: '/', label: 'Home' },
+    { href: '/games', label: 'Games' },
+    { href: '/games/lamplight', label: 'Lamplight' },
+    { label: 'Privacy policy' },
+  ]}
+>
+  <p>
+    This policy covers <strong>Lamplight</strong>, our puzzle game for Android (Google Play package
+    <code>com.ismailapps.lamplight</code>). It explains what data the game handles, why, and what you can do about it. The
+    website has its own <a href="/privacy">privacy policy</a>.
+  </p>
+
+  <h2 id="who">Who we are</h2>
+  <p>
+    Lamplight is made by IsmailApps, the name under which {site.founder.legalName} publishes software and games. It is not a
+    registered company yet. The person responsible for your data (the controller) is:
+  </p>
+  <address>
+    {site.founder.legalName}<br />
+    {site.founder.postalAddress}<br />
+    <a href={`mailto:${site.email}`}>{site.email}</a>
+  </address>
+
+  <h2 id="summary">In short</h2>
+  <ul>
+    <li>There are <strong>no accounts</strong>, no sign-in, no chat and no way to share personal information in the game.</li>
+    <li>Your progress is saved <strong>only on your phone</strong>. We never receive it.</li>
+    <li>We use <strong>no analytics and no tracking</strong>, and the game sells nothing for real money.</li>
+    <li>
+      The only outside service is <strong>Google AdMob</strong>, for video ads you choose to watch. Ads are requested as
+      directed to children: no advertising ID, no personalised ads.
+    </li>
+  </ul>
+
+  <h2 id="device">Saved on your device</h2>
+  <p>
+    The game keeps a save file on your phone with your progress: streets lit, stars, coins, hearts, hints, daily challenge
+    results, your day streak, how many videos you watched today (each reward has a daily limit), a few times and dates (so
+    hearts can refill while the game is closed), and your settings (sound, music, vibration, reduced motion). It stays in the game's private storage on your device. We
+    have no server for it, and the game does not send it anywhere.
+  </p>
+
+  <h2 id="ads">Optional video ads (Google AdMob)</h2>
+  <p>
+    Some rewards, such as a free heart, a hint or extra coins, come from a short video ad that you choose to start with a
+    "Watch Video" button. Ads never appear on their own and never during a puzzle. The game works fully without watching any.
+  </p>
+  <p>
+    The videos are provided by Google's Mobile Ads SDK (Google AdMob). Every ad request from Lamplight is marked as
+    <strong>directed to children and under the age of consent</strong>, with the content rating limited to
+    <strong>G</strong> (general audiences). With this setting, Google does not send the device's advertising ID and does
+    not show personalised ads or remarketing.
+  </p>
+  <p>
+    To show an ad, count it and prevent fraud, the Google Mobile Ads SDK still processes some technical information. Google
+    lists this as: the device's IP address (which can indicate a rough location), other device and app identifiers (such as
+    the app set ID), how you interact with ads, and diagnostic information such as crashes and performance. It is encrypted
+    in transit. Google handles this information under its own policies:
+  </p>
+  <ul>
+    <li><a href="https://policies.google.com/privacy" rel="noopener">Google Privacy Policy</a></li>
+    <li>
+      <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">How Google uses information from apps that use its services</a>
+    </li>
+    <li>
+      <a href="https://developers.google.com/admob/android/privacy/play-data-disclosure" rel="noopener">What the Google Mobile Ads SDK collects</a>
+    </li>
+  </ul>
+  <p>
+    We do not receive any of this information about you. We only see totals in our AdMob account, such as how many videos
+    were shown.
+  </p>
+  <p>
+    <strong>Legal basis:</strong> showing optional, non-personalised ads to fund a free game is our legitimate interest (Art.
+    6(1)(f) GDPR). You can avoid all ad processing by never tapping "Watch Video".
+  </p>
+
+  <h2 id="children">Children</h2>
+  <p>
+    Lamplight is made for all ages. We do not ask for, and do not knowingly collect, personal information from anyone,
+    including children under 13. The ads are requested in Google's child-directed mode described above, which is designed
+    for apps that children may use (including under the US COPPA rule). If you are a parent and have a question, email
+    <a href={`mailto:${site.email}`}>{site.email}</a>.
+  </p>
+
+  <h2 id="permissions">Permissions</h2>
+  <p>
+    Lamplight asks for no permissions that need your approval. Android grants it internet and network-state access, used
+    only to load the optional videos, and vibration, for the small buzz when you turn a tile (you can turn this off in
+    Settings). The Google Mobile Ads SDK also declares the advertising ID permission. Because every request is marked as
+    child-directed, the ID is not sent.
+  </p>
+
+  <h2 id="delete">Deleting your data</h2>
+  <p>
+    Uninstalling the game, or clearing its storage in Android's settings, deletes your progress from the phone. We have no
+    copy, so it cannot be restored afterwards. You can reset your advertising ID or delete it in Android's settings
+    (Settings › Privacy › Ads, or Settings › Google › Ads, depending on your phone).
+  </p>
+
+  <h2 id="rights">Your rights</h2>
+  <p>
+    You can ask us about any personal data we hold about you, and ask us to correct or delete it. In practice we hold none
+    from the game. For data processed by Google to show ads, Google's policy explains your choices. You can also complain to
+    a data protection supervisory authority. Email <a href={`mailto:${site.email}`}>{site.email}</a> and we will reply
+    within a month.
+  </p>
+
+  <h2 id="changes">Changes</h2>
+  <p>
+    If the game starts handling data differently, for example a new feature or another service, we will update this page
+    and the date at the top before that version is released.
+  </p>
+</LegalLayout>

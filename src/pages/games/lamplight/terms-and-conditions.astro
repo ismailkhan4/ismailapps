@@ -1,0 +1,101 @@
+---
+/**
+ * Lamplight's terms and conditions (the Android game). Linked from Google Play and from the game's Settings.
+ * Facts come from the build: free to play, coins are the only currency and are earned only, no real-money
+ * purchases, optional rewarded videos with daily limits, progress saved only on the device.
+ */
+import LegalLayout from '../../../layouts/LegalLayout.astro';
+import { site } from '../../../lib/site';
+
+const toc = [
+  { id: 'game', label: 'The game' },
+  { id: 'items', label: 'Coins, hearts and hints' },
+  { id: 'videos', label: 'Optional videos' },
+  { id: 'progress', label: 'Your progress' },
+  { id: 'fair', label: 'Fair play' },
+  { id: 'ours', label: 'What is ours' },
+  { id: 'warranty', label: 'No guarantee' },
+  { id: 'changes', label: 'Changes' },
+  { id: 'contact', label: 'Contact' },
+];
+---
+
+<LegalLayout
+  title="Lamplight terms and conditions"
+  description="The rules for playing Lamplight, the free puzzle game for Android by IsmailApps: earned coins only, optional videos, progress saved on your phone."
+  updated="21 November 2026"
+  toc={toc}
+  crumbs={[
+    { href: '/', label: 'Home' },
+    { href: '/games', label: 'Games' },
+    { href: '/games/lamplight', label: 'Lamplight' },
+    { label: 'Terms and conditions' },
+  ]}
+>
+  <p>
+    These terms apply when you download or play <strong>Lamplight</strong>, our puzzle game for Android. By playing, you
+    agree to them. If you are under 18, please read them with a parent or guardian. How the game handles data is explained
+    in the <a href="/games/lamplight/privacy-policy">Lamplight privacy policy</a>.
+  </p>
+
+  <h2 id="game">The game</h2>
+  <p>
+    Lamplight is free to download and play. It is made by IsmailApps ({site.founder.legalName}). You may play it for your
+    own personal, non-commercial enjoyment. Google Play's own terms also apply to downloading it.
+  </p>
+
+  <h2 id="items">Coins, hearts and hints</h2>
+  <ul>
+    <li>
+      Coins, hearts, hints, stars and streak days are parts of the game. They have <strong>no real-money value</strong>, are
+      not your property, and cannot be exchanged for money or anything outside the game.
+    </li>
+    <li><strong>Nothing in the game is sold for real money.</strong> Coins are only earned by playing or by optional videos.</li>
+    <li>We may change how many coins things earn or cost, and how hearts refill, to keep the game fair and fun.</li>
+  </ul>
+
+  <h2 id="videos">Optional videos</h2>
+  <p>
+    Some rewards come from short video ads that you choose to watch. A reward is given only when Google's ad service
+    confirms the video was watched. Closing it early gives nothing. Videos are not always available, and each reward has a
+    daily limit. Ads are shown by Google AdMob, and we don't control which advertiser appears, though we only allow ads
+    rated for general audiences.
+  </p>
+
+  <h2 id="progress">Your progress</h2>
+  <p>
+    Your progress is saved only on your phone. If you uninstall the game, clear its data or change phones, it is gone, and
+    we cannot restore it, because we never had a copy.
+  </p>
+
+  <h2 id="fair">Fair play</h2>
+  <p>
+    Please don't modify the game, its files or its save data, or change your phone's clock, to get extra rewards. We may
+    correct rewards that come from doing so in a later update.
+  </p>
+
+  <h2 id="ours">What is ours</h2>
+  <p>
+    The game, its puzzles, story, characters, pictures, music and sounds belong to IsmailApps or are used under licence.
+    You may share screenshots and videos of your own play. Please don't copy, resell or redistribute the game itself.
+  </p>
+
+  <h2 id="warranty">No guarantee</h2>
+  <p>
+    We work hard to make Lamplight fun and free of bugs, but the game is provided "as is", without a promise that it will
+    always work, be available, or suit every device. As far as the law allows, we are not liable for any loss caused by
+    using the game, including lost progress. Nothing in these terms limits rights you have under consumer law that cannot
+    be limited.
+  </p>
+
+  <h2 id="changes">Changes</h2>
+  <p>
+    We may update the game and these terms. When the terms change, we update the date at the top of this page. If you keep
+    playing after that, the new terms apply.
+  </p>
+
+  <h2 id="contact">Contact</h2>
+  <p>
+    Questions, problems or ideas: <a href={`mailto:${site.email}`}>{site.email}</a>.
+  </p>
+</LegalLayout>
