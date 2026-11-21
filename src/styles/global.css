@@ -54,6 +54,17 @@
   --color-cream-soft: #b5b0a6;
   --color-amber: #ffb02e;
   --color-amber-ink: #2b1a05;
+  /* Yolk Post only ("the yolk room"), from the game's own palette (ui/style.gd).
+     Ratios on yolk-night / yolk-raised: shell 15.7 / 13.2 · shell-soft 8.8 / 7.4 · yolk 10.8 / 9.1 ·
+     yolk-night on yolk 10.8. Red is danger only, as in the game: never text. */
+  --color-yolk-night: #1a1b3a;
+  --color-yolk-raised: #26284f;
+  --color-yolk-rule: #383b6e; /* decorative lines on yolk-night */
+  --color-shell: #fff8e7;
+  --color-shell-soft: #b8bbd6;
+  --color-yolk: #ffc928;
+  --color-courier: #2340d9;
+  --color-crack: #ff4d3d;
 
   --font-*: initial;
   --font-sans: 'Schibsted Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
@@ -809,5 +820,61 @@
   from {
     opacity: 0;
     transform: translateY(16px);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* The yolk room: Yolk Post's surface (same idea as the pond room)     */
+/* ------------------------------------------------------------------ */
+@layer components {
+  /* Pair with data-theme="yolk" so the header follows. Yolk is for the one main button,
+     links and the egg; courier blue and crack red stay decoration, as in the game. */
+  .yolk-room {
+    --color-paper: var(--color-yolk-night);
+    --color-surface: var(--color-yolk-raised);
+    --color-ink: var(--color-shell);
+    --color-ink-muted: var(--color-shell-soft);
+    --color-rule: var(--color-yolk-rule);
+    --color-signal: var(--color-yolk);
+    --color-signal-ink: var(--color-yolk);
+    --color-live: var(--color-yolk);
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+  .yolk-room ::selection {
+    background: var(--color-yolk);
+    color: var(--color-yolk-night);
+  }
+  .yolk-room .btn-primary {
+    background: var(--color-yolk);
+    color: var(--color-yolk-night);
+  }
+  .yolk-room .btn-primary:hover {
+    background: var(--color-shell);
+  }
+  /* Status chip: a yolk ring = in testing / development, a solid yolk = live. */
+  .yolk-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.3em 0.75em;
+    border: 1px solid var(--color-yolk-rule);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    line-height: 1.35;
+    color: var(--color-shell);
+    background: color-mix(in srgb, var(--color-yolk-night) 70%, transparent);
+  }
+  .yolk-chip::before {
+    content: '';
+    width: 0.55em;
+    height: 0.7em;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    border: 1.5px solid var(--color-yolk);
+  }
+  .yolk-chip.is-live::before {
+    border: 0;
+    background: var(--color-yolk);
   }
 }

@@ -371,6 +371,7 @@ if (header) {
       header.classList.toggle('on-live', theme === 'live');
       header.classList.toggle('on-pond', theme === 'pond');
       header.classList.toggle('on-lamp', theme === 'lamp');
+      header.classList.toggle('on-yolk', theme === 'yolk');
       // Games hero: see-through only at rest at the very top; solid as soon as you scroll.
       header.classList.toggle('on-water', !!water && scrollY < 4);
 

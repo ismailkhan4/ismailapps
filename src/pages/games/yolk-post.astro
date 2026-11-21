@@ -1,0 +1,676 @@
+---
+/**
+ * /games/yolk-post: the game's page, in "the yolk room" (Yolk Post's own palette inside the studio frame).
+ * Every picture is real: the world frames are rendered by the game itself in release mode
+ * (yolk-post/game/tools/web_shots.gd), the crack frame is a store screenshot (tools/store_shots.gd).
+ * Facts (worlds, deliveries, bosses, ads rules, the one purchase) match build 1.0.0; update them when
+ * the build changes.
+ */
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/ui/Breadcrumbs.astro';
+import Button from '../../components/ui/Button.astro';
+import { games, statusLabel } from '../../lib/games';
+import { provider } from '../../lib/seo';
+import { site } from '../../lib/site';
+import depot from '../../assets/games/yolk-post/w1_depot.png';
+import rooftops from '../../assets/games/yolk-post/w2_rooftops.png';
+import market from '../../assets/games/yolk-post/w3_market.png';
+import cafe from '../../assets/games/yolk-post/w4_cafe.png';
+import farm from '../../assets/games/yolk-post/w5_farm.png';
+import bakery from '../../assets/games/yolk-post/w6_bakery.png';
+import crack from '../../assets/games/yolk-post/crack.png';
+
+const game = games.find((g) => g.slug === 'yolk-post')!;
+
+const steps = [
+  { title: 'Run, jump, duck', detail: 'Gus is the courier. Shelly the egg rides on his head. Speed up too fast or stop too hard and she slides.' },
+  { title: 'Watch her face', detail: 'Shelly gets nervous before she slips and panics before she falls. Every trap gives a warning, or you learn it in one try.' },
+  { title: 'Crack, laugh, retry', detail: 'Ceilings drop, floors jerk, doors run away. Crack her and you are back at the start in under a second.' },
+];
+
+const worlds = [
+  { n: '01', name: 'The Depot', cargo: 'One egg, one very nervous passenger', boss: 'The Sorting Machine', img: depot },
+  { n: '02', name: 'Rooftops', cargo: 'Two eggs, stacked. Good luck', boss: 'Big Gull', img: rooftops },
+  { n: '03', name: 'The Market', cargo: 'A cracked egg that leaks. Hurry, gently', boss: 'The Runaway Cart', img: market },
+  { n: '04', name: 'The Café', cargo: 'Shelly in a full glass of water', boss: 'The Espresso Machine', img: cafe },
+  { n: '05', name: 'The Farm', cargo: 'A sleeping chick. Don’t wake it', boss: 'Rooster Alarm', img: farm },
+  { n: '06', name: 'The Bakery', cargo: 'A three-layer cake for the finale', boss: 'The Oven', img: bakery },
+];
+
+const facts = [
+  { value: '6', label: 'worlds' },
+  { value: '78', label: 'deliveries' },
+  { value: '6', label: 'bosses' },
+  { value: 'All', label: 'ages' },
+];
+
+const fair = [
+  { title: 'No lives, no energy, no timers', detail: 'Play as long as you like. Nothing makes you wait, and there are no loot boxes.' },
+  { title: 'Ads only between deliveries', detail: 'Never during play and never right after a crack. Short ads come between some deliveries, at most one every three.' },
+  { title: 'One purchase, then no ads', detail: 'World 1 is free. One purchase opens every other world and removes all ads. A grown-up check comes first.' },
+  { title: 'Help when you’re stuck', detail: 'After eight cracks on a delivery, Bubble Wrap gives Shelly a free helping hand, or you can choose a short video to skip it. Never on a boss.' },
+];
+
+const testerMail = `mailto:${site.email}?subject=${encodeURIComponent('Yolk Post tester')}&body=${encodeURIComponent(
+  'Hi, I would like to test Yolk Post on Android.\n\nThe Google account email I use on my phone:\n',
+)}`;
+
+const gameLd = {
+  '@context': 'https://schema.org',
+  '@type': 'VideoGame',
+  name: game.name,
+  description: game.summary,
+  genre: ['Platformer', 'Arcade', 'Casual'],
+  gamePlatform: game.platforms,
+  operatingSystem: 'Android',
+  applicationCategory: 'Game',
+  contentRating: 'All ages',
+  publisher: provider,
+};
+---
+
+<BaseLayout
+  title={`${game.name}, a troll platformer with an egg on your head`}
+  description={`${game.name}: ${game.summary} A funny, fair platformer for Android by IsmailApps: six worlds, 78 deliveries and six bosses.`}
+  headerTheme="yolk"
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(gameLd)} />
+  </Fragment>
+
+  <div class="yolk-room" data-theme="yolk">
+    <!-- Hero: the name, with a wobbling yolk for a full stop; a real frame beside it. -->
+    <section class="hero" aria-labelledby="game-title">
+      <div class="hero-sun" aria-hidden="true"></div>
+      <div class="container-site hero-grid">
+        <div class="hero-text">
+          <div class="hero-top">
+            <Breadcrumbs items={[{ href: '/', label: 'Home' }, { href: '/games', label: 'Games' }, { label: game.name }]} />
+          </div>
+          <p class="t-mono hero-status">
+            <span class:list={['yolk-chip', game.status === 'live' && 'is-live']}>{statusLabel(game.status)}</span>
+            <span>{game.platforms.join(' · ')}</span>
+          </p>
+          <h1 id="game-title" class="game-title">
+            Yolk Post<span class="yolk-dot" aria-hidden="true">.</span>
+          </h1>
+          <p class="hero-lead"><strong>{game.tagline}.</strong> {game.summary}</p>
+          <div class="hero-actions">
+            <Button href="#test" arrow event="cta_click" location="game-hero:yolk-post">Help us test</Button>
+            <a href="#worlds" class="link">See the six worlds <span class="link-arrow" aria-hidden="true">↓</span></a>
+          </div>
+        </div>
+        <figure class="device">
+          <Image
+            src={depot}
+            alt="Yolk Post, delivery 1-02 Low Ceiling: Gus, a blue courier with a red cap, runs along a warehouse floor with Shelly the egg on his head, towards a heavy block waiting to slam down."
+            widths={[480, 720, 960, 1280]}
+            sizes="(min-width: 56.25rem) 38rem, 92vw"
+            loading="eager"
+            class="device-img"
+          />
+          <figcaption class="t-mono device-cap">Low Ceiling, The Depot: a frame from the game</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section loop" aria-labelledby="loop-title">
+      <div class="container-site">
+        <h2 id="loop-title" class="t-mono section-label">How it plays</h2>
+        <ol class="loop-steps">
+          {
+            steps.map((s, i) => (
+              <li>
+                <span class="loop-n" aria-hidden="true">{i + 1}</span>
+                <h3 class="loop-title">{s.title}</h3>
+                <p class="loop-detail">{s.detail}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <!-- The route: six worlds, each with new cargo and a boss. -->
+    <section class="section route" id="worlds" aria-labelledby="worlds-title">
+      <div class="container-site route-head">
+        <h2 id="worlds-title" class="t-h2">Gus has never missed a delivery.</h2>
+        <p class="t-lead">
+          Shelly is an egg, and she knows exactly how this is going to go. Six worlds, each with new cargo to balance and a
+          boss at the end of the road.
+        </p>
+      </div>
+      <ul class="worlds" aria-label="The six worlds in Yolk Post" tabindex="0">
+        {
+          worlds.map((w) => (
+            <li class="world">
+              <Image
+                src={w.img}
+                alt={`${w.name} in Yolk Post: ${w.cargo.toLowerCase()}`}
+                widths={[480, 720, 960]}
+                sizes="(min-width: 56.25rem) 26rem, 82vw"
+                loading="lazy"
+                class="world-img"
+              />
+              <div class="world-text">
+                <span class="t-mono world-n">World {w.n}</span>
+                <h3 class="world-name">{w.name}</h3>
+                <p class="world-cargo">{w.cargo}.</p>
+                <p class="t-mono world-boss">Boss: {w.boss}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="container-site t-mono route-note">Frames rendered by the game itself.</p>
+    </section>
+
+    <section class="section facts-band" aria-label="Yolk Post in numbers">
+      <dl class="container-site facts">
+        {
+          facts.map((f) => (
+            <div class="fact">
+              <dt class="t-mono fact-label">{f.label}</dt>
+              <dd class="fact-value">{f.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <!-- The crack: the game's best joke, shown as it is. -->
+    <section class="section crack" aria-labelledby="crack-title">
+      <div class="container-site crack-grid">
+        <div class="crack-text">
+          <h2 id="crack-title" class="t-h2">Every crack is your fault.</h2>
+          <p class="t-lead">
+            Each trap is fair. When Shelly breaks, a stamp slams down with a one-liner about what you just did. Make the same
+            mistake three times and it gives you a tip instead.
+          </p>
+          <p class="crack-more">
+            Earn stamps for Intact, No wobble and Express deliveries, find 72 lost parcels hidden along the route, and dress Gus
+            and Shelly in caps and plasters you unlock by playing. None of them are for sale.
+          </p>
+        </div>
+        <figure class="device device-tilt">
+          <Image
+            src={crack}
+            alt="A Yolk Post store screenshot captioned The levels cheat. Shelly panics: Shelly has cracked against a ceiling, and a stamp reading SCRAMBLED, the ceiling was closer than it looked, slams across the screen."
+            widths={[480, 720, 960]}
+            sizes="(min-width: 56.25rem) 32rem, 92vw"
+            loading="lazy"
+            class="device-img"
+          />
+        </figure>
+      </div>
+    </section>
+
+    <section class="section fair" aria-labelledby="fair-title">
+      <div class="container-site fair-grid">
+        <h2 id="fair-title" class="t-h2 fair-title">Free to start, and fair about it.</h2>
+        <ul class="fair-list">
+          {
+            fair.map((f) => (
+              <li>
+                <h3 class="fair-item">{f.title}</h3>
+                <p class="fair-detail">{f.detail}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <!-- Testing: Google Play's closed tests need testers' Google account emails. -->
+    <section class="section test" id="test" aria-labelledby="test-title">
+      <div class="container-site test-card">
+        <div>
+          <p class="t-mono section-label">Testing on Android</p>
+          <h2 id="test-title" class="t-h2 test-title">Carry the egg before everyone else.</h2>
+        </div>
+        <div class="test-body">
+          <p>
+            Yolk Post is getting ready for a closed test on Google Play. To join, email us the Google account you use on your
+            Android phone. We add you to the test and send you the link to install it. It's free, and you can leave the test
+            any time.
+          </p>
+          <div class="hero-actions">
+            <Button href={testerMail} arrow event="cta_click" location="game-test:yolk-post">Email us to join</Button>
+            <span class="t-mono test-mail">{site.email}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="container-site game-back" aria-label="Yolk Post and more from IsmailApps">
+      <a href="/games" class="link"><span class="link-arrow" aria-hidden="true">←</span> All games</a>
+      <span class="legal-links">
+        {game.links?.privacy && <a href={game.links.privacy} class="link">Privacy policy</a>}
+        {game.links?.terms && <a href={game.links.terms} class="link">Terms and conditions</a>}
+      </span>
+    </nav>
+  </div>
+</BaseLayout>
+
+<style>
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(2rem, 5vw, 4rem) clamp(3rem, 7vw, 6rem);
+  }
+  /* The game's yolk sunburst, low behind the frame: the splash screen's light. */
+  .hero-sun {
+    position: absolute;
+    inset: auto -18% -30% auto;
+    width: min(64rem, 130vw);
+    aspect-ratio: 1;
+    background:
+      radial-gradient(closest-side, color-mix(in srgb, var(--color-yolk) 26%, transparent), transparent 72%),
+      repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--color-yolk) 7%, transparent) 0deg 11.25deg, transparent 11.25deg 22.5deg);
+    mask-image: radial-gradient(closest-side, #000 30%, transparent 100%);
+    pointer-events: none;
+  }
+  /* Fade the light out before the hero's edge, so the rays never end in a hard line. */
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 30%;
+    background: linear-gradient(to bottom, transparent, var(--color-paper));
+    pointer-events: none;
+  }
+  .hero-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 4rem);
+    align-items: center;
+  }
+  .hero-text {
+    display: grid;
+    gap: 1.25rem;
+    align-content: center;
+  }
+  .hero-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin: 0;
+    color: var(--color-ink-muted);
+  }
+  .game-title {
+    margin: 0;
+    font-size: clamp(3.5rem, 1rem + 9vw, 10rem);
+    line-height: 0.85;
+    letter-spacing: -0.06em;
+    font-weight: 650;
+  }
+  /* The full stop is the yolk. It sits a little nervously, like Shelly. */
+  .yolk-dot {
+    display: inline-block;
+    color: var(--color-yolk);
+    transform-origin: 50% 85%;
+  }
+  .hero-lead {
+    margin: 0;
+    max-width: 40ch;
+    font-size: var(--step-1);
+    line-height: 1.45;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.75rem;
+  }
+  /* A landscape phone: the game is played sideways. */
+  .device {
+    margin: 0;
+    width: 100%;
+  }
+  .device-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 0.5rem solid var(--color-yolk-raised);
+    border-radius: 1.75rem;
+    box-shadow:
+      0 0 0 1px var(--color-yolk-rule),
+      0 2rem 5rem -1.5rem color-mix(in srgb, var(--color-yolk) 28%, transparent);
+  }
+  .device-cap {
+    margin-top: 0.9rem;
+    text-align: center;
+    color: var(--color-ink-muted);
+  }
+  @media (width >= 56.25rem) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: 3.5rem;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .game-title {
+      animation: rise-in 1100ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .yolk-dot {
+      animation: wobble 3.2s ease-in-out 900ms infinite;
+    }
+    .hero .device {
+      animation: run-in 900ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
+    }
+  }
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.35em);
+    }
+  }
+  /* Mostly still, then a quick nervous wobble: the egg deciding whether to slide. */
+  @keyframes wobble {
+    0%, 70%, 100% { transform: rotate(0deg); }
+    76% { transform: rotate(-14deg); }
+    82% { transform: rotate(10deg); }
+    88% { transform: rotate(-5deg); }
+    94% { transform: rotate(2deg); }
+  }
+  /* Arrives from the right, like Gus at a run, and settles. */
+  @keyframes run-in {
+    from {
+      opacity: 0;
+      transform: translateX(2.5rem);
+    }
+  }
+
+  .section-label {
+    margin: 0;
+    color: var(--color-ink-muted);
+    font-weight: 500;
+  }
+
+  /* ---------- How it plays ---------- */
+  .loop-steps {
+    list-style: none;
+    display: grid;
+    gap: 2.5rem 2rem;
+    margin: clamp(1.5rem, 3vw, 2.5rem) 0 0;
+    padding: 0;
+  }
+  .loop-steps li {
+    display: grid;
+    align-content: start;
+    gap: 0.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-ink);
+  }
+  .loop-n {
+    font-size: clamp(3.5rem, 2rem + 4vw, 6rem);
+    font-weight: 300;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    color: var(--color-yolk);
+  }
+  .loop-title {
+    margin: 0;
+    font-size: var(--step-3);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+  .loop-detail {
+    margin: 0;
+    max-width: 34ch;
+    color: var(--color-ink-muted);
+  }
+  @media (width >= 56.25rem) {
+    .loop-steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* ---------- The route ---------- */
+  .route-head {
+    display: grid;
+    gap: 1rem 4rem;
+  }
+  .route-head h2,
+  .route-head p {
+    margin: 0;
+    max-width: 22ch;
+  }
+  .route-head p {
+    max-width: 44ch;
+    color: var(--color-ink-muted);
+  }
+  @media (width >= 56.25rem) {
+    .route-head {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      align-items: end;
+    }
+  }
+  .worlds {
+    list-style: none;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(17rem, 26rem);
+    gap: 1rem;
+    margin: clamp(2rem, 4vw, 3rem) 0 0;
+    padding: 0 var(--gutter) 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+  }
+  .world {
+    display: grid;
+    align-content: start;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--color-yolk-raised);
+    scroll-snap-align: start;
+  }
+  .world-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+  .world-text {
+    display: grid;
+    gap: 0.3rem;
+    padding: 1rem 1.1rem 1.2rem;
+  }
+  .world-text p {
+    margin: 0;
+  }
+  .world-n {
+    color: var(--color-yolk);
+  }
+  .world-name {
+    margin: 0;
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .world-cargo {
+    color: var(--color-ink-muted);
+  }
+  .world-boss {
+    margin-top: 0.4rem !important;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--color-rule);
+    color: var(--color-ink-muted);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .world-img {
+      transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .world:hover .world-img {
+      transform: scale(1.04);
+    }
+  }
+  .route-note {
+    margin-top: 1rem;
+    color: var(--color-ink-muted);
+  }
+
+  /* ---------- Numbers ---------- */
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 1.5rem;
+    margin: 0;
+  }
+  .fact {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.35rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-rule);
+  }
+  .fact-value {
+    margin: 0;
+    font-size: clamp(3rem, 1.5rem + 5vw, 6rem);
+    font-weight: 600;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+  .fact-label {
+    color: var(--color-ink-muted);
+  }
+  @media (width >= 56.25rem) {
+    .facts {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* ---------- The crack ---------- */
+  .crack-grid {
+    display: grid;
+    gap: 2.5rem 4rem;
+    align-items: center;
+  }
+  .crack-text {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .crack-text h2,
+  .crack-text p {
+    margin: 0;
+  }
+  .crack-text h2 {
+    max-width: 14ch;
+  }
+  .crack-text .t-lead {
+    max-width: 42ch;
+  }
+  .crack-more {
+    max-width: 46ch;
+    color: var(--color-ink-muted);
+  }
+  .device-tilt {
+    transform: rotate(-1.5deg);
+  }
+  @media (width >= 56.25rem) {
+    .crack-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    }
+  }
+
+  /* ---------- Fair play ---------- */
+  .fair-grid {
+    display: grid;
+    gap: 2rem 4rem;
+  }
+  .fair-title {
+    margin: 0;
+    max-width: 12ch;
+  }
+  .fair-list {
+    list-style: none;
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .fair-list li {
+    display: grid;
+    gap: 0.4rem;
+    padding-block: 1.25rem;
+    border-top: 1px solid var(--color-rule);
+  }
+  .fair-item {
+    margin: 0;
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  /* A small egg for a bullet. */
+  .fair-item::before {
+    content: '';
+    display: inline-block;
+    width: 0.42em;
+    height: 0.54em;
+    margin-right: 0.6em;
+    vertical-align: 0.08em;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    background: var(--color-shell);
+    box-shadow: inset -0.08em -0.08em 0 color-mix(in srgb, var(--color-yolk) 55%, transparent);
+  }
+  .fair-detail {
+    margin: 0;
+    max-width: 48ch;
+    color: var(--color-ink-muted);
+  }
+  @media (width >= 56.25rem) {
+    .fair-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+  }
+
+  /* ---------- Testing ---------- */
+  .test-card {
+    display: grid;
+    gap: 1.5rem 4rem;
+    padding-block: clamp(2rem, 4vw, 3rem);
+    border-top: 1px solid var(--color-yolk);
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .test-title {
+    margin: 0.75rem 0 0;
+    max-width: 14ch;
+  }
+  .test-body {
+    display: grid;
+    gap: 1.5rem;
+    align-content: end;
+  }
+  .test-body p {
+    margin: 0;
+    max-width: 48ch;
+  }
+  .test-mail {
+    color: var(--color-ink-muted);
+    overflow-wrap: anywhere;
+  }
+  @media (width >= 56.25rem) {
+    .test-card {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+  }
+
+  .game-back {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding-block: clamp(2.5rem, 5vw, 4rem);
+  }
+  .legal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+  }
+</style>

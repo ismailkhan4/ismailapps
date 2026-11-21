@@ -1,6 +1,7 @@
 import type { ImageMetadata } from 'astro';
 import koimereCover from '../assets/games/koimere-cover.png';
 import lamplightCover from '../assets/games/lamplight/cover.jpg';
+import yolkPostCover from '../assets/games/yolk-post/cover.png';
 
 /**
  * Our games, for /games and each game's page. Status is honest: "in-development" until it reaches players,
@@ -46,6 +47,20 @@ export const games: Game[] = [
     links: {
       privacy: '/games/lamplight/privacy-policy',
       terms: '/games/lamplight/terms-and-conditions',
+    },
+  },
+  {
+    slug: 'yolk-post',
+    name: 'Yolk Post',
+    tagline: 'A troll platformer with an egg on your head',
+    summary: 'Carry Shelly, a very nervous egg, to the door on your head. The levels cheat, so don’t crack her.',
+    status: 'in-development',
+    platforms: ['Android'],
+    cover: yolkPostCover,
+    coverAlt: 'The Yolk Post wordmark beside Gus, a blue courier, running while Shelly the egg slides off his head under a falling slab',
+    links: {
+      privacy: '/games/yolk-post/privacy-policy',
+      terms: '/games/yolk-post/terms-and-conditions',
     },
   },
 ];
