@@ -1,0 +1,164 @@
+---
+/**
+ * Yolk Post's privacy policy (the Android game). Linked from Google Play and from the game.
+ * Facts come from build 1.0.0: progress is saved only on the device; the game itself has no server and no
+ * analytics; the two outside services are the Google Mobile Ads SDK (between-delivery and optional rewarded
+ * ads, requested as child-directed, under the age of consent, non-personalised, rating G) and Google Play
+ * Billing (one optional purchase). The advertising-ID permission is removed from the app's manifest.
+ * If the build changes (analytics, accounts, another SDK), this page must change first.
+ */
+import LegalLayout from '../../../layouts/LegalLayout.astro';
+import { site } from '../../../lib/site';
+
+const toc = [
+  { id: 'who', label: 'Who we are' },
+  { id: 'summary', label: 'In short' },
+  { id: 'device', label: 'Saved on your device' },
+  { id: 'ads', label: 'Ads' },
+  { id: 'purchase', label: 'The one purchase' },
+  { id: 'children', label: 'Children' },
+  { id: 'permissions', label: 'Permissions' },
+  { id: 'delete', label: 'Deleting your data' },
+  { id: 'rights', label: 'Your rights' },
+  { id: 'changes', label: 'Changes' },
+];
+---
+
+<LegalLayout
+  title="Yolk Post privacy policy"
+  description="How the Yolk Post platformer for Android handles data: progress stays on your phone, no accounts, no analytics, child-safe ads from Google AdMob and one optional purchase through Google Play."
+  updated="21 November 2026"
+  toc={toc}
+  crumbs={[
+    { href: '/', label: 'Home' },
+    { href: '/games', label: 'Games' },
+    { href: '/games/yolk-post', label: 'Yolk Post' },
+    { label: 'Privacy policy' },
+  ]}
+>
+  <p>
+    This policy covers <strong>Yolk Post</strong>, our platform game for Android (Google Play package
+    <code>com.ismailapps.yolkpost</code>). It explains what data the game handles, why, and what you can do about it. The
+    website has its own <a href="/privacy">privacy policy</a>.
+  </p>
+
+  <h2 id="who">Who we are</h2>
+  <p>
+    Yolk Post is made by IsmailApps, the name under which {site.founder.legalName} publishes software and games. It is not a
+    registered company yet. The person responsible for your data (the controller) is:
+  </p>
+  <address>
+    {site.founder.legalName}<br />
+    {site.founder.postalAddress}<br />
+    <a href={`mailto:${site.email}`}>{site.email}</a>
+  </address>
+
+  <h2 id="summary">In short</h2>
+  <ul>
+    <li>There are <strong>no accounts</strong>, no sign-in, no chat and no way to share personal information in the game.</li>
+    <li>Your progress is saved <strong>only on your phone</strong>. We never receive it.</li>
+    <li>We use <strong>no analytics and no tracking</strong>.</li>
+    <li>
+      The game uses two outside services: <strong>Google AdMob</strong> for ads, requested as directed to children (no
+      advertising ID, no personalised ads), and <strong>Google Play</strong> for one optional purchase.
+    </li>
+  </ul>
+
+  <h2 id="device">Saved on your device</h2>
+  <p>
+    The game keeps save files on your phone with your progress: deliveries done, stamps, lost parcels found, badges, the
+    caps and plasters you unlocked, which story pages you have seen, whether you own the full route, a count of finished
+    deliveries (so ads keep to their limits), and your settings (music, sound, vibration, reduced shake, button size and
+    side). They stay in the game's private storage on your device. We have no server for them, and the game does not send
+    them anywhere.
+  </p>
+
+  <h2 id="ads">Ads (Google AdMob)</h2>
+  <p>
+    In the free version, a short ad can appear between some deliveries: never during play, never right after a crack, not in
+    your first few deliveries or first minutes of play, and at most one every three deliveries. You can also choose to watch
+    a video for a reward, such as skipping a delivery you are stuck on. Owning the full route removes the ads between
+    deliveries.
+  </p>
+  <p>
+    The ads are provided by Google's Mobile Ads SDK (Google AdMob). Every ad request from Yolk Post is marked as
+    <strong>directed to children and under the age of consent</strong>, asks for <strong>non-personalised</strong> ads only,
+    and limits the content rating to <strong>G</strong> (general audiences). With these settings, Google does not show
+    personalised ads or remarketing. We also removed the advertising ID permission from the app, so the advertising ID is
+    not available to it.
+  </p>
+  <p>
+    To show an ad, count it and prevent fraud, the Google Mobile Ads SDK still processes some technical information. Google
+    lists this as: the device's IP address (which can indicate a rough location), other device and app identifiers (such as
+    the app set ID), how you interact with ads, and diagnostic information such as crashes and performance. It is encrypted
+    in transit. Google handles this information under its own policies:
+  </p>
+  <ul>
+    <li><a href="https://policies.google.com/privacy" rel="noopener">Google Privacy Policy</a></li>
+    <li>
+      <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">How Google uses information from apps that use its services</a>
+    </li>
+    <li>
+      <a href="https://developers.google.com/admob/android/privacy/play-data-disclosure" rel="noopener">What the Google Mobile Ads SDK collects</a>
+    </li>
+  </ul>
+  <p>
+    We do not receive any of this information about you. We only see totals in our AdMob account, such as how many ads were
+    shown.
+  </p>
+  <p>
+    <strong>Legal basis:</strong> showing non-personalised ads to fund a free game is our legitimate interest (Art. 6(1)(f)
+    GDPR). Buying the full route removes the ads between deliveries, and the reward videos are always optional.
+  </p>
+
+  <h2 id="purchase">The one purchase (Google Play)</h2>
+  <p>
+    World 1 is free. One optional, one-time purchase, the full route, opens every other world. A grown-up check (a
+    times-table question) comes before the purchase starts. Payment happens entirely in Google Play: we never see your card
+    or payment details. Google tells the game only whether the full route is owned, so it can unlock it and restore it on a
+    new phone.
+  </p>
+  <p>
+    For our records, refunds and taxes, Google Play shows us details of each order, such as the order number, date, price
+    and country. We use them only for that. Google handles payments under the
+    <a href="https://payments.google.com/payments/apis-secure/u/0/get_legal_document?ldo=0&ldt=privacynotice" rel="noopener">Google Payments privacy notice</a>.
+  </p>
+  <p><strong>Legal basis:</strong> providing what you bought (Art. 6(1)(b) GDPR) and keeping records the law requires (Art. 6(1)(c)).</p>
+
+  <h2 id="children">Children</h2>
+  <p>
+    Yolk Post is made for all ages. We do not ask for, and do not knowingly collect, personal information from anyone,
+    including children under 13. The ads are requested in Google's child-directed mode described above, which is designed for
+    apps that children may use (including under the US COPPA rule), and the purchase sits behind a grown-up check. If you are
+    a parent and have a question, email <a href={`mailto:${site.email}`}>{site.email}</a>.
+  </p>
+
+  <h2 id="permissions">Permissions</h2>
+  <p>
+    Yolk Post asks for no permissions that need your approval. Android grants it internet and network-state access, used to
+    load ads and to talk to Google Play for the purchase; billing access, for the purchase; and vibration, for small buzzes
+    when you land, crack or deliver (you can turn this off in Settings). Google's ads library also uses Android's background-task system
+    to send its ad reports. The game does not include the advertising ID permission.
+  </p>
+
+  <h2 id="delete">Deleting your data</h2>
+  <p>
+    Uninstalling the game, or clearing its storage in Android's settings, deletes your progress from the phone. We have no
+    copy, so it cannot be restored afterwards. A purchase is linked to your Google account by Google Play, not to us: after
+    reinstalling, use <strong>Restore purchase</strong> on the unlock screen to get the full route back.
+  </p>
+
+  <h2 id="rights">Your rights</h2>
+  <p>
+    You can ask us about any personal data we hold about you, and ask us to correct or delete it. In practice, from the game
+    we hold only Google Play's order records if you bought the full route. For data processed by Google to show ads or take
+    payments, Google's policies explain your choices. You can also complain to a data protection supervisory authority. Email
+    <a href={`mailto:${site.email}`}>{site.email}</a> and we will reply within a month.
+  </p>
+
+  <h2 id="changes">Changes</h2>
+  <p>
+    If the game starts handling data differently, for example a new feature or another service, we will update this page and
+    the date at the top before that version is released.
+  </p>
+</LegalLayout>

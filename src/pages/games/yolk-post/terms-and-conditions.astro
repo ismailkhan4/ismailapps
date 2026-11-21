@@ -1,0 +1,129 @@
+---
+/**
+ * Yolk Post's terms and conditions (the Android game). Linked from Google Play and from the game.
+ * Facts come from build 1.0.0: World 1 free; one optional one-time purchase (the full route) opens every
+ * other world, including later ones, and removes between-delivery ads (ADR-0011, ADR-0012); a grown-up
+ * check before buying; rewarded videos optional; stamps, parcels and wardrobe items earned only; progress
+ * saved only on the device; the purchase is restored through Google Play.
+ */
+import LegalLayout from '../../../layouts/LegalLayout.astro';
+import { site } from '../../../lib/site';
+
+const toc = [
+  { id: 'game', label: 'The game' },
+  { id: 'route', label: 'The full route purchase' },
+  { id: 'refunds', label: 'Refunds' },
+  { id: 'ads', label: 'Ads and reward videos' },
+  { id: 'items', label: 'Stamps, parcels and outfits' },
+  { id: 'progress', label: 'Your progress' },
+  { id: 'fair', label: 'Fair play' },
+  { id: 'ours', label: 'What is ours' },
+  { id: 'warranty', label: 'No guarantee' },
+  { id: 'changes', label: 'Changes' },
+  { id: 'contact', label: 'Contact' },
+];
+---
+
+<LegalLayout
+  title="Yolk Post terms and conditions"
+  description="The rules for playing Yolk Post, the platform game for Android by IsmailApps: World 1 free, one optional purchase for the full route, child-safe ads, progress saved on your phone."
+  updated="21 November 2026"
+  toc={toc}
+  crumbs={[
+    { href: '/', label: 'Home' },
+    { href: '/games', label: 'Games' },
+    { href: '/games/yolk-post', label: 'Yolk Post' },
+    { label: 'Terms and conditions' },
+  ]}
+>
+  <p>
+    These terms apply when you download or play <strong>Yolk Post</strong>, our platform game for Android. By playing, you
+    agree to them. If you are under 18, please read them with a parent or guardian, and ask them before buying anything. How
+    the game handles data is explained in the <a href="/games/yolk-post/privacy-policy">Yolk Post privacy policy</a>.
+  </p>
+
+  <h2 id="game">The game</h2>
+  <p>
+    Yolk Post is free to download, and World 1 is free to play in full. It is made by IsmailApps ({site.founder.legalName}).
+    You may play it for your own personal, non-commercial enjoyment. Google Play's own terms also apply to downloading it and
+    to buying anything in it.
+  </p>
+
+  <h2 id="route">The full route purchase</h2>
+  <ul>
+    <li>
+      The game sells <strong>one thing</strong>: the full route, a one-time purchase. It opens every world after World 1,
+      including any worlds we add to the game later, and removes the ads between deliveries.
+    </li>
+    <li>It is not a subscription. You pay once, at the price Google Play shows you before you confirm.</li>
+    <li>A grown-up check (a times-table question) comes before the purchase screen.</li>
+    <li>
+      The purchase belongs to the Google account you bought it with. On a new phone or after reinstalling, sign in to Google
+      Play with that account and tap <strong>Restore purchase</strong>.
+    </li>
+    <li>There are no coins, gems, loot boxes or other purchases in the game.</li>
+  </ul>
+
+  <h2 id="refunds">Refunds</h2>
+  <p>
+    Purchases are handled by Google Play, so Google Play's
+    <a href="https://support.google.com/googleplay/answer/2479637" rel="noopener">refund policy</a> applies. You can usually
+    ask Google for a refund within 48 hours of buying. After that, or if something went wrong, email us at
+    <a href={`mailto:${site.email}`}>{site.email}</a> with your Google Play order number and we will help. Nothing here limits
+    your rights under consumer law.
+  </p>
+
+  <h2 id="ads">Ads and reward videos</h2>
+  <p>
+    In the free version, short ads can appear between some deliveries, never during play. Some extras, such as skipping a
+    delivery you are stuck on, come from a short video that you choose to watch. A reward is given only when Google's ad
+    service confirms the video was watched; closing it early gives nothing. Videos are not always available. Ads are shown by
+    Google AdMob. We don't choose which advertiser appears, but we only allow ads rated for general audiences.
+  </p>
+
+  <h2 id="items">Stamps, parcels and outfits</h2>
+  <p>
+    Stamps, lost parcels, badges, caps and plasters are parts of the game. They are <strong>earned only by playing</strong>,
+    are never sold, have no real-money value, are not your property, and cannot be exchanged for money or anything outside
+    the game.
+  </p>
+
+  <h2 id="progress">Your progress</h2>
+  <p>
+    Your progress is saved only on your phone. If you uninstall the game, clear its data or change phones, it is gone, and we
+    cannot restore it, because we never had a copy. Your full route purchase is the exception: Google Play keeps it with your
+    account, so you can restore it.
+  </p>
+
+  <h2 id="fair">Fair play</h2>
+  <p>
+    Please don't modify the game, its files or its save data to unlock worlds or rewards you haven't earned or bought. We may
+    correct this in a later update.
+  </p>
+
+  <h2 id="ours">What is ours</h2>
+  <p>
+    The game, its levels, story, characters (including Gus and Shelly), pictures, music and sounds belong to IsmailApps or are
+    used under licence. You may share screenshots and videos of your own play. Please don't copy, resell or redistribute the
+    game itself.
+  </p>
+
+  <h2 id="warranty">No guarantee</h2>
+  <p>
+    We work hard to make Yolk Post fun and free of bugs, but the game is provided "as is", without a promise that it will
+    always work, be available, or suit every device. As far as the law allows, we are not liable for any loss caused by using
+    the game, including lost progress. Nothing in these terms limits rights you have under consumer law that cannot be
+    limited, including your rights over something you paid for.
+  </p>
+
+  <h2 id="changes">Changes</h2>
+  <p>
+    We may update the game and these terms. When the terms change, we update the date at the top of this page. If you keep
+    playing after that, the new terms apply. A change will never take away a full route you already bought.
+  </p>
+
+  <h2 id="contact">Contact</h2>
+  <p>
+    Questions, problems or ideas: <a href={`mailto:${site.email}`}>{site.email}</a>.
+  </p>
+</LegalLayout>

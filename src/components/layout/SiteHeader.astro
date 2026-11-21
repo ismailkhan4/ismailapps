@@ -6,7 +6,7 @@ import { getServices } from '../../lib/content';
 
 interface Props {
   /** Initial surface, so the bar is right before the scroll driver runs. */
-  theme?: 'pond' | 'lamp' | undefined;
+  theme?: 'pond' | 'lamp' | 'yolk' | undefined;
 }
 const { theme } = Astro.props;
 const services = await getServices();
@@ -186,6 +186,23 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
   .site-header:global(.on-lamp) .meter-line {
     visibility: hidden;
   }
+  /* Yolk Post: the bar is the game's ink; the studio CTA becomes its one yolk button. */
+  .site-header:global(.on-yolk) {
+    background-color: var(--color-yolk-night);
+    color: var(--color-shell);
+    border-color: var(--color-yolk-rule);
+  }
+  .site-header:global(.on-yolk) :global(.header-cta) {
+    background: var(--color-yolk);
+    color: var(--color-yolk-night);
+  }
+  .site-header:global(.on-yolk) :global(.header-cta:hover) {
+    background: var(--color-shell);
+  }
+  .site-header:global(.on-yolk) .meter,
+  .site-header:global(.on-yolk) .meter-line {
+    visibility: hidden;
+  }
   .site-header:global(.on-pond) :global(.header-cta) {
     background: var(--color-foam);
     color: var(--color-pond-deep);
@@ -201,7 +218,8 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
   .site-header:global(.on-ink) :focus-visible,
   .site-header:global(.on-live) :focus-visible,
   .site-header:global(.on-pond) :focus-visible,
-  .site-header:global(.on-lamp) :focus-visible {
+  .site-header:global(.on-lamp) :focus-visible,
+  .site-header:global(.on-yolk) :focus-visible {
     outline-color: currentColor;
   }
   .site-header:global(.on-live) :global(.header-cta) {

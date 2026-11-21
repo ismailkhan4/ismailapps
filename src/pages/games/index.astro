@@ -1,7 +1,8 @@
 ---
 /**
  * /games: the studio's play side. Each game gets its own room inside the studio frame:
- * Koimere's pond (its renderer runs live in the hero) and Lamplight's night (real renders).
+ * Koimere's pond (its renderer runs live in the hero), Lamplight's night (real renders) and
+ * Yolk Post's yolk room (frames rendered by the game).
  * Everything stated here comes from src/lib/games.ts and each game's content.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -13,18 +14,20 @@ import { Image } from 'astro:assets';
 import { games, statusLabel } from '../../lib/games';
 import lamplightScene from '../../assets/games/lamplight/scene-c03.jpg';
 import lamplightPuzzle from '../../assets/games/lamplight/puzzle.jpg';
+import yolkFrame from '../../assets/games/yolk-post/w2_rooftops.png';
 import { guide } from '../../games/koimere/content';
 import { provider } from '../../lib/seo';
 import { site } from '../../lib/site';
 
 const koimere = games.find((g) => g.slug === 'koimere')!;
 const lamplight = games.find((g) => g.slug === 'lamplight')!;
+const yolkPost = games.find((g) => g.slug === 'yolk-post')!;
 
-// Only rules that hold for every game listed here (Lamplight has hearts and optional videos).
+// Only rules that hold for every game listed here (Lamplight has hearts and optional videos; Yolk Post has ads and one unlock).
 const rules = [
   { n: 'No', title: 'loot boxes', detail: 'What you get is what the game says you get. Nothing is left to a paid roll of the dice.' },
   { n: 'Your', title: 'progress waits for you', detail: 'Skip a week and everything is just as you left it. A calm game shouldn’t punish you for having a life.' },
-  { n: 'Real', title: 'frames, never mock-ups', detail: 'Koimere’s pond is drawn by its own code, in your browser, right now. Lamplight’s pictures are its own renders and screenshots.' },
+  { n: 'Real', title: 'frames, never mock-ups', detail: 'Koimere’s pond is drawn by its own code, in your browser, right now. Lamplight’s and Yolk Post’s pictures are their own renders and screenshots.' },
 ];
 
 const itemList = {
@@ -49,7 +52,7 @@ const itemList = {
 
 <BaseLayout
   title="Games"
-  description="IsmailApps makes calm games alongside its client software: Lamplight, a light-up tile puzzle in closed testing on Android, and Koimere, a koi pond puzzle game in development that partly runs in your browser."
+  description="IsmailApps makes games alongside its client software: Lamplight, a light-up tile puzzle in closed testing on Android; Yolk Post, a troll platformer with an egg on your head; and Koimere, a koi pond puzzle game that partly runs in your browser."
   headerTheme="pond"
 >
   <Fragment slot="head">
@@ -65,7 +68,7 @@ const itemList = {
       <div class="hero-foot">
         <p class="hero-lead">
           Alongside client software, we design and build games of our own. {lamplight.name} is in closed testing on
-          Android, and {koimere.name} is in development. The water behind this text is {koimere.name} itself, running in
+          Android, and {yolkPost.name} and {koimere.name} are in development. The water behind this text is {koimere.name} itself, running in
           your browser.
         </p>
         <div class="hero-actions">
@@ -144,6 +147,41 @@ const itemList = {
             sizes="(min-width: 56.25rem) 20rem, 70vw"
             loading="lazy"
             class="lamp-phone-img"
+          />
+        </figure>
+      </div>
+    </section>
+
+    <!-- Yolk Post, in its own yolk room: the header follows (data-theme="yolk"). -->
+    <section class="yolk-room section yolk-feature" data-theme="yolk" aria-labelledby="yolk-title">
+      <div class="yolk-sun" aria-hidden="true"></div>
+      <div class="container-site feature-grid yolk-grid">
+        <div class="feature-head">
+          <p class="t-mono feature-kicker">
+            <span class:list={['yolk-chip', yolkPost.status === 'live' && 'is-live']}>{statusLabel(yolkPost.status)}</span>
+            <span>{yolkPost.platforms.join(' · ')}</span>
+          </p>
+          <h2 id="yolk-title" class="feature-name">
+            <a href={`/games/${yolkPost.slug}`}>{yolkPost.name}<span class="yolk-dot" aria-hidden="true">.</span></a>
+          </h2>
+          <div class="feature-body yolk-body">
+            <p class="feature-tagline">{yolkPost.tagline}.</p>
+            <p class="t-lead feature-summary">{yolkPost.summary}</p>
+            <ul class="feature-demos yolk-demos" aria-label={`More about ${yolkPost.name}`}>
+              <li><a href={`/games/${yolkPost.slug}`}><span class="t-mono">01</span> How it plays <span aria-hidden="true">→</span></a></li>
+              <li><a href={`/games/${yolkPost.slug}#worlds`}><span class="t-mono">02</span> The six worlds <span aria-hidden="true">→</span></a></li>
+              <li><a href={`/games/${yolkPost.slug}#test`}><span class="t-mono">03</span> Help us test <span aria-hidden="true">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+        <figure class="yolk-device">
+          <Image
+            src={yolkFrame}
+            alt="Yolk Post, the Big Gull boss on the Rooftops: Gus runs with two eggs stacked on his head while the gull's shadow lines up a dive."
+            widths={[480, 720, 960]}
+            sizes="(min-width: 56.25rem) 32rem, 92vw"
+            loading="lazy"
+            class="yolk-device-img"
           />
         </figure>
       </div>
@@ -464,6 +502,55 @@ const itemList = {
   @media (width >= 56.25rem) {
     .lamp-grid {
       grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: center;
+    }
+  }
+
+  /* ---------- Yolk Post feature (yolk room) ---------- */
+  .yolk-feature {
+    position: relative;
+    overflow: hidden;
+  }
+  /* The game's sunburst, low and faint behind the frame. Decoration only. */
+  .yolk-sun {
+    position: absolute;
+    inset: auto -15% -55% auto;
+    width: min(64rem, 130vw);
+    aspect-ratio: 1;
+    background:
+      radial-gradient(closest-side, color-mix(in srgb, var(--color-yolk) 22%, transparent), transparent 72%),
+      repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--color-yolk) 6%, transparent) 0deg 11.25deg, transparent 11.25deg 22.5deg);
+    mask-image: radial-gradient(closest-side, #000 30%, transparent 100%);
+    pointer-events: none;
+  }
+  .yolk-grid {
+    position: relative;
+  }
+  .yolk-body {
+    margin-top: 1.5rem;
+  }
+  .yolk-dot {
+    color: var(--color-yolk);
+  }
+  .yolk-demos a:hover {
+    color: var(--color-yolk);
+  }
+  .yolk-device {
+    margin: 0;
+  }
+  .yolk-device-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 0.5rem solid var(--color-yolk-raised);
+    border-radius: 1.75rem;
+    box-shadow:
+      0 0 0 1px var(--color-yolk-rule),
+      0 2rem 5rem -1.5rem color-mix(in srgb, var(--color-yolk) 28%, transparent);
+  }
+  @media (width >= 56.25rem) {
+    .yolk-grid {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
       align-items: center;
     }
   }
