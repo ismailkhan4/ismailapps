@@ -8,14 +8,17 @@ interface Props {
   description: string;
   updated: string;
   toc?: { id: string; label: string }[];
+  /** Breadcrumbs above the title; defaults to Home › title (a game's legal pages pass the game's trail). */
+  crumbs?: { href?: string; label: string }[];
 }
-const { title, description, updated, toc = [] } = Astro.props;
+const { title, description, updated, toc = [], crumbs } = Astro.props;
+const trail = crumbs ?? [{ href: '/', label: 'Home' }, { label: title }];
 ---
 
 <BaseLayout title={title} description={description}>
   <section class="legal">
     <div class="container-site">
-      <Breadcrumbs items={[{ href: '/', label: 'Home' }, { label: title }]} />
+      <Breadcrumbs items={trail} />
       <h1 class="t-h1 legal-title">
         {title.split(' ').slice(0, -1).join(' ')}{' '}
         <span class="draft-word" data-text={title.split(' ').at(-1)}>{title.split(' ').at(-1)}</span>

@@ -1,28 +1,30 @@
 ---
 /**
- * /games: the studio's play side, in "the pond room".
- * The studio frame (header, type, spacing, components) stays; the surface becomes the
- * game's own water. The hero is not a picture of the game: it is Koimere's renderer,
- * running. Everything stated here comes from src/lib/games.ts and the game's content file.
+ * /games: the studio's play side. Each game gets its own room inside the studio frame:
+ * Koimere's pond (its renderer runs live in the hero) and Lamplight's night (real renders).
+ * Everything stated here comes from src/lib/games.ts and each game's content.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/ui/Breadcrumbs.astro';
 import Button from '../../components/ui/Button.astro';
 import LivePond from '../../components/games/koimere/LivePond.astro';
 import GameStatus from '../../components/games/GameStatus.astro';
-import { games } from '../../lib/games';
+import { Image } from 'astro:assets';
+import { games, statusLabel } from '../../lib/games';
+import lamplightScene from '../../assets/games/lamplight/scene-c03.jpg';
+import lamplightPuzzle from '../../assets/games/lamplight/puzzle.jpg';
 import { guide } from '../../games/koimere/content';
 import { provider } from '../../lib/seo';
 import { site } from '../../lib/site';
 
 const koimere = games.find((g) => g.slug === 'koimere')!;
-const statusLabel = (s: string) => (s === 'live' ? 'Live' : 'In development');
+const lamplight = games.find((g) => g.slug === 'lamplight')!;
 
+// Only rules that hold for every game listed here (Lamplight has hearts and optional videos).
 const rules = [
-  { n: 'No', title: 'lives, energy bars or timers', detail: 'You play for as long as you like. Nothing refills, nothing runs out, nothing nags you back.' },
   { n: 'No', title: 'loot boxes', detail: 'What you get is what the game says you get. Nothing is left to a paid roll of the dice.' },
-  { n: 'Your', title: 'pond waits for you', detail: 'Skip a week and everything is just as you left it. A calm game shouldn’t punish you for having a life.' },
-  { n: 'Real', title: 'frames, never mock-ups', detail: 'Everything on these pages is drawn by the game’s own code, in your browser, right now.' },
+  { n: 'Your', title: 'progress waits for you', detail: 'Skip a week and everything is just as you left it. A calm game shouldn’t punish you for having a life.' },
+  { n: 'Real', title: 'frames, never mock-ups', detail: 'Koimere’s pond is drawn by its own code, in your browser, right now. Lamplight’s pictures are its own renders and screenshots.' },
 ];
 
 const itemList = {
@@ -47,7 +49,7 @@ const itemList = {
 
 <BaseLayout
   title="Games"
-  description="IsmailApps makes calm games alongside its client software. Koimere, a koi pond puzzle game, is in development, and parts of it run right in your browser."
+  description="IsmailApps makes calm games alongside its client software: Lamplight, a light-up tile puzzle in closed testing on Android, and Koimere, a koi pond puzzle game in development that partly runs in your browser."
   headerTheme="pond"
 >
   <Fragment slot="head">
@@ -62,17 +64,18 @@ const itemList = {
       </h1>
       <div class="hero-foot">
         <p class="hero-lead">
-          Alongside client software, we design and build games of our own. The first, {koimere.name}, is in
-          development. The water behind this text is the game itself, running in your browser.
+          Alongside client software, we design and build games of our own. {lamplight.name} is in closed testing on
+          Android, and {koimere.name} is in development. The water behind this text is {koimere.name} itself, running in
+          your browser.
         </p>
         <div class="hero-actions">
           <Button href={`/games/${koimere.slug}`} arrow event="cta_click" location="games-hero">Explore {koimere.name}</Button>
-          <a href={`/games/${koimere.slug}#play`} class="link">Play the stream puzzle <span class="link-arrow" aria-hidden="true">→</span></a>
+          <a href="#lamplight-title" class="link">Meet {lamplight.name} <span class="link-arrow" aria-hidden="true">↓</span></a>
         </div>
       </div>
     </LivePond>
 
-    <!-- The game: one feature, because there is one game. Status first, stated plainly. -->
+    <!-- Koimere. Status first, stated plainly. -->
     <section class="section feature" aria-labelledby="feature-title">
       <div class="container-site feature-grid">
         <div class="feature-head">
@@ -107,6 +110,43 @@ const itemList = {
           ))
         }
       </ul>
+    </section>
+
+    <!-- Lamplight, in its own night room: the header follows (data-theme="lamp"). -->
+    <section class="lamp-room section lamp-feature" data-theme="lamp" aria-labelledby="lamplight-title">
+      <div class="lamp-backdrop" aria-hidden="true">
+        <Image src={lamplightScene} alt="" widths={[640, 1080]} sizes="(min-width: 56.25rem) 50vw, 100vw" loading="lazy" class="lamp-backdrop-img" />
+      </div>
+      <div class="container-site feature-grid lamp-grid">
+        <div class="feature-head">
+          <p class="t-mono feature-kicker">
+            <span class:list={['lamp-chip', lamplight.status === 'live' && 'is-live']}>{statusLabel(lamplight.status)}</span>
+            <span>{lamplight.platforms.join(' · ')}</span>
+          </p>
+          <h2 id="lamplight-title" class="feature-name">
+            <a href={`/games/${lamplight.slug}`}>{lamplight.name}<span class="lamp-dot" aria-hidden="true">.</span></a>
+          </h2>
+          <div class="feature-body lamp-body">
+            <p class="feature-tagline">{lamplight.tagline}.</p>
+            <p class="t-lead feature-summary">{lamplight.summary}</p>
+            <ul class="feature-demos lamp-demos" aria-label={`More about ${lamplight.name}`}>
+              <li><a href={`/games/${lamplight.slug}`}><span class="t-mono">01</span> How it plays <span aria-hidden="true">→</span></a></li>
+              <li><a href={`/games/${lamplight.slug}#city`}><span class="t-mono">02</span> The five places <span aria-hidden="true">→</span></a></li>
+              <li><a href={`/games/${lamplight.slug}#test`}><span class="t-mono">03</span> Join the closed test <span aria-hidden="true">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+        <figure class="lamp-phone">
+          <Image
+            src={lamplightPuzzle}
+            alt="A Lamplight puzzle: stone tiles with cables and lanterns, the power station and one lamp glowing amber."
+            widths={[320, 480, 640]}
+            sizes="(min-width: 56.25rem) 20rem, 70vw"
+            loading="lazy"
+            class="lamp-phone-img"
+          />
+        </figure>
+      </div>
     </section>
 
     <!-- House rules: how we design games. Set big; this is the page's reading moment. -->
@@ -370,6 +410,61 @@ const itemList = {
     }
     to {
       transform: translateX(3%) rotate(1.2deg);
+    }
+  }
+
+  /* ---------- Lamplight feature (night room) ---------- */
+  .lamp-feature {
+    position: relative;
+    overflow: hidden;
+    margin-block: clamp(2rem, 5vw, 4rem) 0;
+  }
+  /* Theatre Square, lit, faded into the night on the right. Decoration only. */
+  .lamp-backdrop {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: min(46rem, 100%);
+    opacity: 0.35;
+    mask-image: linear-gradient(to left, #000 20%, transparent 95%);
+    pointer-events: none;
+  }
+  .lamp-backdrop-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 60%;
+  }
+  .lamp-grid {
+    position: relative;
+  }
+  .lamp-body {
+    margin-top: 1.5rem;
+  }
+  .lamp-dot {
+    color: var(--color-amber);
+    text-shadow: 0 0 0.35em color-mix(in srgb, var(--color-amber) 70%, transparent);
+  }
+  .lamp-demos a:hover {
+    color: var(--color-amber);
+  }
+  .lamp-phone {
+    margin: 0 auto;
+    width: min(20rem, 72vw);
+  }
+  .lamp-phone-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 0.5rem solid var(--color-night-raised);
+    border-radius: 2rem;
+    box-shadow:
+      0 0 0 1px var(--color-night-rule),
+      0 2rem 5rem -1.5rem color-mix(in srgb, var(--color-amber) 30%, transparent);
+  }
+  @media (width >= 56.25rem) {
+    .lamp-grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: center;
     }
   }
 
